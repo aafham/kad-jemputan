@@ -81,6 +81,7 @@ body {
   border: 2px solid rgba(200,160,120,0.55);
   filter: blur(2px);
   animation: ringGlow 3s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes ringGlow {
@@ -140,6 +141,7 @@ body {
   text-align: center;
   box-shadow: 0 25px 45px rgba(0,0,0,.18);
   position: relative;
+  z-index: 30;
 }
 
 .card::before {
@@ -365,4 +367,13 @@ body {
 .rsvp-btn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+/* SAFETY FIX FOR iOS */
+.overlay,
+.curtain,
+.split-left,
+.split-right,
+.animation-layer {
+  pointer-events: none;
 }
