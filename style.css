@@ -344,6 +344,10 @@ body {
   padding: 14px 26px;
   margin: 12px auto;
 
+  position: relative;
+  z-index: 20;
+  pointer-events: auto;
+
   background: #c9a27d;
   color: #ffffff !important;
 
