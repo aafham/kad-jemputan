@@ -326,3 +326,39 @@ body {
     font-size: 28px;
   }
 }
+
+#openPage.opened .door {
+  pointer-events: none;
+}
+
+/* =====================
+   ACTION BUTTONS
+===================== */
+
+.save-date-btn,
+.rsvp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 14px 26px;
+  margin: 12px auto;
+
+  background: #c9a27d;
+  color: #ffffff !important;
+
+  border-radius: 999px;
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.save-date-btn:hover,
+.rsvp-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
