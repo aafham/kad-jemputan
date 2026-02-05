@@ -112,11 +112,13 @@ body {
    INVITATION WRAPPER
 ===================== */
 #invitation {
-  position: fixed;
+  position: absolute;   /* ⬅️ tukar dari fixed */
   inset: 0;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* ⬅️ bagi content turun */
+  overflow-y: auto;     /* ⬅️ AKTIFKAN SCROLL */
+  padding: 24px 0;
   opacity: 0;
   pointer-events: none;
   transition: opacity 1s ease;
@@ -136,12 +138,12 @@ body {
   background: #fffaf3;
   width: 100%;
   max-width: 420px;
-  padding: 22px 18px;
   border-radius: 28px;
   text-align: center;
   box-shadow: 0 25px 45px rgba(0,0,0,.18);
   position: relative;
   z-index: 30;
+  padding: 26px 20px;
 }
 
 .card::before {
@@ -263,7 +265,7 @@ body {
 .countdown {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 14px;
   margin-top: 10px;
 }
 
