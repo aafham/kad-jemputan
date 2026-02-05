@@ -93,6 +93,7 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 26px;
   letter-spacing: 2px;
+   color: #2b2b2b;   /* ← TAMBAH NI */
 }
 
 .open-and {
@@ -325,3 +326,4 @@ body {
     font-size: 28px;
   }
 }
+
