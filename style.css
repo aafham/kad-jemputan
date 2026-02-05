@@ -1,172 +1,47 @@
-body {
+/* RESET */
+* {
   margin: 0;
-  height: 100vh;
-  overflow: hidden;
-  background: #fff;
+  padding: 0;
+  box-sizing: border-box;
 }
+
 body {
   font-family: 'Montserrat', sans-serif;
+  background: #f6efe7;
+  height: 100vh;
+  overflow: hidden;
 }
 
-h1 {
-  font-family: 'Playfair Display', serif;
-  letter-spacing: 2px;
-}
-
-
-/* doors */
+/* ===== DOOR ===== */
 .door {
   position: fixed;
   top: 0;
   width: 50%;
   height: 100vh;
-  background: #eee;
-  transition: transform 1.5s ease;
-  z-index: 1;
+  background: #ffffff;
+  z-index: 3;
+  transition: transform 1.3s ease-in-out;
 }
 
-.left {
+.door.left {
   left: 0;
+  border-right: 1px solid #eee;
 }
 
-.right {
+.door.right {
   right: 0;
+  border-left: 1px solid #eee;
 }
 
-/* open state */
-body.open .left {
+#openPage.opened .door.left {
   transform: translateX(-100%);
 }
 
-body.open .right {
+#openPage.opened .door.right {
   transform: translateX(100%);
 }
 
-/* button */
-#btn {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  padding: 20px 30px;
-  font-size: 18px;
-}
-
-#invitation {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  background: #f6efe8;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1s ease;
-}
-
-#invitation {
-  z-index: 5;
-}
-
-.door {
-  z-index: 3;
-}
-
-
-body.open #invitation {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.card {
-  background: #fffaf3;
-  width: 100%;
-  max-width: 420px;
-  padding: 50px 28px;
-  border-radius: 28px;
-  text-align: center;
-  box-shadow: 0 25px 50px rgba(0,0,0,.18);
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 18px;
-  border-radius: 24px;
-  border: 1px solid rgba(200,160,120,0.45);
-  pointer-events: none;
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  inset: 20px;
-  border-radius: 25px;
-  border: 1px solid rgba(200,155,123,0.4);
-  pointer-events: none;
-}
-
-#btn {
-  z-index: 10;
-  transition: opacity 0.5s ease;
-}
-
-body {
-  font-family: 'Montserrat', sans-serif;
-}
-
-.card h1 {
-  font-size: 32px;
-  color: #2b2b2b;
-}
-
-.card .small {
-  font-size: 12px;
-  color: #7a7a7a;
-}
-
-.card p,
-.card div {
-  font-size: 16px;
-  color: #333;
-}
-
-
-.card .date {
-  margin-top: 8px;
-  letter-spacing: 2px;
-  color: #a07d5a;
-}
-
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-}
-
-body.open .reveal {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.bottom-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #e9dcc7;
-  display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
-}
-
-.bottom-bar a {
-  font-size: 20px;
-  text-decoration: none;
-}
-
+/* ===== OPEN BUTTON ===== */
 .open-circle {
   position: fixed;
   top: 50%;
@@ -180,84 +55,151 @@ body.open .reveal {
   cursor: pointer;
   z-index: 10;
 
-  box-shadow:
-    0 15px 35px rgba(0,0,0,0.2),
-    inset 0 0 0 1px rgba(0,0,0,0.08);
-
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
 
-  transition: transform 0.4s ease, opacity 0.4s ease;
+  transition: transform .4s ease, opacity .4s ease;
 }
 
-.open-circle:hover {
-  transform: translate(-50%, -50%) scale(1.05);
-}
-
-/* TEXT */
 .open-name {
   font-family: 'Playfair Display', serif;
   font-size: 20px;
   letter-spacing: 2px;
+  color: #2b2b2b;
 }
 
 .open-and {
   font-size: 14px;
-  opacity: 0.6;
+  opacity: .6;
 }
 
 .open-small {
   font-size: 10px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: .7;
 }
 
+/* ===== INVITATION ===== */
+#invitation {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+  padding: 20px;
+  z-index: 5;
+}
+
+#openPage.opened #invitation {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.card {
+  background: #fffaf3;
+  width: 100%;
+  max-width: 420px;
+  padding: 48px 26px;
+  border-radius: 28px;
+  text-align: center;
+  box-shadow: 0 25px 50px rgba(0,0,0,.18);
+  position: relative;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(200,160,120,.45);
+  pointer-events: none;
+}
+
+/* TEXT */
+.small {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #7a7a7a;
+}
+
+.card h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  margin: 10px 0;
+  color: #2b2b2b;
+}
+
+.date {
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: #8b6a4f;
+}
+
+.info p {
+  font-size: 16px;
+  margin-top: 6px;
+  color: #333;
+}
+
+.divider {
+  margin: 28px 0;
+  color: #c9a27e;
+}
+
+.doa {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #444;
+}
+
+.rsvp {
+  display: inline-block;
+  margin-top: 22px;
+  padding: 14px 30px;
+  background: #c9a27e;
+  color: #ffffff;
+  border-radius: 30px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+/* REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: all .8s ease;
+}
+
+#openPage.opened .reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* MOBILE */
 @media (max-width: 480px) {
   .open-circle {
     width: 150px;
     height: 150px;
   }
 
-  .open-name {
-    font-size: 18px;
-  }
-}
-
-@media (max-width: 480px) {
   .card {
-    max-width: 94vw;      /* hampir penuh skrin */
+    max-width: 94vw;
     padding: 40px 22px;
-    border-radius: 24px;
   }
-}
 
-@media (max-width: 480px) {
   .card h1 {
     font-size: 28px;
   }
 
-  .card p,
-  .card div {
+  .info p {
     font-size: 15px;
   }
-}
-
-body, p, h1, h2, h3, div, span {
-  color: #2b2b2b;
-}
-
-a {
-  color: #8b6a4f;
-  text-decoration: none;
-}
-
-#invitation {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px 0;
 }
