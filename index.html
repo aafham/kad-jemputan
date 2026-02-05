@@ -1,50 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="ms">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
-
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
-
   <meta charset="UTF-8">
-  <title>Kad Jemputan Kahwin</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Jemputan Perkahwinan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- FONT -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-<div class="door left"></div>
-<div class="door right"></div>
+<body id="openPage">
 
-<button id="btn" class="open-circle">
-  <div class="open-name">Afham</div>
-  <div class="open-and">&</div>
-  <div class="open-name">Pasangan</div>
-  <div class="open-small">open</div>
-</button>
+  <!-- DOOR -->
+  <div class="door left"></div>
+  <div class="door right"></div>
 
+  <!-- OPEN BUTTON -->
+  <button id="btn" class="open-circle">
+    <div class="open-name">Afham</div>
+    <div class="open-and">&</div>
+    <div class="open-name">Pasangan</div>
+    <div class="open-small">open</div>
+  </button>
 
-<div id="invitation">
-  <div class="card">
-  <p class="small reveal">Walimatul Urus</p>
-  <h1 class="reveal">Afham & Pasangan</h1>
+  <!-- INVITATION -->
+  <div id="invitation">
+    <div class="card">
 
-  <p class="date reveal">20 Ogos 2026</p>
+      <p class="small reveal">WALIMATUL URUS</p>
 
-  <div class="reveal" style="margin-top:20px;">
-    📍 Dewan Seri Indah<br>
-    ⏰ 11.00 pagi – 4.00 petang
+      <h1 class="reveal">Afham & Pasangan</h1>
+
+      <p class="date reveal">20 Ogos 2026</p>
+
+      <div class="info reveal">
+        <p>📍 Dewan Seri Indah</p>
+        <p>⏰ 11.00 pagi – 4.00 petang</p>
+      </div>
+
+      <div class="divider reveal">✿ ✿ ✿</div>
+
+      <p class="doa reveal">
+        Dengan penuh kesyukuran, kami menjemput<br>
+        Semoga kehadiran tuan/puan menceriakan majlis kami 🤍
+      </p>
+
+      <a class="rsvp reveal" href="#">
+        RSVP WhatsApp
+      </a>
+
+    </div>
   </div>
-</div>
-<div class="bottom-bar">
-  <a href="tel:0123456789">📞</a>
-  <a href="#">📍</a>
-  <a href="#">🎁</a>
-  <a href="#">💬</a>
-</div>
 
-
-</div>
-
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
