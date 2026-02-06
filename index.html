@@ -1,143 +1,287 @@
 <!DOCTYPE html>
 <html lang="ms">
-<head>
-  <meta charset="UTF-8">
-  <title>Jemputan Perkahwinan</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Jemputan Perkahwinan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- FONT -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="style.css">
-</head>
-
-<body id="openPage">
-
-  <!-- DOOR -->
-  <div class="door left"></div>
-  <div class="door right"></div>
-
-  <!-- OPEN BUTTON -->
-  <button id="btn" class="open-circle">
-    <div class="open-name">Afham</div>
-    <div class="open-and">&</div>
-    <div class="open-name">Pasangan</div>
-    <div class="open-small">open</div>
-  </button>
-
-  <!-- INVITATION -->
-  <div id="invitation">
-    <div class="card">
-
-      <p class="small reveal">WALIMATUL URUS</p>
-
-      <h1 class="reveal">Afham & Pasangan</h1>
-
-      <p class="date reveal">20 Ogos 2026</p>
-
-      <div class="info reveal">
-        <p>📍 Dewan Seri Indah</p>
-        <p>⏰ 11.00 pagi – 4.00 petang</p>
-      </div>
-
-      <section class="map-section reveal">
-
-<div class="map-preview reveal">
-  <a
-    href="https://www.google.com/maps/search/?api=1&query=Dewan+Seri+Indah"
-    target="_blank"
-    aria-label="Buka lokasi di Google Maps"
-  >
-    <img
-    src="assets/images/map-preview.jpg" 
-    alt="Peta lokasi Dewan Seri Indah"
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Montserrat:wght@300;400&display=swap"
+      rel="stylesheet"
     />
-    <div class="map-overlay">
-      📍 Lokasi Majlis
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body id="openPage">
+    <div class="door left"></div>
+    <div class="door right"></div>
+
+    <button id="btn" class="open-circle">
+      <div class="open-name">Afham</div>
+      <div class="open-and">&</div>
+      <div class="open-name">Pasangan</div>
+      <div class="open-small">BUKA</div>
+    </button>
+
+    <div id="invitation">
+      <div class="card">
+        <header class="hero reveal" style="--delay: 0.1s">
+          <div class="seal">A<span>&</span>P</div>
+          <p class="small">WALIMATUL URUS</p>
+          <h1>Afham <span class="amp">&</span> Pasangan</h1>
+          <p class="date">Khamis, 20 Ogos 2026</p>
+          <div class="chips">
+            <span class="chip">11.00 pagi - 4.00 petang</span>
+            <span class="chip">Dewan Seri Indah</span>
+          </div>
+        </header>
+
+        <section class="section quote-section reveal" style="--delay: 0.15s">
+          <h3>Doa</h3>
+          <p class="quote-text">
+            Semoga Allah memberkati majlis ini, melimpahkan rahmat dan
+            kebahagiaan buat kedua mempelai.
+          </p>
+        </section>
+
+        <section class="section family-section reveal" style="--delay: 0.2s">
+          <h3>Ahli Keluarga</h3>
+          <div class="family-grid">
+            <div class="family-card">
+              <p class="family-title">Pihak Pengantin Lelaki</p>
+              <p>Tn. [Nama Bapa]</p>
+              <p>Pn. [Nama Ibu]</p>
+            </div>
+            <div class="family-card">
+              <p class="family-title">Pihak Pengantin Perempuan</p>
+              <p>Tn. [Nama Bapa]</p>
+              <p>Pn. [Nama Ibu]</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="info-grid reveal" style="--delay: 0.25s">
+          <div class="info-item">Lokasi: Dewan Seri Indah</div>
+          <div class="info-item">Masa: 11.00 pagi - 4.00 petang</div>
+          <div class="info-item">Tema: Pastel / Formal</div>
+        </section>
+
+        <section class="map-section reveal" style="--delay: 0.3s">
+          <div class="map-preview">
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Dewan+Seri+Indah"
+              target="_blank"
+              aria-label="Buka lokasi di Google Maps"
+            >
+              <img
+                src="assets/images/map-preview.jpg"
+                alt="Peta lokasi Dewan Seri Indah"
+              />
+              <div class="map-overlay">Lokasi Majlis</div>
+            </a>
+          </div>
+          <div class="map-actions">
+            <a
+              class="map-btn"
+              href="https://www.google.com/maps/search/?api=1&query=Dewan+Seri+Indah"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Buka Google Maps
+            </a>
+            <a
+              class="map-btn"
+              href="https://waze.com/ul?q=Dewan%20Seri%20Indah&navigate=yes"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Buka Waze
+            </a>
+          </div>
+          <div class="qr-box">
+            <p class="qr-title">Imbas QR Lokasi</p>
+            <img
+              src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DDewan%2BSeri%2BIndah"
+              alt="Kod QR lokasi majlis"
+              loading="lazy"
+            />
+          </div>
+        </section>
+
+        <section class="calendar-section reveal" style="--delay: 0.4s">
+          <h3 class="calendar-title">Tarikh Majlis</h3>
+
+          <div class="mini-calendar">
+            <div class="calendar-header">Ogos 2026</div>
+
+            <div class="calendar-grid">
+              <div class="day">A</div>
+              <div class="day">I</div>
+              <div class="day">S</div>
+              <div class="day">R</div>
+              <div class="day">K</div>
+              <div class="day">J</div>
+              <div class="day">S</div>
+
+              <div class="date empty"></div>
+              <div class="date empty"></div>
+              <div class="date empty"></div>
+
+              <div class="date event">20</div>
+            </div>
+          </div>
+
+          <section class="countdown-section reveal" style="--delay: 0.5s">
+            <h3 class="countdown-title">Menuju Hari Bahagia</h3>
+
+            <div class="countdown">
+              <div class="time-box">
+                <span id="days">0</span>
+                <small>Hari</small>
+              </div>
+              <div class="time-box">
+                <span id="hours">0</span>
+                <small>Jam</small>
+              </div>
+              <div class="time-box">
+                <span id="minutes">0</span>
+                <small>Minit</small>
+              </div>
+              <div class="time-box">
+                <span id="seconds">0</span>
+                <small>Saat</small>
+              </div>
+            </div>
+            <p id="countdownStatus" class="countdown-status">
+              Persiapan menuju hari bahagia sedang berjalan.
+            </p>
+          </section>
+        </section>
+
+        <section class="section reveal" style="--delay: 0.6s">
+          <h3>Aturcara Ringkas</h3>
+          <div class="schedule">
+            <div class="slot"><span>11:00</span><span>Ketibaan tetamu</span></div>
+            <div class="slot"><span>11:30</span><span>Akad / sesi doa</span></div>
+            <div class="slot"><span>12:30</span><span>Jamuan bermula</span></div>
+            <div class="slot"><span>2:30</span><span>Sesi bergambar keluarga</span></div>
+            <div class="slot"><span>3:30</span><span>Doa & bersurai</span></div>
+          </div>
+        </section>
+
+        <section class="section reveal" style="--delay: 0.7s">
+          <h3>Dress Code</h3>
+          <p class="section-subtitle">Tema warna tetamu: Pastel / Neutral.</p>
+          <div class="swatches">
+            <span class="swatch" style="--swatch: #f2d5c4">Peach</span>
+            <span class="swatch" style="--swatch: #e8dcc8">Beige</span>
+            <span class="swatch" style="--swatch: #d9e5d5">Sage</span>
+            <span class="swatch" style="--swatch: #d2ddec">Dusty Blue</span>
+          </div>
+        </section>
+
+        <section class="section gallery-section reveal" style="--delay: 0.8s">
+          <h3>Galeri Mini</h3>
+          <div class="gallery-grid">
+            <figure class="gallery-item">
+              <div class="photo ph1"></div>
+              <figcaption>Momen 1</figcaption>
+            </figure>
+            <figure class="gallery-item">
+              <div class="photo ph2"></div>
+              <figcaption>Momen 2</figcaption>
+            </figure>
+            <figure class="gallery-item">
+              <div class="photo ph3"></div>
+              <figcaption>Momen 3</figcaption>
+            </figure>
+            <figure class="gallery-item">
+              <div class="photo ph4"></div>
+              <figcaption>Momen 4</figcaption>
+            </figure>
+            <figure class="gallery-item">
+              <div class="photo ph5"></div>
+              <figcaption>Momen 5</figcaption>
+            </figure>
+            <figure class="gallery-item">
+              <div class="photo ph6"></div>
+              <figcaption>Momen 6</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <div class="divider reveal" style="--delay: 0.85s">* * *</div>
+
+        <p class="doa reveal" style="--delay: 0.9s">
+          Dengan penuh kesyukuran, kami menjemput<br />
+          Semoga kehadiran tuan/puan menceriakan majlis kami.
+        </p>
+
+        <section class="section rsvp-section reveal" style="--delay: 1s">
+          <h3>RSVP Ringkas</h3>
+          <form id="rsvpForm" class="rsvp-form">
+            <label>
+              Nama
+              <input
+                type="text"
+                id="guestName"
+                name="guestName"
+                placeholder="Contoh: Ahmad"
+                required
+              />
+            </label>
+            <label>
+              Jumlah Hadir
+              <select id="guestCount" name="guestCount" required>
+                <option value="1">1 orang</option>
+                <option value="2">2 orang</option>
+                <option value="3">3 orang</option>
+                <option value="4">4 orang</option>
+                <option value="5+">5+ orang</option>
+              </select>
+            </label>
+            <label>
+              Doa / Ucapan
+              <textarea
+                id="guestWishes"
+                name="guestWishes"
+                rows="3"
+                placeholder="Tulis ucapan ringkas..."
+              ></textarea>
+            </label>
+            <button type="submit" class="rsvp-btn full-width">
+              Hantar RSVP ke WhatsApp
+            </button>
+          </form>
+        </section>
+
+        <div class="cta reveal" style="--delay: 1.05s">
+          <a
+            href="https://wa.me/60134747876?text=Assalamualaikum,%20saya%20ingin%20RSVP%20majlis%20Walimatul%20Urus%20Afham%20%26%20Pasangan."
+            target="_blank"
+            class="rsvp-btn"
+          >
+            WhatsApp Terus
+          </a>
+          <a
+            href="./assets/calendar/walimatul-urus.ics"
+            class="save-date-btn secondary"
+            download
+          >
+            Save The Date
+          </a>
+          <button type="button" class="save-date-btn secondary" id="audioToggle">
+            Audio: OFF
+          </button>
+        </div>
+      </div>
     </div>
-  </a>
-</div>
 
-</section>
+    <audio id="bgAudio" loop preload="none">
+      <source src="assets/audio/majlis-theme.mp3" type="audio/mpeg" />
+    </audio>
 
-
-       <section class="calendar-section reveal">
-  <h3 class="calendar-title">Tarikh Majlis</h3>
-
-  <div class="mini-calendar">
-    <div class="calendar-header">
-      Ogos 2026
-    </div>
-
-    <div class="calendar-grid">
-      <div class="day">A</div>
-      <div class="day">I</div>
-      <div class="day">S</div>
-      <div class="day">R</div>
-      <div class="day">K</div>
-      <div class="day">J</div>
-      <div class="day">S</div>
-
-      <!-- kosong sebelum tarikh -->
-      <div class="date empty"></div>
-      <div class="date empty"></div>
-      <div class="date empty"></div>
-
-      <!-- TARIKH MAJLIS -->
-      <div class="date event">20</div>
-    </div>
-  </div>
-
-  <section class="countdown-section reveal">
-  <h3 class="countdown-title">Menuju Hari Bahagia</h3>
-
-  <div class="countdown">
-    <div class="time-box">
-      <span id="days">0</span>
-      <small>Hari</small>
-    </div>
-    <div class="time-box">
-      <span id="hours">0</span>
-      <small>Jam</small>
-    </div>
-    <div class="time-box">
-      <span id="minutes">0</span>
-      <small>Minit</small>
-    </div>
-    <div class="time-box">
-      <span id="seconds">0</span>
-      <small>Saat</small>
-    </div>
-  </div>
-</section>
-
-<a
-  href="./assets/calendar/walimatul-urus.ics"
-  class="save-date-btn reveal"
-  download
->
-  📅 Save The Date
-</a>
-
-
-</section>
-
-      <div class="divider reveal">✿ ✿ ✿</div>
-
-      <p class="doa reveal">
-        Dengan penuh kesyukuran, kami menjemput<br>
-        Semoga kehadiran tuan/puan menceriakan majlis kami 🤍
-      </p>
-<a
-  href="https://wa.me/60134747876?text=Assalamualaikum,%20saya%20ingin%20RSVP%20majlis%20Walimatul%20Urus%20Afham%20%26%20Pasangan."
-  target="_blank"
-  class="rsvp-btn reveal">
-  💬 RSVP WhatsApp
-</a>
-
-    </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
