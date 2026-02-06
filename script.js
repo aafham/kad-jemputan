@@ -4,12 +4,45 @@ const countdownStatus = document.getElementById("countdownStatus");
 const audioToggle = document.getElementById("audioToggle");
 const bgAudio = document.getElementById("bgAudio");
 const rsvpForm = document.getElementById("rsvpForm");
+const shareInvite = document.getElementById("shareInvite");
+const audioIcon = audioToggle ? audioToggle.querySelector(".fab-icon") : null;
+const shareIcon = shareInvite ? shareInvite.querySelector(".fab-icon") : null;
+
+const setAudioVisual = state => {
+  if (!audioToggle) {
+    return;
+  }
+
+  const labelMap = {
+    on: "Audio ON",
+    off: "Audio OFF",
+    blocked: "Audio blocked oleh browser",
+    missing: "Fail audio tiada",
+  };
+
+  audioToggle.dataset.state = state;
+  audioToggle.title = labelMap[state] || "Toggle audio";
+  audioToggle.setAttribute("aria-label", labelMap[state] || "Toggle audio");
+
+  if (audioIcon) {
+    audioIcon.textContent = state === "on" ? "♫" : "♪";
+  }
+};
 
 if (btn) {
-  btn.onclick = () => {
+  btn.onclick = async () => {
     document.body.classList.add("opened");
     btn.style.opacity = "0";
     btn.style.pointerEvents = "none";
+
+    if (bgAudio) {
+      try {
+        await bgAudio.play();
+        setAudioVisual("on");
+      } catch (error) {
+        setAudioVisual("blocked");
+      }
+    }
   };
 }
 
@@ -50,22 +83,22 @@ const toggleAudio = async () => {
   }
 
   if (!bgAudio.currentSrc) {
-    audioToggle.textContent = "Audio: Tiada Fail";
+    setAudioVisual("missing");
     return;
   }
 
   if (bgAudio.paused) {
     try {
       await bgAudio.play();
-      audioToggle.textContent = "Audio: ON";
+      setAudioVisual("on");
     } catch (error) {
-      audioToggle.textContent = "Audio: Blocked";
+      setAudioVisual("blocked");
     }
     return;
   }
 
   bgAudio.pause();
-  audioToggle.textContent = "Audio: OFF";
+  setAudioVisual("off");
 };
 
 if (audioToggle) {
@@ -74,9 +107,65 @@ if (audioToggle) {
 
 if (bgAudio) {
   bgAudio.addEventListener("error", () => {
-    if (audioToggle) {
-      audioToggle.textContent = "Audio: Tiada Fail";
+    setAudioVisual("missing");
+  });
+}
+
+const shareMessage =
+  "Jemputan Walimatul Urus Afham & Pasangan pada 20 Ogos 2026 di Dewan Seri Indah.";
+
+const fallbackShare = async () => {
+  const shareUrl = window.location.href;
+  const textToCopy = shareMessage + " " + shareUrl;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(textToCopy);
+      if (shareInvite) {
+        shareInvite.title = "Link disalin";
+        shareInvite.setAttribute("aria-label", "Link disalin");
+        if (shareIcon) {
+          shareIcon.textContent = "✓";
+        }
+        setTimeout(() => {
+          shareInvite.title = "Share jemputan";
+          shareInvite.setAttribute("aria-label", "Share jemputan");
+          if (shareIcon) {
+            shareIcon.textContent = "⇪";
+          }
+        }, 1500);
+      }
+      return;
     }
+  } catch (error) {
+    // Fallback continues to WhatsApp URL below.
+  }
+
+  const waUrl =
+    "https://wa.me/?text=" + encodeURIComponent(textToCopy);
+  window.open(waUrl, "_blank", "noopener");
+};
+
+if (shareInvite) {
+  shareInvite.addEventListener("click", async () => {
+    const shareData = {
+      title: "Jemputan Walimatul Urus Afham & Pasangan",
+      text: shareMessage,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (error) {
+        if (error && error.name === "AbortError") {
+          return;
+        }
+      }
+    }
+
+    await fallbackShare();
   });
 }
 
@@ -104,3 +193,4 @@ if (rsvpForm) {
 
 updateCountdown();
 setInterval(updateCountdown, 1000);
+setAudioVisual("off");

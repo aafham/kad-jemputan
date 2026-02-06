@@ -704,6 +704,34 @@ body::before {
   gap: 6px;
 }
 
+.floating-actions {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 80;
+}
+
+.fab-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 12px 24px rgba(41, 28, 15, 0.2);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.fab-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
 /* =====================
    REVEAL EFFECT
 ===================== */
@@ -742,6 +770,11 @@ body::before {
 
   .countdown {
     grid-template-columns: repeat(2, minmax(70px, 1fr));
+  }
+
+  .floating-actions {
+    right: 10px;
+    bottom: 10px;
   }
 }
 
