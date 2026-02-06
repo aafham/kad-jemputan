@@ -8,6 +8,10 @@ const shareInvite = document.getElementById("shareInvite");
 const audioIcon = audioToggle ? audioToggle.querySelector(".fab-icon") : null;
 const shareIcon = shareInvite ? shareInvite.querySelector(".fab-icon") : null;
 
+if (bgAudio) {
+  bgAudio.loop = true;
+}
+
 const setAudioVisual = state => {
   if (!audioToggle) {
     return;
