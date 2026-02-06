@@ -167,6 +167,54 @@ body::before {
   pointer-events: auto;
 }
 
+.flower-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 6;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+#openPage.opened .flower-layer {
+  opacity: 1;
+}
+
+.petal {
+  position: absolute;
+  top: -12%;
+  left: 0;
+  color: rgba(201, 162, 125, 0.65);
+  font-size: 16px;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(110, 72, 44, 0.25);
+  animation-name: fallFlower;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes fallFlower {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate3d(calc(var(--drift, 0px) * 0.4), 25vh, 0)
+      rotate(120deg);
+  }
+  50% {
+    transform: translate3d(var(--drift, 0px), 50vh, 0) rotate(240deg);
+  }
+  75% {
+    transform: translate3d(calc(var(--drift, 0px) * 0.4), 75vh, 0)
+      rotate(300deg);
+  }
+  100% {
+    transform: translate3d(0, 115vh, 0) rotate(360deg);
+  }
+}
+
 /* =====================
    CARD
 ===================== */
@@ -581,36 +629,15 @@ body::before {
   margin: 0;
 }
 
-.photo {
+.gallery-photo {
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 12px;
   border: 1px solid rgba(185, 146, 110, 0.25);
   box-shadow: 0 8px 20px rgba(41, 28, 15, 0.1);
-}
-
-.ph1 {
-  background: linear-gradient(145deg, #f0d8c1, #d9c6b3);
-}
-
-.ph2 {
-  background: linear-gradient(145deg, #e9d8c6, #cab6a2);
-}
-
-.ph3 {
-  background: linear-gradient(145deg, #dfd5c8, #c7beaf);
-}
-
-.ph4 {
-  background: linear-gradient(145deg, #d4d9cf, #bfc8bc);
-}
-
-.ph5 {
-  background: linear-gradient(145deg, #d6dde8, #b8c3d4);
-}
-
-.ph6 {
-  background: linear-gradient(145deg, #ead7db, #c8b0b6);
+  object-fit: cover;
+  display: block;
+  background: #f1e4d6;
 }
 
 .gallery-item figcaption {
@@ -728,8 +755,32 @@ body::before {
 }
 
 .fab-icon {
-  font-size: 20px;
-  line-height: 1;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+}
+
+.fab-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.fab-btn.is-on {
+  background: #f7e8d8;
+}
+
+.icon-check {
+  display: none;
+}
+
+.fab-btn.is-copied .icon-share {
+  display: none;
+}
+
+.fab-btn.is-copied .icon-check {
+  display: block;
 }
 
 /* =====================

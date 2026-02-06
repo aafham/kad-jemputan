@@ -40,30 +40,31 @@
   <body id="openPage">
     <div class="door left"></div>
     <div class="door right"></div>
+    <div id="flowerLayer" class="flower-layer" aria-hidden="true"></div>
 
     <button id="btn" class="open-circle">
-      <div class="open-name">Afham</div>
+      <div class="open-name" id="openGroom">Afham</div>
       <div class="open-and">&</div>
-      <div class="open-name">Pasangan</div>
+      <div class="open-name" id="openBride">Pasangan</div>
       <div class="open-small">BUKA</div>
     </button>
 
     <div id="invitation">
       <div class="card">
         <header class="hero reveal" style="--delay: 0.1s">
-          <div class="seal">A<span>&</span>P</div>
-          <p class="small">WALIMATUL URUS</p>
-          <h1>Afham <span class="amp">&</span> Pasangan</h1>
-          <p class="date">Khamis, 20 Ogos 2026</p>
+          <div class="seal" id="sealText">A&P</div>
+          <p class="small" id="eventTitle">WALIMATUL URUS</p>
+          <h1><span id="heroGroom">Afham</span> <span class="amp">&</span> <span id="heroBride">Pasangan</span></h1>
+          <p class="date" id="eventDateText">Khamis, 20 Ogos 2026</p>
           <div class="chips">
-            <span class="chip">11.00 pagi - 4.00 petang</span>
-            <span class="chip">Dewan Seri Indah</span>
+            <span class="chip" id="chipTime">11.00 pagi - 4.00 petang</span>
+            <span class="chip" id="chipVenue">Dewan Seri Indah</span>
           </div>
         </header>
 
         <section class="section quote-section reveal" style="--delay: 0.15s">
           <h3>Doa</h3>
-          <p class="quote-text">
+          <p class="quote-text" id="quoteText">
             Semoga Allah memberkati majlis ini, melimpahkan rahmat dan
             kebahagiaan buat kedua mempelai.
           </p>
@@ -73,63 +74,42 @@
           <h3>Ahli Keluarga</h3>
           <div class="family-grid">
             <div class="family-card">
-              <p class="family-title">Pihak Pengantin Lelaki</p>
-              <p>Tn. [Nama Bapa]</p>
-              <p>Pn. [Nama Ibu]</p>
+              <p class="family-title" id="groomFamilyLabel">Pihak Pengantin Lelaki</p>
+              <p id="groomFather">Tn. [Nama Bapa]</p>
+              <p id="groomMother">Pn. [Nama Ibu]</p>
             </div>
             <div class="family-card">
-              <p class="family-title">Pihak Pengantin Perempuan</p>
-              <p>Tn. [Nama Bapa]</p>
-              <p>Pn. [Nama Ibu]</p>
+              <p class="family-title" id="brideFamilyLabel">Pihak Pengantin Perempuan</p>
+              <p id="brideFather">Tn. [Nama Bapa]</p>
+              <p id="brideMother">Pn. [Nama Ibu]</p>
             </div>
           </div>
         </section>
 
         <section class="info-grid reveal" style="--delay: 0.25s">
-          <div class="info-item">Lokasi: Dewan Seri Indah</div>
-          <div class="info-item">Masa: 11.00 pagi - 4.00 petang</div>
+          <div class="info-item" id="infoVenue">Lokasi: Dewan Seri Indah</div>
+          <div class="info-item" id="infoTime">Masa: 11.00 pagi - 4.00 petang</div>
           <div class="info-item">Tema: Pastel / Formal</div>
         </section>
 
         <section class="map-section reveal" style="--delay: 0.3s">
           <div class="map-preview">
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Dewan+Seri+Indah"
-              target="_blank"
-              aria-label="Buka lokasi di Google Maps"
-            >
-              <img
-                src="assets/images/map-preview.jpg"
-                alt="Peta lokasi Dewan Seri Indah"
-              />
+            <a id="googleMapsLink" href="https://www.google.com/maps/search/?api=1&query=Dewan+Seri+Indah" target="_blank" aria-label="Buka lokasi di Google Maps">
+              <img id="mapImage" src="assets/images/map-preview.jpg" alt="Peta lokasi Dewan Seri Indah" />
               <div class="map-overlay">Lokasi Majlis</div>
             </a>
           </div>
           <div class="map-actions">
-            <a
-              class="map-btn"
-              href="https://www.google.com/maps/search/?api=1&query=Dewan+Seri+Indah"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a class="map-btn" id="googleMapsBtn" href="https://www.google.com/maps/search/?api=1&query=Dewan+Seri+Indah" target="_blank" rel="noopener noreferrer">
               Buka Google Maps
             </a>
-            <a
-              class="map-btn"
-              href="https://waze.com/ul?q=Dewan%20Seri%20Indah&navigate=yes"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a class="map-btn" id="wazeBtn" href="https://waze.com/ul?q=Dewan%20Seri%20Indah&navigate=yes" target="_blank" rel="noopener noreferrer">
               Buka Waze
             </a>
           </div>
           <div class="qr-box">
             <p class="qr-title">Imbas QR Lokasi</p>
-            <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DDewan%2BSeri%2BIndah"
-              alt="Kod QR lokasi majlis"
-              loading="lazy"
-            />
+            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fsearch%2F%3Fapi%3D1%26query%3DDewan%2BSeri%2BIndah" alt="Kod QR lokasi majlis" loading="lazy" />
           </div>
         </section>
 
@@ -196,8 +176,8 @@
 
         <section class="section reveal" style="--delay: 0.7s">
           <h3>Dress Code</h3>
-          <p class="section-subtitle">Tema warna tetamu: Pastel / Neutral.</p>
-          <div class="swatches">
+          <p class="section-subtitle" id="dressCodeText">Tema warna tetamu: Pastel / Neutral.</p>
+          <div class="swatches" id="dressSwatches">
             <span class="swatch" style="--swatch: #f2d5c4">Peach</span>
             <span class="swatch" style="--swatch: #e8dcc8">Beige</span>
             <span class="swatch" style="--swatch: #d9e5d5">Sage</span>
@@ -207,32 +187,7 @@
 
         <section class="section gallery-section reveal" style="--delay: 0.8s">
           <h3>Galeri Mini</h3>
-          <div class="gallery-grid">
-            <figure class="gallery-item">
-              <div class="photo ph1"></div>
-              <figcaption>Momen 1</figcaption>
-            </figure>
-            <figure class="gallery-item">
-              <div class="photo ph2"></div>
-              <figcaption>Momen 2</figcaption>
-            </figure>
-            <figure class="gallery-item">
-              <div class="photo ph3"></div>
-              <figcaption>Momen 3</figcaption>
-            </figure>
-            <figure class="gallery-item">
-              <div class="photo ph4"></div>
-              <figcaption>Momen 4</figcaption>
-            </figure>
-            <figure class="gallery-item">
-              <div class="photo ph5"></div>
-              <figcaption>Momen 5</figcaption>
-            </figure>
-            <figure class="gallery-item">
-              <div class="photo ph6"></div>
-              <figcaption>Momen 6</figcaption>
-            </figure>
-          </div>
+          <div class="gallery-grid" id="galleryGrid"></div>
         </section>
 
         <div class="divider reveal" style="--delay: 0.85s">* * *</div>
@@ -247,13 +202,7 @@
           <form id="rsvpForm" class="rsvp-form">
             <label>
               Nama
-              <input
-                type="text"
-                id="guestName"
-                name="guestName"
-                placeholder="Contoh: Ahmad"
-                required
-              />
+              <input type="text" id="guestName" name="guestName" placeholder="Contoh: Ahmad" required />
             </label>
             <label>
               Jumlah Hadir
@@ -267,32 +216,17 @@
             </label>
             <label>
               Doa / Ucapan
-              <textarea
-                id="guestWishes"
-                name="guestWishes"
-                rows="3"
-                placeholder="Tulis ucapan ringkas..."
-              ></textarea>
+              <textarea id="guestWishes" name="guestWishes" rows="3" placeholder="Tulis ucapan ringkas..."></textarea>
             </label>
-            <button type="submit" class="rsvp-btn full-width">
-              Hantar RSVP ke WhatsApp
-            </button>
+            <button type="submit" class="rsvp-btn full-width">Hantar RSVP ke WhatsApp</button>
           </form>
         </section>
 
         <div class="cta reveal" style="--delay: 1.05s">
-          <a
-            href="https://wa.me/60134747876?text=Assalamualaikum,%20saya%20ingin%20RSVP%20majlis%20Walimatul%20Urus%20Afham%20%26%20Pasangan."
-            target="_blank"
-            class="rsvp-btn"
-          >
+          <a id="whatsappDirectBtn" href="https://wa.me/60134747876?text=Assalamualaikum,%20saya%20ingin%20RSVP%20majlis%20Walimatul%20Urus%20Afham%20%26%20Pasangan." target="_blank" class="rsvp-btn">
             WhatsApp Terus
           </a>
-          <a
-            href="./assets/calendar/walimatul-urus.ics"
-            class="save-date-btn secondary"
-            download
-          >
+          <a href="./assets/calendar/walimatul-urus.ics" class="save-date-btn secondary" download>
             Save The Date
           </a>
         </div>
@@ -301,17 +235,42 @@
 
     <div class="floating-actions">
       <button type="button" class="fab-btn" id="audioToggle" aria-label="Toggle audio">
-        <span class="fab-icon" aria-hidden="true">♪</span>
+        <span class="fab-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path
+              d="M9 18a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Zm8-3a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM11 4v15.2a4.5 4.5 0 1 1-2-3.8V5.64l12-2.4V16.2a4.5 4.5 0 1 1-2-3.8V5.68L11 7.28V4Z"
+              fill="currentColor"
+            />
+          </svg>
+        </span>
       </button>
       <button type="button" class="fab-btn" id="shareInvite" aria-label="Share jemputan">
-        <span class="fab-icon" aria-hidden="true">⇪</span>
+        <span class="fab-icon" aria-hidden="true">
+          <svg class="icon-share" viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path
+              d="M18 16a3 3 0 0 0-2.4 1.2l-6.6-3.3a3.2 3.2 0 0 0 0-1.8l6.6-3.3A3 3 0 1 0 15 7a3 3 0 0 0 .1.7L8.5 11a3 3 0 1 0 0 2l6.6 3.3A3 3 0 1 0 18 16Z"
+              fill="currentColor"
+            />
+          </svg>
+          <svg class="icon-check" viewBox="0 0 24 24" role="img" aria-hidden="true">
+            <path
+              d="M5 12.5 10 17l9-10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
       </button>
     </div>
 
-    <audio id="bgAudio" loop preload="none">
+    <audio id="bgAudio" loop preload="auto" playsinline webkit-playsinline="true">
       <source src="assets/audio/majlis-theme.mp3" type="audio/mpeg" />
     </audio>
 
+    <script src="config.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
