@@ -112,26 +112,13 @@
           <div class="info-item" id="infoDressCode" hidden></div>
         </section>
 
-        <section class="map-section reveal" aria-label="Lokasi majlis" style="--delay: 0.3s">
-          <div class="map-preview" id="mapPreview">
-            <iframe id="mapEmbed" title="Peta lokasi majlis" src="https://www.google.com/maps?q=3.0653862,101.4074413&amp;z=17&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-          </div>
-          <a class="map-pin-link" id="googleMapsLink" href="https://maps.app.goo.gl/N7knrqnGxRjdZbNn9" target="_blank" rel="noopener noreferrer" aria-label="Buka pin lokasi di Google Maps (tab baharu)">📍 Pin lokasi majlis</a>
-          <div class="map-actions">
-            <a class="map-btn" id="googleMapsBtn" href="https://maps.app.goo.gl/N7knrqnGxRjdZbNn9" target="_blank" rel="noopener noreferrer">
-              Buka Google Maps
-            </a>
-            <a class="map-btn" id="wazeBtn" href="https://waze.com/ul/hw2817w493" target="_blank" rel="noopener noreferrer">
-              Buka Waze
-            </a>
-          </div>
-          <div class="qr-box">
-            <p class="qr-title">Imbas QR Lokasi</p>
-            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=https%3A%2F%2Fmaps.app.goo.gl%2FN7knrqnGxRjdZbNn9" alt="Kod QR lokasi majlis" loading="lazy" />
-          </div>
+        <section class="section reveal" id="dressCodeSection" aria-labelledby="dressCodeHeading" style="--delay: 0.3s" hidden>
+          <h2 id="dressCodeHeading">Dress Code</h2>
+          <p class="section-subtitle" id="dressCodeText"></p>
+          <div class="swatches" id="dressSwatches"></div>
         </section>
 
-        <section class="calendar-section reveal" aria-labelledby="calendarTitle" style="--delay: 0.4s">
+        <section class="calendar-section reveal" aria-labelledby="calendarTitle" style="--delay: 0.35s">
           <h2 class="calendar-title" id="calendarTitle">Tarikh Majlis</h2>
 
           <div class="mini-calendar" aria-label="Kalendar majlis">
@@ -139,7 +126,7 @@
             <div class="calendar-grid" id="calendarGrid" aria-label="Kalendar Oktober 2026"></div>
           </div>
 
-          <section class="countdown-section reveal" aria-labelledby="countdownTitle" style="--delay: 0.5s">
+          <section class="countdown-section reveal" aria-labelledby="countdownTitle" style="--delay: 0.4s">
             <h3 class="countdown-title" id="countdownTitle">Menghitung Hari</h3>
 
             <div class="countdown">
@@ -166,12 +153,84 @@
           </section>
         </section>
 
-        <section class="section reveal" aria-labelledby="scheduleHeading" style="--delay: 0.6s">
+        <div class="cta reveal" style="--delay: 0.45s">
+          <a href="./assets/calendar/walimatul-urus.ics" class="save-date-btn secondary" download>
+            Save The Date
+          </a>
+        </div>
+
+        <section class="section reveal" aria-labelledby="scheduleHeading" style="--delay: 0.5s">
           <h2 id="scheduleHeading">Aturcara Ringkas</h2>
           <div class="schedule" id="scheduleList" aria-label="Atur cara majlis"></div>
         </section>
 
-        <section class="section contact-section reveal" id="contactSection" aria-labelledby="contactHeading" style="--delay: 0.7s">
+        <section class="map-section reveal" aria-label="Lokasi majlis" style="--delay: 0.55s">
+          <div class="map-preview" id="mapPreview">
+            <iframe id="mapEmbed" title="Peta lokasi majlis" src="https://www.google.com/maps?q=3.0653862,101.4074413&amp;z=17&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+          <a class="map-pin-link" id="googleMapsLink" href="https://maps.app.goo.gl/N7knrqnGxRjdZbNn9" target="_blank" rel="noopener noreferrer" aria-label="Buka pin lokasi di Google Maps (tab baharu)">📍 Pin lokasi majlis</a>
+          <div class="map-actions">
+            <a class="map-btn" id="googleMapsBtn" href="https://maps.app.goo.gl/N7knrqnGxRjdZbNn9" target="_blank" rel="noopener noreferrer">
+              Buka Google Maps
+            </a>
+            <a class="map-btn" id="wazeBtn" href="https://waze.com/ul/hw2817w493" target="_blank" rel="noopener noreferrer">
+              Buka Waze
+            </a>
+          </div>
+          <div class="qr-box">
+            <p class="qr-title">Imbas QR Lokasi</p>
+            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=https%3A%2F%2Fmaps.app.goo.gl%2FN7knrqnGxRjdZbNn9" alt="Kod QR lokasi majlis" loading="lazy" />
+          </div>
+        </section>
+
+        <section class="section rsvp-section reveal" id="rsvpSection" aria-labelledby="rsvpHeading" style="--delay: 0.6s">
+          <h2 id="rsvpHeading">RSVP &amp; Ucapan</h2>
+          <p class="section-subtitle">Sahkan kehadiran dan titipkan doa buat pengantin.</p>
+          <div class="attendance-summary" id="attendanceSummary" aria-live="polite" aria-busy="true">
+            <div class="attendance-stat">
+              <span class="attendance-number" id="attendingCount">—</span>
+              <span>Hadir</span>
+            </div>
+            <div class="attendance-stat">
+              <span class="attendance-number" id="notAttendingCount">—</span>
+              <span>Tidak hadir</span>
+            </div>
+            <div class="attendance-stat">
+              <span class="attendance-number" id="guestTotalCount">—</span>
+              <span>Jumlah tetamu</span>
+            </div>
+          </div>
+          <p class="rsvp-data-status" id="rsvpDataStatus" role="status" aria-live="polite">Memuatkan kehadiran dan ucapan…</p>
+          <button class="rsvp-btn full-width" id="openRsvpDialog" type="button">Isi RSVP &amp; Ucapan</button>
+          <button class="text-action" id="reloadRsvpData" type="button" hidden>Cuba semula</button>
+        </section>
+
+        <section class="section wishes-section reveal" id="wishesSection" aria-labelledby="wishesHeading" style="--delay: 0.65s">
+          <h2 id="wishesHeading">Ucapan &amp; Doa</h2>
+          <p class="section-subtitle">Doa dan ucapan daripada tetamu buat Nabil &amp; Hanis.</p>
+          <div class="wishes-list" id="wishesList" aria-live="polite" aria-busy="true"></div>
+        </section>
+
+        <section class="section gallery-section reveal" id="gallerySection" aria-labelledby="galleryHeading" style="--delay: 0.7s" hidden>
+          <h2 id="galleryHeading">Galeri Momen Indah</h2>
+          <p class="section-subtitle">Detik istimewa Nabil &amp; Hanis</p>
+          <div class="gallery-carousel" aria-roledescription="carousel" aria-label="Galeri momen indah">
+            <p class="visually-hidden" id="galleryInstructions">Gunakan butang atau anak panah kiri dan kanan untuk melihat foto lain. Anda juga boleh swipe pada galeri.</p>
+            <div class="gallery-grid" id="galleryGrid" tabindex="0" aria-describedby="galleryInstructions"></div>
+            <div class="gallery-navigation" id="galleryControls" aria-label="Kawalan galeri">
+              <button class="gallery-control" id="galleryPrev" type="button" aria-label="Lihat foto sebelumnya">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 5-7 7 7 7" /></svg>
+              </button>
+              <p class="gallery-index" id="galleryIndex" aria-live="polite" aria-atomic="true">1 / 1</p>
+              <button class="gallery-control" id="galleryNext" type="button" aria-label="Lihat foto seterusnya">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 5 7 7-7 7" /></svg>
+              </button>
+            </div>
+            <p class="gallery-swipe-hint" aria-hidden="true">Swipe atau tekan anak panah untuk melihat foto</p>
+          </div>
+        </section>
+
+        <section class="section contact-section reveal" id="contactSection" aria-labelledby="contactHeading" style="--delay: 0.75s">
           <h2 id="contactHeading">Hubungi Kami</h2>
           <p class="section-subtitle">Tekan ikon untuk WhatsApp atau panggil kami.</p>
           <div class="contact-list" id="contactList">
@@ -195,70 +254,12 @@
           </div>
         </section>
 
-        <section class="section reveal" id="dressCodeSection" aria-labelledby="dressCodeHeading" style="--delay: 0.8s" hidden>
-          <h2 id="dressCodeHeading">Dress Code</h2>
-          <p class="section-subtitle" id="dressCodeText"></p>
-          <div class="swatches" id="dressSwatches"></div>
-        </section>
+        <div class="divider reveal" style="--delay: 0.8s">* * *</div>
 
-        <section class="section gallery-section reveal" id="gallerySection" aria-labelledby="galleryHeading" style="--delay: 0.9s" hidden>
-          <h2 id="galleryHeading">Galeri Momen Indah</h2>
-          <p class="section-subtitle">Detik istimewa Nabil &amp; Hanis</p>
-          <div class="gallery-carousel" aria-roledescription="carousel" aria-label="Galeri momen indah">
-            <p class="visually-hidden" id="galleryInstructions">Gunakan butang atau anak panah kiri dan kanan untuk melihat foto lain. Anda juga boleh swipe pada galeri.</p>
-            <div class="gallery-grid" id="galleryGrid" tabindex="0" aria-describedby="galleryInstructions"></div>
-            <div class="gallery-navigation" id="galleryControls" aria-label="Kawalan galeri">
-              <button class="gallery-control" id="galleryPrev" type="button" aria-label="Lihat foto sebelumnya">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 5-7 7 7 7" /></svg>
-              </button>
-              <p class="gallery-index" id="galleryIndex" aria-live="polite" aria-atomic="true">1 / 1</p>
-              <button class="gallery-control" id="galleryNext" type="button" aria-label="Lihat foto seterusnya">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 5 7 7-7 7" /></svg>
-              </button>
-            </div>
-            <p class="gallery-swipe-hint" aria-hidden="true">Swipe atau tekan anak panah untuk melihat foto</p>
-          </div>
-        </section>
-
-        <div class="divider reveal" style="--delay: 0.95s">* * *</div>
-
-        <p class="doa reveal" id="closingText" style="--delay: 1s">
+        <p class="doa reveal" id="closingText" style="--delay: 0.85s">
           Kehadiran anda amat kami alu-alukan, terima kasih.
         </p>
 
-        <section class="section rsvp-section reveal" id="rsvpSection" aria-labelledby="rsvpHeading" style="--delay: 1.05s">
-          <h2 id="rsvpHeading">RSVP &amp; Ucapan</h2>
-          <p class="section-subtitle">Sahkan kehadiran dan titipkan doa buat pengantin.</p>
-          <div class="attendance-summary" id="attendanceSummary" aria-live="polite" aria-busy="true">
-            <div class="attendance-stat">
-              <span class="attendance-number" id="attendingCount">—</span>
-              <span>Hadir</span>
-            </div>
-            <div class="attendance-stat">
-              <span class="attendance-number" id="notAttendingCount">—</span>
-              <span>Tidak hadir</span>
-            </div>
-            <div class="attendance-stat">
-              <span class="attendance-number" id="guestTotalCount">—</span>
-              <span>Jumlah tetamu</span>
-            </div>
-          </div>
-          <p class="rsvp-data-status" id="rsvpDataStatus" role="status" aria-live="polite">Memuatkan kehadiran dan ucapan…</p>
-          <button class="rsvp-btn full-width" id="openRsvpDialog" type="button">Isi RSVP &amp; Ucapan</button>
-          <button class="text-action" id="reloadRsvpData" type="button" hidden>Cuba semula</button>
-        </section>
-
-        <section class="section wishes-section reveal" id="wishesSection" aria-labelledby="wishesHeading" style="--delay: 1.08s">
-          <h2 id="wishesHeading">Ucapan &amp; Doa</h2>
-          <p class="section-subtitle">Doa dan ucapan daripada tetamu buat Nabil &amp; Hanis.</p>
-          <div class="wishes-list" id="wishesList" aria-live="polite" aria-busy="true"></div>
-        </section>
-
-        <div class="cta reveal" style="--delay: 1.1s">
-          <a href="./assets/calendar/walimatul-urus.ics" class="save-date-btn secondary" download>
-            Save The Date
-          </a>
-        </div>
       </div>
     </main>
 
