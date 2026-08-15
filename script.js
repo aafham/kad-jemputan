@@ -477,6 +477,31 @@ const renderFamily = family => {
   });
 };
 
+const createContactIcon = type => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+
+  if (type === "whatsapp") {
+    path.setAttribute(
+      "d",
+      "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.472-.148-.67.149-.198.297-.768.967-.94 1.164-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.477-.883-.788-1.479-1.761-1.652-2.058-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.173.198-.298.298-.496.099-.198.05-.372-.025-.521-.074-.148-.669-1.611-.916-2.207-.242-.579-.487-.5-.669-.509-.173-.009-.372-.011-.571-.011-.198 0-.52.074-.792.372-.273.297-1.04 1.016-1.04 2.479s1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.077 4.49.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.003a9.82 9.82 0 01-5.02-1.379l-.36-.214-3.73.978.996-3.65-.235-.375a9.81 9.81 0 01-1.51-5.26c0-5.414 4.41-9.82 9.83-9.82 2.62 0 5.08 1.02 6.93 2.87a9.78 9.78 0 012.88 6.93c0 5.41-4.41 9.83-9.83 9.83m8.34-18.15A11.73 11.73 0 0012.05 0C5.59 0 .33 5.26.33 11.73c0 2.06.54 4.07 1.57 5.84L.23 23.7l6.28-1.65a11.77 11.77 0 005.54 1.41h.01c6.46 0 11.72-5.26 11.72-11.73 0-3.13-1.22-6.07-3.39-8.28Z"
+    );
+  } else {
+    path.setAttribute(
+      "d",
+      "M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2Z"
+    );
+  }
+
+  path.setAttribute("fill", "currentColor");
+  svg.appendChild(path);
+  return svg;
+};
+
 const renderContacts = people => {
   const contactSection = document.getElementById("contactSection");
   const contactRoot = document.getElementById("contactList");
@@ -505,13 +530,37 @@ const renderContacts = people => {
         return;
       }
 
-      const link = document.createElement("a");
-      link.href = "https://wa.me/" + number;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = phone.display || number;
-      link.setAttribute("aria-label", "WhatsApp " + (person.name || "penganjur") + " di " + link.textContent);
-      card.appendChild(link);
+      const displayNumber = phone.display || number;
+      const phoneRow = document.createElement("div");
+      phoneRow.className = "contact-phone";
+
+      const numberText = document.createElement("span");
+      numberText.className = "contact-number";
+      numberText.textContent = displayNumber;
+
+      const actions = document.createElement("div");
+      actions.className = "contact-actions";
+
+      const whatsappLink = document.createElement("a");
+      whatsappLink.className = "contact-action contact-action--whatsapp";
+      whatsappLink.href = "https://wa.me/" + number;
+      whatsappLink.target = "_blank";
+      whatsappLink.rel = "noopener noreferrer";
+      whatsappLink.setAttribute(
+        "aria-label",
+        "WhatsApp " + (person.name || "penganjur") + " di " + displayNumber + " (tab baharu)"
+      );
+      whatsappLink.appendChild(createContactIcon("whatsapp"));
+
+      const callLink = document.createElement("a");
+      callLink.className = "contact-action contact-action--call";
+      callLink.href = "tel:+" + number;
+      callLink.setAttribute("aria-label", "Telefon " + (person.name || "penganjur") + " di " + displayNumber);
+      callLink.appendChild(createContactIcon("call"));
+
+      actions.append(whatsappLink, callLink);
+      phoneRow.append(numberText, actions);
+      card.appendChild(phoneRow);
     });
 
     if (card.children.length > 0) {
@@ -532,8 +581,6 @@ const applyConfig = () => {
   const calendar = config.calendar || {};
   const rsvp = config.rsvp || {};
   const coupleNames = getCoupleNames(couple);
-  const primaryContactName = contact.rsvpName || "penganjur";
-
   setText("openGroom", coupleNames[0] || "");
   setText("openBride", coupleNames[1] || "");
   setText("openInitialGroom", getNameInitial(coupleNames[0]));
@@ -669,18 +716,6 @@ const applyConfig = () => {
   if (btn && coupleText) {
     btn.setAttribute("aria-label", "Buka jemputan perkahwinan " + coupleText);
   }
-  const waText =
-    "Assalamualaikum, saya ingin bertanya tentang majlis perkahwinan " + coupleText + ".";
-  const waNo = cleanWhatsappNumber(contact.whatsapp);
-
-  const whatsappDirectBtn = document.getElementById("whatsappDirectBtn");
-  if (whatsappDirectBtn && isValidWhatsappNumber(waNo)) {
-    whatsappDirectBtn.href =
-      "https://wa.me/" + waNo + "?text=" + encodeURIComponent(waText);
-    whatsappDirectBtn.textContent = "Hubungi " + primaryContactName;
-    whatsappDirectBtn.setAttribute("aria-label", "Buka WhatsApp " + primaryContactName + " (tab baharu)");
-  }
-  setHidden(whatsappDirectBtn, !isValidWhatsappNumber(waNo));
   setText("rsvpSubmitText", "Hantar RSVP & Ucapan");
   const hasRsvp = rsvp.enabled !== false;
   setHidden(document.getElementById("rsvpSection"), !hasRsvp);

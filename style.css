@@ -447,7 +447,7 @@ body::before {
 
 .contact-card {
   display: grid;
-  gap: 4px;
+  gap: 8px;
   padding: 10px;
   border: 1px solid rgba(185, 146, 110, 0.2);
   border-radius: 14px;
@@ -460,9 +460,61 @@ body::before {
   font-weight: 600;
 }
 
-.contact-card a {
+.contact-phone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(185, 146, 110, 0.16);
+}
+
+.contact-name + .contact-phone {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.contact-number {
+  min-width: 0;
+  flex: 1;
   color: var(--muted);
   overflow-wrap: anywhere;
+}
+
+.contact-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.contact-action {
+  display: inline-grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.contact-action:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.96);
+}
+
+.contact-action svg {
+  width: 20px;
+  height: 20px;
+}
+
+.contact-action--whatsapp {
+  background: #25d366;
+  color: #ffffff;
+}
+
+.contact-action--call {
+  background: var(--batik, #254b49);
+  color: #ffffff;
 }
 
 .info-grid {
@@ -1743,5 +1795,9 @@ textarea:focus-visible {
 
   .bismillah {
     font-size: 19px;
+  }
+
+  .contact-list {
+    grid-template-columns: 1fr;
   }
 }
