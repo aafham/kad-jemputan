@@ -306,7 +306,7 @@ body::before {
   line-height: 0.86;
   letter-spacing: -1.4px;
   margin: 16px 0 15px;
-  color: var(--name-ink);
+  color: var(--batik);
 }
 
 /* The heading receives programmatic focus after opening for screen readers.
@@ -318,7 +318,7 @@ body::before {
 #invitationTitle .amp {
   display: inline-block;
   margin: 0 0.06em;
-  color: #9b8459;
+  color: inherit;
   font-family: "Cormorant Garamond", serif;
   font-size: 0.66em;
   font-weight: 600;
@@ -760,7 +760,7 @@ body::before {
 
 .slot {
   display: grid;
-  grid-template-columns: minmax(96px, 1fr) 1.4fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
@@ -770,9 +770,19 @@ body::before {
   font-size: 12px;
 }
 
-.slot span:first-child {
+.slot > span:first-child {
+  min-width: 0;
+  justify-self: start;
+  text-align: left;
+  white-space: nowrap;
   font-weight: 600;
   color: var(--accent-strong);
+}
+
+.slot > span:last-child {
+  min-width: 0;
+  justify-self: end;
+  text-align: right;
 }
 
 /* =====================
@@ -1288,7 +1298,7 @@ textarea:focus-visible {
   }
 
   .slot {
-    grid-template-columns: 56px 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
   }
 
   .countdown {
