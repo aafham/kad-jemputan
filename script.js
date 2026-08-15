@@ -952,9 +952,11 @@ const applyConfig = () => {
   setText("hijriDateText", event.hijriDate || "");
   setText("quoteHeading", invitation.heading || "Jemputan");
   setText("bismillahText", invitation.bismillah || "");
-  setText("quoteText", invitation.intro || config.quote || "");
+  setText("pantunText", invitation.pantun || config.quote || "");
+  setText("quoteText", invitation.intro || "");
   setText("closingText", invitation.closing || "");
   setHidden(document.getElementById("bismillahText"), !invitation.bismillah);
+  setHidden(document.getElementById("pantunText"), !(invitation.pantun || config.quote));
   setHidden(document.getElementById("hijriDateText"), !event.hijriDate);
 
   renderFamily(family);

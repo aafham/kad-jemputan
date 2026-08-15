@@ -32,14 +32,16 @@ window.invitationConfig = {
   family: {
     hosts: [
       {
-        label: "Keluarga yang menjemput",
+        label: "",
         people: ["En. Mohd Eirwan @ Keliwon", "Puan Sarimah binti Said"]
       }
     ]
   },
   invitation: {
-    heading: "Jemputan",
+    heading: "Undangan Majlis Perkahwinan",
     bismillah: "بِسۡـــــــــمِ ٱللهِ ٱلرَّحۡـمَـٰنِ ٱلرَّحِـــــــيمِ",
+    pantun:
+      "Bunga melur di atas para,\nHarum mewangi sepanjang laman,\nDengan penuh takzim kami bicara,\nSudilah hadir ke majlis perkahwinan.",
     intro:
       "Dengan penuh kesyukuran, kami menjemput Dato' | Datin | Tuan | Puan | Encik | Cik ke majlis perkahwinan anakanda kami.",
     closing: "Kehadiran anda amat kami alu-alukan, terima kasih."
