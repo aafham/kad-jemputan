@@ -873,30 +873,37 @@ body::before {
 .attendance-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin: 14px 0 8px;
+  gap: 0;
+  margin: 16px 0 10px;
+  padding: 8px 0 6px;
 }
 
 .attendance-stat {
   display: grid;
-  gap: 3px;
-  min-height: 76px;
+  gap: 5px;
+  min-height: 0;
   place-items: center;
   align-content: center;
-  padding: 8px 6px;
-  border: 1px solid rgba(185, 146, 110, 0.22);
-  border-radius: 14px;
-  background: #fff;
+  padding: 7px 3px 6px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: 600;
   line-height: 1.25;
   text-align: center;
+}
+
+.attendance-stat + .attendance-stat {
+  border-left: 1px solid rgba(137, 122, 97, 0.24);
 }
 
 .attendance-number {
   color: var(--accent-strong);
   font-family: "Cormorant Garamond", serif;
-  font-size: 24px;
+  font-size: clamp(28px, 7.4vw, 36px);
   font-weight: 700;
   line-height: 1;
 }
@@ -1705,7 +1712,6 @@ body::after {
 .mini-calendar,
 .time-box,
 .slot,
-.attendance-stat,
 .wish-card,
 .empty-state {
   border-color: rgba(164, 111, 52, 0.21);
