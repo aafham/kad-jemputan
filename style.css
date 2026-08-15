@@ -949,6 +949,16 @@ body::before {
   text-align: left;
 }
 
+.wishes-list--rotating {
+  overflow: hidden;
+  transition: opacity 320ms ease, transform 320ms ease;
+}
+
+.wishes-list--rotating.is-fading {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
 .wish-card,
 .empty-state {
   margin: 0;

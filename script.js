@@ -32,6 +32,10 @@ let audioWatchdogTimer = null;
 let flowersInitialized = false;
 let rsvpFormStartedAt = Date.now();
 let rsvpDataLoading = false;
+let wishRotationTimer = null;
+let wishFadeTimer = null;
+let wishRotationRun = 0;
+let startWishRotation = null;
 
 document.body.classList.add("js-enabled");
 
@@ -407,17 +411,57 @@ const renderAttendanceSummary = summary => {
   setText("guestTotalCount", getSafeNumber(summary?.tetamuHadir));
 };
 
+const WISHES_PER_PAGE = 3;
+const WISH_ROTATION_DELAY = 5000;
+const WISH_FADE_DURATION = 320;
+
+const stopWishRotation = () => {
+  wishRotationRun += 1;
+  startWishRotation = null;
+  if (wishRotationTimer) {
+    clearTimeout(wishRotationTimer);
+    wishRotationTimer = null;
+  }
+  if (wishFadeTimer) {
+    clearTimeout(wishFadeTimer);
+    wishFadeTimer = null;
+  }
+  if (wishesList) {
+    wishesList.classList.remove("wishes-list--rotating", "is-fading");
+  }
+};
+
+const createWishCard = item => {
+  const card = document.createElement("article");
+  card.className = "wish-card";
+
+  const message = document.createElement("p");
+  message.className = "wish-card__message";
+  message.textContent = item.wish.trim();
+
+  const meta = document.createElement("p");
+  meta.className = "wish-card__meta";
+  const name = typeof item.name === "string" && item.name.trim() ? item.name.trim() : "Tetamu";
+  const date = formatWishDate(item.createdAt);
+  meta.textContent = date ? name + " · " + date : name;
+
+  card.append(message, meta);
+  return card;
+};
+
 const renderWishes = wishes => {
   if (!wishesList) {
     return;
   }
 
-  wishesList.replaceChildren();
+  stopWishRotation();
   const publicWishes = Array.isArray(wishes)
     ? wishes.filter(item => typeof item?.wish === "string" && item.wish.trim())
     : [];
 
   if (publicWishes.length === 0) {
+    wishesList.setAttribute("aria-live", "polite");
+    wishesList.replaceChildren();
     const empty = document.createElement("p");
     empty.className = "empty-state";
     empty.textContent = "Belum ada ucapan dipaparkan. Jadilah yang pertama mengirimkan doa.";
@@ -425,23 +469,65 @@ const renderWishes = wishes => {
     return;
   }
 
-  publicWishes.forEach(item => {
-    const card = document.createElement("article");
-    card.className = "wish-card";
+  const totalPages = Math.ceil(publicWishes.length / WISHES_PER_PAGE);
+  let pageIndex = 0;
+  const rotationRun = ++wishRotationRun;
+  const showPage = () => {
+    const start = pageIndex * WISHES_PER_PAGE;
+    wishesList.replaceChildren(...publicWishes.slice(start, start + WISHES_PER_PAGE).map(createWishCard));
+  };
 
-    const message = document.createElement("p");
-    message.className = "wish-card__message";
-    message.textContent = item.wish.trim();
+  wishesList.setAttribute("aria-live", totalPages > 1 ? "off" : "polite");
+  showPage();
 
-    const meta = document.createElement("p");
-    meta.className = "wish-card__meta";
-    const name = typeof item.name === "string" && item.name.trim() ? item.name.trim() : "Tetamu";
-    const date = formatWishDate(item.createdAt);
-    meta.textContent = date ? name + " · " + date : name;
+  const reduceMotion =
+    typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (totalPages < 2 || reduceMotion) {
+    return;
+  }
 
-    card.append(message, meta);
-    wishesList.appendChild(card);
-  });
+  const scheduleNextPage = () => {
+    wishRotationTimer = window.setTimeout(() => {
+      if (wishRotationRun !== rotationRun) {
+        return;
+      }
+      if (document.hidden) {
+        scheduleNextPage();
+        return;
+      }
+
+      wishesList.classList.add("is-fading");
+      wishFadeTimer = window.setTimeout(() => {
+        if (wishRotationRun !== rotationRun) {
+          return;
+        }
+        pageIndex = (pageIndex + 1) % totalPages;
+        showPage();
+        requestAnimationFrame(() => {
+          if (wishRotationRun !== rotationRun) {
+            return;
+          }
+          wishesList.classList.remove("is-fading");
+          scheduleNextPage();
+        });
+      }, WISH_FADE_DURATION);
+    }, WISH_ROTATION_DELAY);
+  };
+
+  const beginRotation = () => {
+    if (wishRotationRun !== rotationRun) {
+      return;
+    }
+    startWishRotation = null;
+    wishesList.classList.add("wishes-list--rotating");
+    scheduleNextPage();
+  };
+
+  if (document.body.classList.contains("opened")) {
+    beginRotation();
+  } else {
+    startWishRotation = beginRotation;
+  }
 };
 
 const renderWishesError = () => {
@@ -449,6 +535,7 @@ const renderWishesError = () => {
     return;
   }
 
+  wishesList.setAttribute("aria-live", "polite");
   const error = document.createElement("p");
   error.className = "empty-state error-state";
   error.textContent = "Ucapan tidak dapat dimuatkan sekarang. Sila cuba semula.";
@@ -1062,6 +1149,7 @@ const openInvitation = async () => {
   setInteractive(invitation, true);
   setInteractive(floatingActions, true);
   initFlowerRain();
+  startWishRotation?.();
 
   if (btn) {
     btn.setAttribute("aria-expanded", "true");
