@@ -12,6 +12,7 @@
   --muted: #624838;
   --accent: #9a5c35;
   --accent-strong: #74401f;
+  --name-ink: #a5656a;
   --paper: #fff8ee;
   --panel: #ffffff;
   --border: rgba(185, 146, 110, 0.4);
@@ -295,6 +296,40 @@ body::before {
   font-family: "Cormorant Garamond", serif;
   font-size: 30px;
   margin: 10px 0 6px;
+}
+
+/* Refined wedding typography for the names inside the invitation. */
+#invitationTitle {
+  font-family: "Great Vibes", cursive;
+  font-size: clamp(58px, 11vw, 78px);
+  font-weight: 400;
+  line-height: 0.86;
+  letter-spacing: -1.4px;
+  margin: 16px 0 15px;
+  color: var(--name-ink);
+}
+
+#invitationTitle .amp {
+  display: inline-block;
+  margin: 0 0.06em;
+  color: #9b8459;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.66em;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1;
+  vertical-align: 0.04em;
+}
+
+.hero .small {
+  color: #7d6f5f;
+  font-weight: 300;
+  letter-spacing: 4px;
+}
+
+.hero .date,
+.hero .hijri-date {
+  font-weight: 300;
 }
 
 .date {
@@ -1247,6 +1282,11 @@ textarea:focus-visible {
 
   .card h1 {
     font-size: 27px;
+  }
+
+  #invitationTitle {
+    font-size: clamp(56px, 18vw, 68px);
+    margin: 14px 0 13px;
   }
 
   .slot {
