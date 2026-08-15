@@ -425,16 +425,16 @@ body::before {
 }
 
 .hero-time {
-  display: inline-block;
-  margin: 12px 0 0;
-  padding: 8px 17px;
-  border: 1px solid rgba(169, 112, 53, 0.24);
-  border-radius: 999px;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
   color: var(--muted);
-  background: rgba(255, 253, 247, 0.76);
-  box-shadow: 0 6px 14px rgba(77, 50, 24, 0.05);
-  font-size: 12px;
-  line-height: 1.2;
+  background: transparent;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 300;
+  letter-spacing: 1.5px;
+  line-height: 1.5;
 }
 
 .bismillah {
