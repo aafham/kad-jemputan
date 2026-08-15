@@ -1,14 +1,14 @@
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Kad Jemputan//Nabil Hanis//MY
+PRODID:-//Kad Jemputan//Nabil Hani//MY
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
-UID:hanis-nabil-20261003@kad-jemputan.vercel.app
-DTSTAMP:20260815T000000Z
+UID:nabil-hani-20261003@kad-jemputan.vercel.app
+DTSTAMP:20260816T000000Z
 DTSTART:20261003T030000Z
 DTEND:20261003T080000Z
-SUMMARY:Majlis Perkahwinan Nabil & Hanis
+SUMMARY:Majlis Perkahwinan Nabil & Hani
 LOCATION:No. 24\, Taman Kembara 3\, 11D/KU4\, Jalan Haji Othman\, Batu 4\, 42100 Klang\, Selangor
-DESCRIPTION:Majlis perkahwinan Nabil dan Hanis\n11.00 pagi - 4.00 petang
+DESCRIPTION:Majlis perkahwinan Nabil dan Hani\n11.00 pagi - 4.00 petang
 END:VEVENT
 END:VCALENDAR

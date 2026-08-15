@@ -95,62 +95,62 @@ window.invitationConfig = {
   dressCode: {},
   gallery: [
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (1).png",
+      src: "assets/images/gallery-01.webp",
       alt: "Nabil dan Hani di taman",
       layout: "portrait"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (2).png",
+      src: "assets/images/gallery-02.webp",
       alt: "Nabil dan Hani bersama bunga lili",
       layout: "portrait"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (3).png",
+      src: "assets/images/gallery-03.webp",
       alt: "Potret Nabil dan Hani",
       layout: "portrait-center"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (1).png",
+      src: "assets/images/gallery-04.webp",
       alt: "Nabil dan Hani berpegangan tangan di taman",
       layout: "hero"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (2).png",
+      src: "assets/images/gallery-05.webp",
       alt: "Nabil dan Hani saling berpandangan di taman",
       layout: "landscape"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (3).png",
+      src: "assets/images/gallery-06.webp",
       alt: "Nabil dan Hani berpegangan tangan",
       layout: "landscape"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (4).png",
+      src: "assets/images/gallery-07.webp",
       alt: "Nabil dan Hani bersama bunga lili",
       layout: "landscape"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (5).png",
+      src: "assets/images/gallery-08.webp",
       alt: "Potret Nabil dan Hani saling berpandangan",
       layout: "landscape"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (6).png",
+      src: "assets/images/gallery-09.webp",
       alt: "Potret Nabil dan Hani",
       layout: "landscape"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (7).png",
+      src: "assets/images/gallery-10.webp",
       alt: "Hani bersalaman dengan Nabil",
       layout: "landscape"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (8).png",
+      src: "assets/images/gallery-11.webp",
       alt: "Hani bersalaman dengan Nabil",
       layout: "landscape"
     },
     {
-      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (9).png",
+      src: "assets/images/gallery-12.webp",
       alt: "Nabil dan Hani dalam suasana majlis",
       layout: "landscape"
     }
