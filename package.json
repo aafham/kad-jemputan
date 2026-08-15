@@ -2,7 +2,7 @@
   "name": "kad-jemputan-nabil-hanis",
   "version": "1.0.0",
   "private": true,
-  "description": "Kad jemputan perkahwinan Nabil dan Hanis",
+  "description": "Kad jemputan perkahwinan Nabil dan Hani",
   "engines": {
     "node": ">=20.0.0"
   },

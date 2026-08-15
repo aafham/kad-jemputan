@@ -1,4 +1,4 @@
--- RSVP persistence for the Hanis & Nabil invitation on Neon PostgreSQL.
+-- RSVP persistence for the Hani & Nabil invitation on Neon PostgreSQL.
 --
 -- Run this once in the Neon SQL Editor before deploying the RSVP API.
 -- The Vercel Function uses a private DATABASE_URL; browsers never connect to

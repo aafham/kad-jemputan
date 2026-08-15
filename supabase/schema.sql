@@ -1,4 +1,4 @@
--- RSVP persistence for the Hanis & Nabil invitation.
+-- RSVP persistence for the Hani & Nabil invitation.
 -- Run this once in the Supabase SQL Editor before enabling the Vercel API.
 
 begin;

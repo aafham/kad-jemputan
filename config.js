@@ -1,17 +1,17 @@
 window.invitationConfig = {
   metadata: {
-    title: "Jemputan Majlis Perkahwinan Nabil & Hanis",
+    title: "Jemputan Majlis Perkahwinan Nabil & Hani",
     description:
-      "Jemputan majlis perkahwinan Nabil dan Hanis pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang, Selangor.",
+      "Jemputan majlis perkahwinan Nabil dan Hani pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang, Selangor.",
     robots: "noindex,nofollow",
     url: "https://kad-jemputan.vercel.app/",
     image: "",
     imageAlt: ""
   },
   couple: {
-    bride: "Hanis",
+    bride: "Hani",
     groom: "Nabil",
-    displayNames: ["Nabil", "Hanis"],
+    displayNames: ["Nabil", "Hani"],
     fullNames: [
       "Mohammad Nabil bin Mohd Eirwan @ Keliwon",
       "Nurul Haniszan binti Mohd Sham"
@@ -95,62 +95,62 @@ window.invitationConfig = {
   gallery: [
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (1).png",
-      alt: "Nabil dan Hanis di taman",
+      alt: "Nabil dan Hani di taman",
       layout: "portrait"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (2).png",
-      alt: "Nabil dan Hanis bersama bunga lili",
+      alt: "Nabil dan Hani bersama bunga lili",
       layout: "portrait"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (3).png",
-      alt: "Potret Nabil dan Hanis",
+      alt: "Potret Nabil dan Hani",
       layout: "portrait-center"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (1).png",
-      alt: "Nabil dan Hanis berpegangan tangan di taman",
+      alt: "Nabil dan Hani berpegangan tangan di taman",
       layout: "hero"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (2).png",
-      alt: "Nabil dan Hanis saling berpandangan di taman",
+      alt: "Nabil dan Hani saling berpandangan di taman",
       layout: "landscape"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (3).png",
-      alt: "Nabil dan Hanis berpegangan tangan",
+      alt: "Nabil dan Hani berpegangan tangan",
       layout: "landscape"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (4).png",
-      alt: "Nabil dan Hanis bersama bunga lili",
+      alt: "Nabil dan Hani bersama bunga lili",
       layout: "landscape"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (5).png",
-      alt: "Potret Nabil dan Hanis saling berpandangan",
+      alt: "Potret Nabil dan Hani saling berpandangan",
       layout: "landscape"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (6).png",
-      alt: "Potret Nabil dan Hanis",
+      alt: "Potret Nabil dan Hani",
       layout: "landscape"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (7).png",
-      alt: "Hanis bersalaman dengan Nabil",
+      alt: "Hani bersalaman dengan Nabil",
       layout: "landscape"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (8).png",
-      alt: "Hanis bersalaman dengan Nabil",
+      alt: "Hani bersalaman dengan Nabil",
       layout: "landscape"
     },
     {
       src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (9).png",
-      alt: "Nabil dan Hanis dalam suasana majlis",
+      alt: "Nabil dan Hani dalam suasana majlis",
       layout: "landscape"
     }
   ],
