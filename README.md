@@ -1,6 +1,6 @@
-# Kad Jemputan Perkahwinan Hanis & Nabil
+# Kad Jemputan Perkahwinan Nabil & Hanis
 
-Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Hanis dan Nabil pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang. Projek ini dibina dengan HTML, CSS dan JavaScript biasa—tanpa kebergantungan atau proses binaan—dan boleh terus dihoskan sebagai laman statik.
+Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan Hanis pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang. Projek ini dibina dengan HTML, CSS dan JavaScript biasa—tanpa kebergantungan atau proses binaan—dan boleh terus dihoskan sebagai laman statik.
 
 **Laman produksi:** [kad-jemputan.vercel.app](https://kad-jemputan.vercel.app)
 

@@ -1,8 +1,8 @@
 window.invitationConfig = {
   metadata: {
-    title: "Jemputan Majlis Perkahwinan Hanis & Nabil",
+    title: "Jemputan Majlis Perkahwinan Nabil & Hanis",
     description:
-      "Jemputan majlis perkahwinan Hanis dan Nabil pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang, Selangor.",
+      "Jemputan majlis perkahwinan Nabil dan Hanis pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang, Selangor.",
     robots: "noindex,nofollow",
     url: "https://kad-jemputan.vercel.app/",
     image: "",
@@ -11,12 +11,12 @@ window.invitationConfig = {
   couple: {
     bride: "Hanis",
     groom: "Nabil",
-    displayNames: ["Hanis", "Nabil"],
+    displayNames: ["Nabil", "Hanis"],
     fullNames: [
-      "Nurul Haniszan binti Mohd Sham",
-      "Mohammad Nabil bin Mohd Eirwan @ Keliwon"
+      "Mohammad Nabil bin Mohd Eirwan @ Keliwon",
+      "Nurul Haniszan binti Mohd Sham"
     ],
-    monogram: "H&N"
+    monogram: "N&H"
   },
   event: {
     title: "Undangan Majlis Perkahwinan",
