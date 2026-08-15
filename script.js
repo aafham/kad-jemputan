@@ -36,6 +36,8 @@ let wishRotationTimer = null;
 let wishFadeTimer = null;
 let wishRotationRun = 0;
 let startWishRotation = null;
+let startGalleryAutoplay = null;
+let disposeGalleryAutoplay = null;
 
 document.body.classList.add("js-enabled");
 
@@ -101,13 +103,21 @@ const normaliseGalleryIndex = (index, total) => {
 };
 
 const renderGalleryCarousel = (galleryRoot, gallery) => {
+  disposeGalleryAutoplay?.();
+  disposeGalleryAutoplay = null;
+  startGalleryAutoplay = null;
+
   const gallerySection = document.getElementById("gallerySection");
+  const carouselRoot = galleryRoot.closest(".gallery-carousel");
   const previousButton = document.getElementById("galleryPrev");
   const nextButton = document.getElementById("galleryNext");
   const controls = document.getElementById("galleryControls");
   const indexStatus = document.getElementById("galleryIndex");
   const cards = [];
   let activeIndex = 0;
+  let galleryAutoplayTimer = null;
+  let galleryAutoplayStarted = false;
+  let pointerInsideCarousel = false;
   let pointerStart = null;
   let touchStart = null;
   let mouseStart = null;
@@ -117,7 +127,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
 
   galleryRoot.replaceChildren();
 
-  const updateCarousel = () => {
+  const updateCarousel = ({ announce = true } = {}) => {
     const total = cards.length;
     if (total === 0) {
       setHidden(gallerySection, true);
@@ -158,6 +168,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
 
     if (indexStatus) {
       indexStatus.textContent = activeIndex + 1 + " / " + total;
+      indexStatus.setAttribute("aria-live", announce ? "polite" : "off");
     }
     galleryRoot.setAttribute(
       "aria-label",
@@ -213,6 +224,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
       if (cardIndex !== -1 && cardIndex !== activeIndex) {
         activeIndex = cardIndex;
         updateCarousel();
+        restartGalleryAutoplay();
       }
     });
 
@@ -220,12 +232,54 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
     galleryRoot.appendChild(figure);
   });
 
-  const moveCarousel = direction => {
+  const prefersReducedMotion =
+    typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const clearGalleryAutoplay = () => {
+    if (galleryAutoplayTimer) {
+      window.clearTimeout(galleryAutoplayTimer);
+      galleryAutoplayTimer = null;
+    }
+  };
+
+  const canAutoplayGallery = () =>
+    galleryAutoplayStarted &&
+    cards.length > 1 &&
+    !prefersReducedMotion &&
+    !document.hidden &&
+    !pointerInsideCarousel &&
+    !(carouselRoot && carouselRoot.contains(document.activeElement));
+
+  const scheduleGalleryAutoplay = () => {
+    clearGalleryAutoplay();
+    if (!canAutoplayGallery()) {
+      return;
+    }
+
+    galleryAutoplayTimer = window.setTimeout(() => {
+      galleryAutoplayTimer = null;
+      if (!canAutoplayGallery()) {
+        return;
+      }
+
+      moveCarousel(1, { announce: false, restartAutoplay: false });
+      scheduleGalleryAutoplay();
+    }, 2000);
+  };
+
+  const restartGalleryAutoplay = () => {
+    scheduleGalleryAutoplay();
+  };
+
+  const moveCarousel = (direction, { announce = true, restartAutoplay = true } = {}) => {
     if (cards.length < 2) {
       return;
     }
     activeIndex = normaliseGalleryIndex(activeIndex + direction, cards.length);
-    updateCarousel();
+    updateCarousel({ announce });
+    if (restartAutoplay) {
+      restartGalleryAutoplay();
+    }
   };
 
   const completeGesture = (start, end) => {
@@ -261,10 +315,12 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
       event.preventDefault();
       activeIndex = 0;
       updateCarousel();
+      restartGalleryAutoplay();
     } else if (event.key === "End") {
       event.preventDefault();
       activeIndex = Math.max(cards.length - 1, 0);
       updateCarousel();
+      restartGalleryAutoplay();
     }
   };
 
@@ -273,6 +329,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
       return;
     }
     lastPointerEventAt = Date.now();
+    clearGalleryAutoplay();
     pointerStart = { x: event.clientX, y: event.clientY };
     try {
       event.currentTarget.setPointerCapture(event.pointerId);
@@ -289,6 +346,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
 
     completeGesture(pointerStart, { x: event.clientX, y: event.clientY });
     pointerStart = null;
+    restartGalleryAutoplay();
     try {
       event.currentTarget.releasePointerCapture(event.pointerId);
     } catch (error) {
@@ -299,12 +357,14 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
   galleryRoot.onpointercancel = () => {
     pointerStart = null;
     lastPointerEventAt = Date.now();
+    restartGalleryAutoplay();
   };
 
   galleryRoot.ontouchstart = event => {
     if (Date.now() - lastPointerEventAt < 700) {
       return;
     }
+    clearGalleryAutoplay();
     const touch = event.touches[0];
     touchStart = touch ? { x: touch.clientX, y: touch.clientY } : null;
   };
@@ -318,17 +378,20 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
     touchStart = null;
     lastTouchEventAt = Date.now();
     completeGesture(start, touch ? { x: touch.clientX, y: touch.clientY } : null);
+    restartGalleryAutoplay();
   };
 
   galleryRoot.ontouchcancel = () => {
     touchStart = null;
     lastTouchEventAt = Date.now();
+    restartGalleryAutoplay();
   };
 
   galleryRoot.onmousedown = event => {
     if (event.button !== 0 || Date.now() - lastPointerEventAt < 700 || Date.now() - lastTouchEventAt < 700) {
       return;
     }
+    clearGalleryAutoplay();
     mouseStart = { x: event.clientX, y: event.clientY };
   };
 
@@ -342,6 +405,48 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
     }
     completeGesture(mouseStart, { x: event.clientX, y: event.clientY });
     mouseStart = null;
+    restartGalleryAutoplay();
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      clearGalleryAutoplay();
+      return;
+    }
+    restartGalleryAutoplay();
+  };
+
+  if (carouselRoot) {
+    carouselRoot.onmouseenter = () => {
+      pointerInsideCarousel = true;
+      clearGalleryAutoplay();
+    };
+    carouselRoot.onmouseleave = () => {
+      pointerInsideCarousel = false;
+      restartGalleryAutoplay();
+    };
+    carouselRoot.onfocusin = () => {
+      clearGalleryAutoplay();
+    };
+    carouselRoot.onfocusout = () => {
+      window.setTimeout(restartGalleryAutoplay, 0);
+    };
+  }
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  startGalleryAutoplay = () => {
+    galleryAutoplayStarted = true;
+    restartGalleryAutoplay();
+  };
+  disposeGalleryAutoplay = () => {
+    clearGalleryAutoplay();
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    if (carouselRoot) {
+      carouselRoot.onmouseenter = null;
+      carouselRoot.onmouseleave = null;
+      carouselRoot.onfocusin = null;
+      carouselRoot.onfocusout = null;
+    }
   };
 
   updateCarousel();
@@ -1211,6 +1316,7 @@ const openInvitation = async () => {
   setInteractive(floatingActions, true);
   initFlowerRain();
   startWishRotation?.();
+  startGalleryAutoplay?.();
 
   if (btn) {
     btn.setAttribute("aria-expanded", "true");
