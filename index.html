@@ -96,29 +96,27 @@
         </section>
 
         <section class="info-grid reveal" aria-label="Maklumat majlis" style="--delay: 0.25s">
-          <div class="info-item" id="infoVenue">Lokasi: No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Baru Rantau Panjang, Klang, 42100 Selangor</div>
+          <div class="info-item" id="infoVenue">Lokasi: No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Batu 4, 42100 Klang, Selangor</div>
           <div class="info-item" id="infoTime">Masa: 11.00 pagi - 4.00 petang</div>
           <div class="info-item" id="infoDressCode" hidden></div>
         </section>
 
         <section class="map-section reveal" aria-label="Lokasi majlis" style="--delay: 0.3s">
-          <div class="map-preview" id="mapPreview" hidden>
-            <a id="googleMapsLink" href="https://maps.app.goo.gl/HJnbCqtum72ncyp99?g_st=iw" target="_blank" rel="noopener noreferrer" aria-label="Buka lokasi di Google Maps">
-              <img id="mapImage" alt="Peta lokasi majlis" />
-              <div class="map-overlay">Lokasi Majlis</div>
-            </a>
+          <div class="map-preview" id="mapPreview">
+            <iframe id="mapEmbed" title="Peta lokasi majlis" src="https://www.google.com/maps?q=3.0653862,101.4074413&amp;z=17&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
+          <a class="map-pin-link" id="googleMapsLink" href="https://maps.app.goo.gl/N7knrqnGxRjdZbNn9" target="_blank" rel="noopener noreferrer" aria-label="Buka pin lokasi di Google Maps (tab baharu)">📍 Pin lokasi majlis</a>
           <div class="map-actions">
-            <a class="map-btn" id="googleMapsBtn" href="https://maps.app.goo.gl/HJnbCqtum72ncyp99?g_st=iw" target="_blank" rel="noopener noreferrer">
+            <a class="map-btn" id="googleMapsBtn" href="https://maps.app.goo.gl/N7knrqnGxRjdZbNn9" target="_blank" rel="noopener noreferrer">
               Buka Google Maps
             </a>
-            <a class="map-btn" id="wazeBtn" href="https://waze.com/ul?a=share_drive&amp;locale=en&amp;sd=2RDLgmB6rDCrLWAwxQ-sd&amp;env=row&amp;utm_source=waze_app&amp;utm_campaign=share_drive" target="_blank" rel="noopener noreferrer">
+            <a class="map-btn" id="wazeBtn" href="https://waze.com/ul?q=No.%2024%2C%20Taman%20Kembara%203%2C%2011D%2FKU4%2C%20Jalan%20Haji%20Othman%2C%20Batu%204%2C%2042100%20Klang%2C%20Selangor&amp;navigate=yes" target="_blank" rel="noopener noreferrer">
               Buka Waze
             </a>
           </div>
           <div class="qr-box">
             <p class="qr-title">Imbas QR Lokasi</p>
-            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=https%3A%2F%2Fmaps.app.goo.gl%2FHJnbCqtum72ncyp99%3Fg_st%3Diw" alt="Kod QR lokasi majlis" loading="lazy" />
+            <img id="qrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=https%3A%2F%2Fmaps.app.goo.gl%2FN7knrqnGxRjdZbNn9" alt="Kod QR lokasi majlis" loading="lazy" />
           </div>
         </section>
 

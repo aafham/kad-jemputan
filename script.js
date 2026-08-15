@@ -376,12 +376,13 @@ const applyConfig = () => {
   const googleMapsBtn = document.getElementById("googleMapsBtn");
   const wazeBtn = document.getElementById("wazeBtn");
   const mapPreview = document.getElementById("mapPreview");
-  const mapImage = document.getElementById("mapImage");
+  const mapEmbed = document.getElementById("mapEmbed");
   const qrImage = document.getElementById("qrImage");
 
   if (googleMapsLink) {
     googleMapsLink.href = googleMapsUrl;
-    googleMapsLink.setAttribute("aria-label", "Buka lokasi " + mapLabel + " di Google Maps (tab baharu)");
+    googleMapsLink.textContent = map.pinLabel || "Pin lokasi majlis";
+    googleMapsLink.setAttribute("aria-label", "Buka pin lokasi " + mapLabel + " di Google Maps (tab baharu)");
   }
   if (googleMapsBtn) {
     googleMapsBtn.href = googleMapsUrl;
@@ -389,13 +390,11 @@ const applyConfig = () => {
   if (wazeBtn) {
     wazeBtn.href = wazeUrl;
   }
-  if (mapImage) {
-    if (map.image) {
-      mapImage.src = map.image;
-    }
-    mapImage.alt = "Peta lokasi " + mapLabel;
+  if (mapEmbed && map.embedUrl) {
+    mapEmbed.src = map.embedUrl;
+    mapEmbed.title = "Peta pin lokasi " + mapLabel;
   }
-  setHidden(mapPreview, !map.image);
+  setHidden(mapPreview, !map.embedUrl);
   if (qrImage) {
     qrImage.src =
       "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" +

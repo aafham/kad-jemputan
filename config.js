@@ -27,7 +27,7 @@ window.invitationConfig = {
     timeText: "11.00 pagi - 4.00 petang",
     venue: "No. 24, Taman Kembara 3",
     address:
-      "No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Baru Rantau Panjang, Klang, 42100 Selangor"
+      "No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Batu 4, 42100 Klang, Selangor"
   },
   family: {
     hosts: [
@@ -46,11 +46,10 @@ window.invitationConfig = {
   },
   map: {
     query:
-      "No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Baru Rantau Panjang, Klang, 42100 Selangor",
-    googleMapsUrl: "https://maps.app.goo.gl/HJnbCqtum72ncyp99?g_st=iw",
-    wazeUrl:
-      "https://waze.com/ul?a=share_drive&locale=en&sd=2RDLgmB6rDCrLWAwxQ-sd&env=row&utm_source=waze_app&utm_campaign=share_drive",
-    image: ""
+      "No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Batu 4, 42100 Klang, Selangor",
+    googleMapsUrl: "https://maps.app.goo.gl/N7knrqnGxRjdZbNn9",
+    embedUrl: "https://www.google.com/maps?q=3.0653862,101.4074413&z=17&output=embed",
+    pinLabel: "Pin lokasi majlis"
   },
   contact: {
     whatsapp: "60193103047",
