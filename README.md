@@ -1,104 +1,146 @@
 # Kad Jemputan Perkahwinan Nabil & Hani
 
-Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan Hani pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang. Projek ini dibina dengan HTML, CSS dan JavaScript biasa—tanpa kebergantungan atau proses binaan—dan boleh terus dihoskan sebagai laman statik.
+Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan Hani pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang.
 
 **Laman produksi:** [kad-jemputan.vercel.app](https://kad-jemputan.vercel.app)
 
-## Ciri-ciri
+Frontend dibina dengan HTML, CSS dan JavaScript biasa tanpa framework atau proses binaan. Satu Vercel Function digunakan hanya untuk RSVP dan ucapan tetamu yang disimpan dalam Neon PostgreSQL.
 
-- Skrin pembuka dengan animasi pintu dan dekorasi bunga.
-- Paparan nama penuh pasangan, keluarga yang menjemput, tarikh Masihi/Hijrah, masa dan lokasi melalui satu fail konfigurasi.
-- Countdown ke hari majlis.
-- Peta serta pautan navigasi Google Maps dan Waze.
-- Atur cara, senarai nombor untuk dihubungi, pautan kalendar `.ics` dan perkongsian pautan.
-- RSVP sebenar, kiraan kehadiran dan paparan ucapan tetamu melalui Vercel Function + Neon PostgreSQL.
-- Reka letak responsif untuk desktop dan telefon mudah alih.
+## Fungsi semasa
 
-## Jalankan secara lokal
-
-Tiada pemasangan pakej diperlukan. Dari folder projek, jalankan:
-
-```powershell
-python -m http.server 4173 --bind 127.0.0.1
-```
-
-Kemudian buka `http://127.0.0.1:4173` dalam pelayar.
+| Bahagian | Fungsi |
+| --- | --- |
+| Pembukaan kad | Cover floral, animasi pintu, fokus papan kekunci yang betul dan muzik yang bermula selepas tetamu menekan **Buka Jemputan**. |
+| Maklumat majlis | Nama pasangan, keluarga, pantun, tarikh Masihi/Hijrah, countdown, atur cara dan lokasi dipacu oleh `config.js`. |
+| Lokasi | Peta Google terbenam, alamat, serta ikon pautan terus ke Google Maps dan Waze. |
+| Save the Date | Muat turun fail `.ics` untuk kalendar tetamu. |
+| RSVP | Nama, status kehadiran, jumlah tetamu dan ucapan; nombor telefon tidak dikumpul. |
+| Ucapan & Doa | Maksimum tiga ucapan dipaparkan pada satu masa dan bertukar setiap lima saat. |
+| Galeri | Carousel berlapis 3D, klik kad sisi, keyboard, swipe, autoplay setiap dua saat dan loop semula. Autoplay berhenti sementara ketika hover, fokus atau interaksi. |
+| Hubungi kami | Aksi WhatsApp dan panggilan terus untuk setiap nombor penganjur. |
 
 ## Struktur projek
 
 ```text
 .
-├── index.html                  # Struktur dan kandungan statik
-├── style.css                   # Reka bentuk dan responsif
-├── script.js                   # Interaksi kad
-├── config.js                   # Maklumat majlis yang boleh dikemaskini
-├── vercel.json                  # Header keselamatan deployment
-├── api/                         # Endpoint RSVP Vercel
-├── neon/schema.sql               # Jadual dan fungsi RSVP aktif
-├── supabase/schema.sql           # Rekod schema sistem terdahulu
-├── .env.example                 # Nama pemboleh ubah server
-└── assets/
-    ├── audio/                  # Muzik latar
-    ├── calendar/               # Fail Save The Date (.ics)
-    └── images/                 # Galeri dan pratonton peta
+├── index.html                         # Struktur halaman, metadata statik dan audio
+├── style.css                          # Tema, responsif dan aksesibiliti visual
+├── script.js                          # Konfigurasi UI, RSVP, galeri dan interaksi
+├── config.js                          # Sumber utama kandungan majlis
+├── api/
+│   ├── rsvp.js                        # Endpoint GET/POST RSVP pada Vercel
+│   └── _lib/rsvp.cjs                  # Validasi, had kadar dan akses Neon
+├── neon/
+│   ├── schema.sql                     # Schema RSVP baharu tanpa nombor telefon
+│   └── migrations/                    # Migrasi database sekali guna
+├── assets/
+│   ├── audio/                         # Muzik latar
+│   ├── calendar/                      # Fail Save the Date (.ics)
+│   └── images/                        # Cover, galeri dan ikon navigasi
+├── vercel.json                        # Header keselamatan
+└── .env.example                       # Nama pemboleh ubah server sahaja
 ```
 
-## Kemaskini untuk majlis sebenar
+`supabase/schema.sql` disimpan sebagai rekod sistem lama sahaja. Runtime semasa tidak menggunakan Supabase.
 
-Sebelum berkongsi kad ini dengan tetamu, kemaskini `config.js`:
+## Jalankan secara lokal
 
-1. Nama pengantin, nama penuh, turutan paparan dan monogram dalam `couple`.
-2. Tarikh, masa, alamat serta pautan peta dalam `event` dan `map`.
-3. Gunakan offset Malaysia pada `event.dateTime` dan `event.endDateTime`, contohnya `2026-10-03T11:00:00+08:00`.
-4. Keluarga yang menjemput dalam `family.hosts`, serta penerima RSVP utama dan senarai nombor dalam `contact`.
-5. Tambah tema pakaian, galeri atau audio hanya apabila bahan dan kebenaran penggunaannya sudah tersedia.
-6. Maklumat perkongsian: `metadata.title`, `metadata.description`, `metadata.url`, `metadata.image` dan `metadata.imageAlt`.
+Untuk menyemak reka bentuk frontend sahaja, tiada pemasangan pakej diperlukan:
 
-Kalendar mini, atur cara, keluarga dan kontak dijana daripada `config.js`. Metadata dalam `config.js` dikemas kini pada pelayar, tetapi crawler media sosial biasanya membaca `<head>` statik dalam `index.html`; jika menggunakan domain sendiri, kemaskini kedua-dua tempat tersebut dengan URL mutlak baharu. Fail `assets/calendar/walimatul-urus.ics` masih perlu dikemaskini secara manual apabila tarikh, masa atau lokasi berubah.
+```powershell
+python -m http.server 4173 --bind 127.0.0.1
+```
+
+Kemudian buka `http://127.0.0.1:4173`. Endpoint `/api/rsvp` tidak tersedia pada server statik ini; gunakan deployment Vercel dengan environment variables untuk menguji RSVP sebenar.
+
+Pakej Node hanya diperlukan oleh Vercel Function RSVP:
+
+```powershell
+npm install
+```
+
+## Kemaskini kandungan majlis
+
+Gunakan `config.js` sebagai sumber utama untuk kandungan yang dipaparkan:
+
+1. `couple` — nama ringkas, nama penuh, turutan paparan dan monogram.
+2. `event` — tarikh, masa, tempat, alamat dan offset masa. Gunakan format seperti `2026-10-03T11:00:00+08:00`.
+3. `family.hosts` — keluarga yang menjemput.
+4. `invitation` — tajuk, Bismillah, pantun, ayat jemputan dan penutup.
+5. `schedule`, `map`, `contact` dan `gallery` — atur cara, pautan navigasi, hubungan serta foto.
+6. `metadata` — tajuk, penerangan, canonical URL dan imej perkongsian.
+
+Perkara yang perlu dikemas kini secara berasingan:
+
+- `<head>` statik dalam `index.html` untuk `title`, description, canonical dan Open Graph/Twitter. Crawler WhatsApp/Facebook tidak menjalankan `config.js`.
+- `assets/calendar/walimatul-urus.ics` apabila nama, masa atau alamat berubah.
+- Sumber muzik dalam elemen `<audio>` di `index.html`.
+
+`metadata.image` kini kosong. Tambah imej Open Graph mutlak bersaiz kira-kira **1200 × 630 px** sebelum berkongsi pautan secara meluas supaya preview WhatsApp/Facebook kelihatan kemas.
+
+## RSVP dan Neon PostgreSQL
+
+Frontend hanya bercakap dengan endpoint same-origin `/api/rsvp`. Browser tidak menerima connection string atau secret Neon.
+
+### Database baharu
+
+1. Cipta database Neon.
+2. Jalankan [neon/schema.sql](neon/schema.sql) sekali melalui **Neon SQL Editor**.
+3. Dalam **Vercel Project Settings → Environment Variables**, tetapkan untuk Production, Preview dan Development:
+
+   - `DATABASE_URL` — pooled Neon connection string.
+   - `RSVP_HASH_SECRET` — secret rawak sekurang-kurangnya 32 aksara.
+
+4. Redeploy Vercel dan uji `GET /api/rsvp` tanpa menghantar RSVP palsu.
+
+Lihat [.env.example](.env.example) untuk nama pemboleh ubah sahaja. Jangan letakkan secret dalam `config.js`, HTML atau GitHub.
+
+### Moderasi dan penyelenggaraan
+
+- Lalai: `RSVP_WISH_MODE=published`; ucapan baharu terus dipaparkan.
+- Moderasi: tetapkan `RSVP_WISH_MODE=pending`, kemudian ubah `wish_status` kepada `published` di Neon selepas diluluskan.
+- Bekukan penghantaran semasa penyelenggaraan: tetapkan `RSVP_WRITE_ENABLED=false`, redeploy, kemudian aktifkan semula dengan unset atau `true`.
+- Migrasi dari schema lama yang masih mempunyai nombor telefon: ikut [neon/migrations/20260815_remove_phone_from_rsvp.sql](neon/migrations/20260815_remove_phone_from_rsvp.sql) semasa penghantaran dibekukan. Jangan jalankan migrasi itu pada database kosong.
+
+Sistem menyimpan HMAC alamat IP bersama rekod RSVP dan jadual had kadar baca/hantar; IP mentah dan nombor telefon tidak disimpan. Rekod had kadar ini belum mempunyai pembersihan automatik, jadi tetapkan polisi retention atau tugas pembersihan Neon jika kad digunakan untuk tempoh lama.
 
 ## Deployment Vercel
 
-Projek ini telah diimport ke Vercel daripada repositori GitHub dan menggunakan tetapan berikut:
+Tetapan projek:
 
-- Framework Preset: `Other`
-- Root Directory: `./`
-- Build Command: kosong
-- Output Directory: kosong
-- Header keselamatan: dikonfigurasi dalam `vercel.json`
+- **Framework Preset:** `Other`
+- **Root Directory:** `./`
+- **Build Command / Output Directory:** kosong
+- **Runtime Node:** `>=20` seperti dalam `package.json`
+- **Headers keselamatan:** [vercel.json](vercel.json)
 
-Push baharu ke branch `main` akan mencetuskan deployment produksi automatik pada Vercel. Untuk domain sendiri, tambahkannya melalui tetapan **Domains** projek Vercel.
+Push ke `main` mencetuskan deployment produksi automatik. Selepas deployment, semak laman live, `/api/rsvp`, Google Maps, Waze, `Save The Date`, audio dan preview pautan sosial.
 
-## RSVP dan ucapan tetamu
+## Semakan teknikal yang disyorkan
 
-RSVP tidak disimpan dalam WhatsApp atau pelayar. Endpoint dalaman `/api/rsvp` pada Vercel menyimpan nama, kehadiran, jumlah tetamu serta ucapan dalam Neon PostgreSQL, kemudian hanya memulangkan ringkasan dan ucapan yang telah diterbitkan kepada kad. Nombor telefon tidak diminta, dihantar atau disimpan.
+```powershell
+node --check config.js
+node --check script.js
+node --check api\rsvp.js
+node --check api\_lib\rsvp.cjs
+npm audit --omit=dev
+git diff --check
+```
 
-Sistem menyimpan HMAC bagi alamat IP peminta di sebelah pelayan semata-mata untuk had kadar penghantaran dan bacaan; alamat IP mentah tidak disimpan. Oleh sebab kad tidak meminta maklumat hubungan atau pengenal unik, setiap penghantaran RSVP yang diterima disimpan sebagai rekod baharu. Tetamu perlu elakkan menghantar borang berulang kali.
+Tiada test runner automatik dalam projek ini lagi. Sebelum majlis, uji aliran sebenar pada telefon: buka kad, audio, RSVP, paparan ucapan, galeri, navigasi peta dan pautan panggilan/WhatsApp.
 
-Untuk deployment baharu atau pemulihan database:
+## Privasi, hak media dan penerbitan
 
-1. Cipta database Neon dan jalankan [neon/schema.sql](neon/schema.sql) sekali melalui **Neon SQL Editor**.
-2. Dalam **Vercel Project Settings → Environment Variables**, tambah untuk Production, Preview dan Development: `DATABASE_URL` (pooled Neon connection string) dan `RSVP_HASH_SECRET`.
-3. Jana `RSVP_HASH_SECRET` rawak sekurang-kurangnya 32 aksara. Ia digunakan di sebelah pelayan untuk HMAC alamat IP bagi had kadar sahaja.
-4. Redeploy projek. Contoh nama pemboleh ubah tersedia dalam [.env.example](.env.example). Jangan letakkan connection string atau secret dalam `config.js` atau GitHub.
+- Repositori dan laman ini adalah awam; alamat, nombor hubungan serta foto boleh dilihat oleh sesiapa yang mempunyai pautan.
+- `robots` ditetapkan kepada `noindex,nofollow`, tetapi ini bukan kawalan akses.
+- Google Fonts dan Google Maps ialah perkhidmatan pihak ketiga. Peta terbenam boleh menghantar maklumat pelawat kepada Google apabila dimuatkan.
+- Pastikan kebenaran foto dan lesen muzik mencukupi, khususnya untuk muzik komersial yang dimuat naik ke laman awam.
 
-Untuk Neon yang telah menggunakan schema lama dengan nombor telefon, jangan jalankan `schema.sql` sahaja. Bekukan penghantaran RSVP, jalankan [migration phone removal](neon/migrations/20260815_remove_phone_from_rsvp.sql), deploy kod yang sepadan, kemudian aktifkan semula penghantaran. Arahan itu mengekalkan data RSVP bukan telefon dan membuang kedua-dua kolum telefon. Jalankan `VACUUM (FULL, ANALYZE) public.rsvp_entries;` secara berasingan jika ruang fizikal bekas kolum juga perlu ditulis semula.
+## Checklist sebelum edar
 
-Secara lalai ucapan diterbitkan terus. Untuk semakan penganjur, tetapkan `RSVP_WISH_MODE=pending` dan ubah `wish_status` kepada `published` dalam Neon apabila ucapan sedia dipaparkan.
-
-Jika perlu membekukan penerimaan RSVP semasa penyelenggaraan, tetapkan `RSVP_WRITE_ENABLED=false` lalu redeploy. Paparan RSVP (`GET`) kekal berjalan manakala penghantaran (`POST`) menerima respons sementara 503. Biarkan pemboleh ubah itu unset atau `true` untuk mengaktifkan semula penghantaran.
-
-[Supabase schema](supabase/schema.sql) disimpan sebagai rekod sistem terdahulu sahaja; runtime kad tidak lagi menggunakan kredensial atau endpoint Supabase. Migrasi Neon tidak mengubah salinan data dalam projek Supabase lama; semak dan padamkan salinan itu secara berasingan jika pemadaman nombor telefon mesti merangkumi semua backup sejarah.
-
-## Privasi dan penerbitan
-
-Kad ini memaparkan maklumat majlis, nombor WhatsApp dan foto secara terus pada pelayar. Sesiapa yang mempunyai pautan boleh melihatnya. Repositori GitHub juga adalah awam pada masa ini.
-
-Laman menggunakan Google Fonts dan perkhidmatan QR pihak ketiga; QR membawa data lokasi ke perkhidmatan tersebut. Untuk privasi atau kebolehpercayaan yang lebih baik, jana dan hoskan kod QR sendiri sebelum edaran.
-
-## Semakan sebelum edar
-
-- Sahkan tarikh Hijrah dengan penganjur sebelum edaran.
-- Semak pautan lokasi, penerima RSVP utama, semua nombor WhatsApp dan fail kalendar pada telefon sebenar.
-- `robots` kini menggunakan `noindex,nofollow`; tukar hanya jika anda memang mahu kad muncul dalam carian.
-- Tetapkan `metadata.url` dan URL imej Open Graph mutlak selepas domain muktamad tersedia; imej Open Graph sengaja dikosongkan sehingga gambar yang betul dibekalkan.
-- Pastikan anda memiliki kebenaran untuk menggunakan semua foto dan audio yang ditambah kemudian.
+- Sahkan tarikh Hijrah, masa, alamat, atur cara dan nombor hubungan dengan penganjur.
+- Pastikan kandungan `.ics` sepadan dengan `config.js`.
+- Tambah dan uji imej Open Graph melalui WhatsApp/Facebook Debugger selepas domain muktamad dipilih.
+- Pilih sama ada ucapan perlu terus diterbitkan atau melalui moderasi.
+- Semak saiz foto/audio dan optimumkan WebP/AVIF atau audio bitrate rendah untuk tetamu menggunakan data mudah alih.
+- Uji pada Android, iPhone dan desktop sebelum pautan diedarkan.
