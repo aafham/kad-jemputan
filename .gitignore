@@ -1,0 +1,12 @@
+# Vercel local project settings
+.vercel/
+
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and operating-system metadata
+*.log
+.DS_Store
+Thumbs.db
