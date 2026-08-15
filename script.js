@@ -1340,7 +1340,6 @@ if (rsvpForm) {
     const submitButton = document.getElementById("rsvpSubmitText");
     const payload = {
       name: document.getElementById("guestName")?.value?.trim() || "",
-      phone: document.getElementById("guestPhone")?.value?.trim() || "",
       attendance,
       guestCount: attendance === "hadir" ? Number(guestCount?.value || 0) : 0,
       wish: guestWishes?.value?.trim() || "",

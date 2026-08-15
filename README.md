@@ -70,20 +70,24 @@ Push baharu ke branch `main` akan mencetuskan deployment produksi automatik pada
 
 ## RSVP dan ucapan tetamu
 
-RSVP tidak disimpan dalam WhatsApp atau pelayar. Endpoint dalaman `/api/rsvp` pada Vercel menyimpan kehadiran serta ucapan dalam Neon PostgreSQL, kemudian hanya memulangkan ringkasan dan ucapan yang telah diterbitkan kepada kad.
+RSVP tidak disimpan dalam WhatsApp atau pelayar. Endpoint dalaman `/api/rsvp` pada Vercel menyimpan nama, kehadiran, jumlah tetamu serta ucapan dalam Neon PostgreSQL, kemudian hanya memulangkan ringkasan dan ucapan yang telah diterbitkan kepada kad. Nombor telefon tidak diminta, dihantar atau disimpan.
+
+Sistem menyimpan HMAC bagi alamat IP peminta di sebelah pelayan semata-mata untuk had kadar penghantaran dan bacaan; alamat IP mentah tidak disimpan. Oleh sebab kad tidak meminta maklumat hubungan atau pengenal unik, setiap penghantaran RSVP yang diterima disimpan sebagai rekod baharu. Tetamu perlu elakkan menghantar borang berulang kali.
 
 Untuk deployment baharu atau pemulihan database:
 
 1. Cipta database Neon dan jalankan [neon/schema.sql](neon/schema.sql) sekali melalui **Neon SQL Editor**.
 2. Dalam **Vercel Project Settings → Environment Variables**, tambah untuk Production, Preview dan Development: `DATABASE_URL` (pooled Neon connection string) dan `RSVP_HASH_SECRET`.
-3. Jana `RSVP_HASH_SECRET` rawak sekurang-kurangnya 32 aksara. Jika data RSVP telah dipindahkan daripada sistem lama, kekalkan nilai yang sama supaya hash nombor telefon terus sepadan.
+3. Jana `RSVP_HASH_SECRET` rawak sekurang-kurangnya 32 aksara. Ia digunakan di sebelah pelayan untuk HMAC alamat IP bagi had kadar sahaja.
 4. Redeploy projek. Contoh nama pemboleh ubah tersedia dalam [.env.example](.env.example). Jangan letakkan connection string atau secret dalam `config.js` atau GitHub.
 
-Secara lalai ucapan diterbitkan terus. Untuk semakan penganjur, tetapkan `RSVP_WISH_MODE=pending` dan ubah `wish_status` kepada `published` dalam Neon apabila ucapan sedia dipaparkan. Nombor telefon tidak pernah dipulangkan oleh API awam atau dipaparkan pada kad.
+Untuk Neon yang telah menggunakan schema lama dengan nombor telefon, jangan jalankan `schema.sql` sahaja. Bekukan penghantaran RSVP, jalankan [migration phone removal](neon/migrations/20260815_remove_phone_from_rsvp.sql), deploy kod yang sepadan, kemudian aktifkan semula penghantaran. Arahan itu mengekalkan data RSVP bukan telefon dan membuang kedua-dua kolum telefon. Jalankan `VACUUM (FULL, ANALYZE) public.rsvp_entries;` secara berasingan jika ruang fizikal bekas kolum juga perlu ditulis semula.
+
+Secara lalai ucapan diterbitkan terus. Untuk semakan penganjur, tetapkan `RSVP_WISH_MODE=pending` dan ubah `wish_status` kepada `published` dalam Neon apabila ucapan sedia dipaparkan.
 
 Jika perlu membekukan penerimaan RSVP semasa penyelenggaraan, tetapkan `RSVP_WRITE_ENABLED=false` lalu redeploy. Paparan RSVP (`GET`) kekal berjalan manakala penghantaran (`POST`) menerima respons sementara 503. Biarkan pemboleh ubah itu unset atau `true` untuk mengaktifkan semula penghantaran.
 
-[Supabase schema](supabase/schema.sql) disimpan sebagai rekod sistem terdahulu sahaja; runtime kad tidak lagi menggunakan kredensial atau endpoint Supabase.
+[Supabase schema](supabase/schema.sql) disimpan sebagai rekod sistem terdahulu sahaja; runtime kad tidak lagi menggunakan kredensial atau endpoint Supabase. Migrasi Neon tidak mengubah salinan data dalam projek Supabase lama; semak dan padamkan salinan itu secara berasingan jika pemadaman nombor telefon mesti merangkumi semua backup sejarah.
 
 ## Privasi dan penerbitan
 

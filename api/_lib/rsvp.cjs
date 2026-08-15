@@ -102,39 +102,6 @@ function normalizeSingleLine(value, fieldName, minimum, maximum) {
   return normalized;
 }
 
-function normalizePhone(value) {
-  if (typeof value !== "string") {
-    throw new PublicApiError(400, "Sila isi nombor telefon yang sah.");
-  }
-
-  const raw = value.normalize("NFKC").trim();
-  if (!raw || raw.length > 40 || /[^0-9+().\s-]/.test(raw)) {
-    throw new PublicApiError(400, "Sila isi nombor telefon yang sah.");
-  }
-
-  const compact = raw.replace(/[().\s-]/g, "");
-  let international;
-
-  if (/^\+\d+$/.test(compact)) {
-    international = compact;
-  } else if (/^00\d+$/.test(compact)) {
-    international = `+${compact.slice(2)}`;
-  } else if (/^60\d+$/.test(compact)) {
-    international = `+${compact}`;
-  } else if (/^0\d+$/.test(compact)) {
-    // This wedding card is Malaysian, so local numbers are normalised to E.164.
-    international = `+60${compact.slice(1)}`;
-  } else {
-    throw new PublicApiError(400, "Sila isi nombor telefon yang sah.");
-  }
-
-  if (!/^\+[1-9]\d{7,14}$/.test(international)) {
-    throw new PublicApiError(400, "Sila isi nombor telefon yang sah.");
-  }
-
-  return international;
-}
-
 function normalizeWish(value) {
   if (value === undefined || value === null || value === "") {
     return null;
@@ -181,7 +148,6 @@ function validateSubmission(body, now = Date.now()) {
 
   const allowedFields = new Set([
     "name",
-    "phone",
     "attendance",
     "guestCount",
     "wish",
@@ -211,7 +177,6 @@ function validateSubmission(body, now = Date.now()) {
   return {
     isBot: false,
     name: normalizeSingleLine(body.name, "nama", 2, 80),
-    phone: normalizePhone(body.phone),
     attendance,
     guestCount: attendance === "hadir" ? normalizeGuestCount(body.guestCount) : 0,
     wish: normalizeWish(body.wish)
@@ -371,16 +336,13 @@ function sanitizePublicRsvpResult(result) {
 }
 
 async function submitRsvp(config, submission, req, options) {
-  const phoneHash = hashForPurpose(submission.phone, config.hashSecret, "rsvp-phone");
   const ipHash = hashForPurpose(getClientIp(req), config.hashSecret, "rsvp-ip");
 
   await callNeonQuery(
     config,
-    "select public.submit_rsvp($1::text, $2::text, $3::text, $4::text, $5::text, $6::integer, $7::text, $8::text) as result",
+    "select public.submit_rsvp($1::text, $2::text, $3::text, $4::integer, $5::text, $6::text) as result",
     [
       submission.name,
-      submission.phone,
-      phoneHash,
       ipHash,
       submission.attendance,
       submission.guestCount,

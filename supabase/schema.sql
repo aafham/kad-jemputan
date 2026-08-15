@@ -1,13 +1,12 @@
--- RSVP persistence for the Hani & Nabil invitation.
--- Run this once in the Supabase SQL Editor before enabling the Vercel API.
+-- Legacy RSVP persistence schema for the Hani & Nabil invitation.
+-- Supabase is no longer used by the live card. This kept-for-reference schema
+-- also intentionally does not collect or retain phone numbers.
 
 begin;
 
 create table if not exists public.rsvp_entries (
   id bigint generated always as identity primary key,
   name text not null,
-  phone_normalized text not null,
-  phone_hash text not null unique,
   ip_hash text not null,
   attendance text not null,
   guest_count smallint not null default 0,
@@ -16,8 +15,6 @@ create table if not exists public.rsvp_entries (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint rsvp_entries_name_length_check check (char_length(btrim(name)) between 2 and 80),
-  constraint rsvp_entries_phone_format_check check (phone_normalized ~ E'^\\+[1-9][0-9]{7,14}$'),
-  constraint rsvp_entries_phone_hash_format_check check (phone_hash ~ '^[a-f0-9]{64}$'),
   constraint rsvp_entries_ip_hash_format_check check (ip_hash ~ '^[a-f0-9]{64}$'),
   constraint rsvp_entries_attendance_check check (attendance in ('hadir', 'tidak_hadir')),
   constraint rsvp_entries_guest_count_check check (
@@ -56,7 +53,7 @@ create index if not exists rsvp_submission_events_ip_created_idx
 create index if not exists rsvp_read_rate_limits_updated_idx
   on public.rsvp_read_rate_limits (updated_at);
 
--- Phone numbers and IP hashes are private: RLS is enabled and no public policies exist.
+-- RSVP data and IP hashes are private: RLS is enabled and no public policies exist.
 alter table public.rsvp_entries enable row level security;
 alter table public.rsvp_submission_events enable row level security;
 alter table public.rsvp_read_rate_limits enable row level security;
@@ -120,8 +117,6 @@ $$;
 
 create or replace function public.submit_rsvp(
   p_name text,
-  p_phone_normalized text,
-  p_phone_hash text,
   p_ip_hash text,
   p_attendance text,
   p_guest_count integer,
@@ -153,10 +148,10 @@ begin
   insert into public.rsvp_submission_events (ip_hash)
   values (p_ip_hash);
 
+  -- Without a contact field there is no reliable person-level identifier.
+  -- Each accepted form submission is kept as its own RSVP entry.
   insert into public.rsvp_entries (
     name,
-    phone_normalized,
-    phone_hash,
     ip_hash,
     attendance,
     guest_count,
@@ -165,23 +160,12 @@ begin
   )
   values (
     p_name,
-    p_phone_normalized,
-    p_phone_hash,
     p_ip_hash,
     p_attendance,
     p_guest_count,
     p_wish,
     p_wish_status
-  )
-  on conflict (phone_hash) do update
-     set name = excluded.name,
-         phone_normalized = excluded.phone_normalized,
-         ip_hash = excluded.ip_hash,
-         attendance = excluded.attendance,
-         guest_count = excluded.guest_count,
-         wish = excluded.wish,
-         wish_status = excluded.wish_status;
-
+  );
   return jsonb_build_object('ok', true);
 end;
 $$;
@@ -246,11 +230,11 @@ $$;
 
 revoke all on function public.set_rsvp_updated_at() from public, anon, authenticated;
 revoke all on function public.consume_rsvp_read_budget(text) from public, anon, authenticated;
-revoke all on function public.submit_rsvp(text, text, text, text, text, integer, text, text)
+revoke all on function public.submit_rsvp(text, text, text, integer, text, text)
   from public, anon, authenticated;
 revoke all on function public.get_public_rsvp(text) from public, anon, authenticated;
 
-grant execute on function public.submit_rsvp(text, text, text, text, text, integer, text, text)
+grant execute on function public.submit_rsvp(text, text, text, integer, text, text)
   to service_role;
 grant execute on function public.get_public_rsvp(text) to service_role;
 

@@ -1103,8 +1103,7 @@ body::before {
 }
 
 .optional,
-.wish-count,
-.privacy-note {
+.wish-count {
   color: var(--muted);
   font-size: 11px;
 }
@@ -1112,11 +1111,6 @@ body::before {
 .wish-count {
   margin: -4px 0 0;
   text-align: right;
-}
-
-.privacy-note {
-  margin: 0;
-  line-height: 1.5;
 }
 
 .dialog-actions {
@@ -1683,8 +1677,7 @@ body::after {
 .countdown-title,
 .calendar-header,
 .countdown-status,
-.qr-title,
-.privacy-note {
+.qr-title {
   color: var(--muted);
 }
 
