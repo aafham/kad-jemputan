@@ -204,7 +204,20 @@
         <section class="section gallery-section reveal" id="gallerySection" aria-labelledby="galleryHeading" style="--delay: 0.9s" hidden>
           <h2 id="galleryHeading">Galeri Momen Indah</h2>
           <p class="section-subtitle">Detik istimewa Nabil &amp; Hanis</p>
-          <div class="gallery-grid" id="galleryGrid"></div>
+          <div class="gallery-carousel" aria-roledescription="carousel" aria-label="Galeri momen indah">
+            <p class="visually-hidden" id="galleryInstructions">Gunakan butang atau anak panah kiri dan kanan untuk melihat foto lain. Anda juga boleh swipe pada galeri.</p>
+            <div class="gallery-grid" id="galleryGrid" tabindex="0" aria-describedby="galleryInstructions"></div>
+            <div class="gallery-navigation" id="galleryControls" aria-label="Kawalan galeri">
+              <button class="gallery-control" id="galleryPrev" type="button" aria-label="Lihat foto sebelumnya">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 5-7 7 7 7" /></svg>
+              </button>
+              <p class="gallery-index" id="galleryIndex" aria-live="polite" aria-atomic="true">1 / 1</p>
+              <button class="gallery-control" id="galleryNext" type="button" aria-label="Lihat foto seterusnya">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 5 7 7-7 7" /></svg>
+              </button>
+            </div>
+            <p class="gallery-swipe-hint" aria-hidden="true">Swipe atau tekan anak panah untuk melihat foto</p>
+          </div>
         </section>
 
         <div class="divider reveal" style="--delay: 0.95s">* * *</div>

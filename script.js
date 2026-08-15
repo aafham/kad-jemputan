@@ -78,6 +78,271 @@ const getNameInitial = value => {
   return name ? name.slice(0, 1).toLocaleUpperCase("ms-MY") : "";
 };
 
+const getGalleryDelta = (index, activeIndex, total) => {
+  let delta = index - activeIndex;
+  if (delta > total / 2) {
+    delta -= total;
+  }
+  if (delta < -total / 2) {
+    delta += total;
+  }
+  return delta;
+};
+
+const normaliseGalleryIndex = (index, total) => {
+  if (total < 1) {
+    return 0;
+  }
+  return ((index % total) + total) % total;
+};
+
+const renderGalleryCarousel = (galleryRoot, gallery) => {
+  const gallerySection = document.getElementById("gallerySection");
+  const previousButton = document.getElementById("galleryPrev");
+  const nextButton = document.getElementById("galleryNext");
+  const controls = document.getElementById("galleryControls");
+  const indexStatus = document.getElementById("galleryIndex");
+  const cards = [];
+  let activeIndex = 0;
+  let pointerStart = null;
+  let touchStart = null;
+  let mouseStart = null;
+  let lastPointerEventAt = 0;
+  let lastTouchEventAt = 0;
+  let suppressClickUntil = 0;
+
+  galleryRoot.replaceChildren();
+
+  const updateCarousel = () => {
+    const total = cards.length;
+    if (total === 0) {
+      setHidden(gallerySection, true);
+      setHidden(controls, true);
+      return;
+    }
+
+    activeIndex = normaliseGalleryIndex(activeIndex, total);
+    cards.forEach((figure, index) => {
+      const delta = getGalleryDelta(index, activeIndex, total);
+      figure.classList.remove(
+        "is-active",
+        "is-prev",
+        "is-next",
+        "is-far-prev",
+        "is-far-next",
+        "is-hidden"
+      );
+
+      let position = "is-hidden";
+      if (delta === 0) {
+        position = "is-active";
+      } else if (delta === -1) {
+        position = "is-prev";
+      } else if (delta === 1) {
+        position = "is-next";
+      } else if (delta === -2) {
+        position = "is-far-prev";
+      } else if (delta === 2) {
+        position = "is-far-next";
+      }
+
+      const isVisible = position !== "is-hidden";
+      figure.classList.add(position);
+      figure.setAttribute("aria-hidden", String(!isVisible));
+      figure.dataset.position = position.replace("is-", "");
+    });
+
+    if (indexStatus) {
+      indexStatus.textContent = activeIndex + 1 + " / " + total;
+    }
+    galleryRoot.setAttribute(
+      "aria-label",
+      "Foto " + (activeIndex + 1) + " daripada " + total + ". Gunakan anak panah kiri atau kanan untuk melihat foto lain."
+    );
+    setHidden(controls, total < 2);
+  };
+
+  gallery.forEach((item, index) => {
+    const figure = document.createElement("figure");
+    figure.className = "gallery-item";
+    const layout = ["portrait", "portrait-center", "hero", "landscape"].includes(item.layout)
+      ? item.layout
+      : "portrait";
+    const label = item.alt || item.caption || "Galeri majlis " + (index + 1);
+    figure.classList.add("gallery-item--" + layout);
+    figure.dataset.galleryIndex = String(index);
+    figure.setAttribute("role", "group");
+    figure.setAttribute("aria-label", "Foto " + (index + 1) + " daripada " + gallery.length + ": " + label);
+
+    const img = document.createElement("img");
+    img.className = "gallery-photo";
+    img.alt = label;
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    img.addEventListener("error", () => {
+      const removedIndex = cards.indexOf(figure);
+      if (removedIndex !== -1) {
+        cards.splice(removedIndex, 1);
+        if (removedIndex < activeIndex) {
+          activeIndex -= 1;
+        }
+      }
+      figure.remove();
+      updateCarousel();
+    }, { once: true });
+    img.src = item.src;
+
+    figure.appendChild(img);
+    if (item.caption) {
+      figure.classList.add("gallery-item--has-caption");
+      const caption = document.createElement("figcaption");
+      caption.textContent = item.caption;
+      figure.appendChild(caption);
+    }
+
+    figure.addEventListener("click", () => {
+      if (Date.now() < suppressClickUntil) {
+        return;
+      }
+      const cardIndex = cards.indexOf(figure);
+      if (cardIndex !== -1 && cardIndex !== activeIndex) {
+        activeIndex = cardIndex;
+        updateCarousel();
+      }
+    });
+
+    cards.push(figure);
+    galleryRoot.appendChild(figure);
+  });
+
+  const moveCarousel = direction => {
+    if (cards.length < 2) {
+      return;
+    }
+    activeIndex = normaliseGalleryIndex(activeIndex + direction, cards.length);
+    updateCarousel();
+  };
+
+  const completeGesture = (start, end) => {
+    if (!start || !end) {
+      return;
+    }
+
+    const horizontalDistance = end.x - start.x;
+    const verticalDistance = end.y - start.y;
+    if (Math.abs(horizontalDistance) < 36 || Math.abs(horizontalDistance) <= Math.abs(verticalDistance)) {
+      return;
+    }
+
+    suppressClickUntil = Date.now() + 350;
+    moveCarousel(horizontalDistance < 0 ? 1 : -1);
+  };
+
+  if (previousButton) {
+    previousButton.onclick = () => moveCarousel(-1);
+  }
+  if (nextButton) {
+    nextButton.onclick = () => moveCarousel(1);
+  }
+
+  galleryRoot.onkeydown = event => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      moveCarousel(-1);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      moveCarousel(1);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      activeIndex = 0;
+      updateCarousel();
+    } else if (event.key === "End") {
+      event.preventDefault();
+      activeIndex = Math.max(cards.length - 1, 0);
+      updateCarousel();
+    }
+  };
+
+  galleryRoot.onpointerdown = event => {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) {
+      return;
+    }
+    lastPointerEventAt = Date.now();
+    pointerStart = { x: event.clientX, y: event.clientY };
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch (error) {
+      // Pointer capture is optional; the gesture can still finish inside the gallery.
+    }
+  };
+
+  galleryRoot.onpointerup = event => {
+    lastPointerEventAt = Date.now();
+    if (!pointerStart || !event.isPrimary) {
+      return;
+    }
+
+    completeGesture(pointerStart, { x: event.clientX, y: event.clientY });
+    pointerStart = null;
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch (error) {
+      // No action needed when pointer capture was not set.
+    }
+  };
+
+  galleryRoot.onpointercancel = () => {
+    pointerStart = null;
+    lastPointerEventAt = Date.now();
+  };
+
+  galleryRoot.ontouchstart = event => {
+    if (Date.now() - lastPointerEventAt < 700) {
+      return;
+    }
+    const touch = event.touches[0];
+    touchStart = touch ? { x: touch.clientX, y: touch.clientY } : null;
+  };
+
+  galleryRoot.ontouchend = event => {
+    if (Date.now() - lastPointerEventAt < 700 || !touchStart) {
+      return;
+    }
+    const touch = event.changedTouches[0];
+    const start = touchStart;
+    touchStart = null;
+    lastTouchEventAt = Date.now();
+    completeGesture(start, touch ? { x: touch.clientX, y: touch.clientY } : null);
+  };
+
+  galleryRoot.ontouchcancel = () => {
+    touchStart = null;
+    lastTouchEventAt = Date.now();
+  };
+
+  galleryRoot.onmousedown = event => {
+    if (event.button !== 0 || Date.now() - lastPointerEventAt < 700 || Date.now() - lastTouchEventAt < 700) {
+      return;
+    }
+    mouseStart = { x: event.clientX, y: event.clientY };
+  };
+
+  galleryRoot.onmouseup = event => {
+    if (!mouseStart) {
+      return;
+    }
+    if (Date.now() - lastPointerEventAt < 700 || Date.now() - lastTouchEventAt < 700) {
+      mouseStart = null;
+      return;
+    }
+    completeGesture(mouseStart, { x: event.clientX, y: event.clientY });
+    mouseStart = null;
+  };
+
+  updateCarousel();
+};
+
 const setInteractive = (el, enabled) => {
   if (!el) {
     return;
@@ -686,32 +951,7 @@ const applyConfig = () => {
   const hasGallery = Array.isArray(config.gallery) && config.gallery.length > 0;
   setHidden(document.getElementById("gallerySection"), !hasGallery);
   if (galleryRoot && hasGallery) {
-    galleryRoot.replaceChildren();
-    config.gallery.forEach((item, index) => {
-      const figure = document.createElement("figure");
-      figure.className = "gallery-item";
-      const layout = ["portrait", "portrait-center", "hero", "landscape"].includes(item.layout)
-        ? item.layout
-        : "portrait";
-      figure.classList.add("gallery-item--" + layout);
-
-      const img = document.createElement("img");
-      img.className = "gallery-photo";
-      img.src = item.src;
-      img.alt = item.alt || item.caption || "Galeri majlis " + (index + 1);
-      img.loading = "lazy";
-      img.decoding = "async";
-      img.referrerPolicy = "no-referrer";
-      img.addEventListener("error", () => figure.remove(), { once: true });
-
-      figure.appendChild(img);
-      if (item.caption) {
-        const caption = document.createElement("figcaption");
-        caption.textContent = item.caption;
-        figure.appendChild(caption);
-      }
-      galleryRoot.appendChild(figure);
-    });
+    renderGalleryCarousel(galleryRoot, config.gallery);
   }
 
   renderCalendar(event, calendar);
