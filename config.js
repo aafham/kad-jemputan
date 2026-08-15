@@ -51,8 +51,7 @@ window.invitationConfig = {
       "No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Batu 4, 42100 Klang, Selangor",
     googleMapsUrl: "https://maps.app.goo.gl/N7knrqnGxRjdZbNn9",
     wazeUrl: "https://waze.com/ul/hw2817w493",
-    embedUrl: "https://www.google.com/maps?q=3.0653862,101.4074413&z=17&output=embed",
-    pinLabel: "Pin lokasi majlis"
+    embedUrl: "https://www.google.com/maps?q=3.0653862,101.4074413&z=17&output=embed"
   },
   contact: {
     whatsapp: "60193103047",

@@ -9,7 +9,7 @@ Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan
 - Skrin pembuka dengan animasi pintu dan dekorasi bunga.
 - Paparan nama penuh pasangan, keluarga yang menjemput, tarikh Masihi/Hijrah, masa dan lokasi melalui satu fail konfigurasi.
 - Countdown ke hari majlis.
-- Peta, pautan Google Maps/Waze dan kod QR lokasi.
+- Peta serta pautan navigasi Google Maps dan Waze.
 - Atur cara, senarai nombor untuk dihubungi, pautan kalendar `.ics` dan perkongsian pautan.
 - RSVP sebenar, kiraan kehadiran dan paparan ucapan tetamu melalui Vercel Function + Neon PostgreSQL.
 - Reka letak responsif untuk desktop dan telefon mudah alih.

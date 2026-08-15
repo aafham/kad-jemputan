@@ -992,36 +992,30 @@ const applyConfig = () => {
   const mapQuery = encodeURIComponent(map.query || event.address || event.venue || "");
   const googleMapsUrl = map.googleMapsUrl || "https://www.google.com/maps/search/?api=1&query=" + mapQuery;
   const wazeUrl = map.wazeUrl || "https://waze.com/ul?q=" + mapQuery + "&navigate=yes";
-  const mapLabel = event.address || event.venue || "lokasi majlis";
+  const mapLabel = event.address || event.venue || map.query || "lokasi majlis";
 
-  const googleMapsLink = document.getElementById("googleMapsLink");
   const googleMapsBtn = document.getElementById("googleMapsBtn");
   const wazeBtn = document.getElementById("wazeBtn");
   const mapPreview = document.getElementById("mapPreview");
   const mapEmbed = document.getElementById("mapEmbed");
-  const qrImage = document.getElementById("qrImage");
+  const mapAddress = document.getElementById("mapAddress");
 
-  if (googleMapsLink) {
-    googleMapsLink.href = googleMapsUrl;
-    googleMapsLink.textContent = map.pinLabel || "Pin lokasi majlis";
-    googleMapsLink.setAttribute("aria-label", "Buka pin lokasi " + mapLabel + " di Google Maps (tab baharu)");
-  }
   if (googleMapsBtn) {
     googleMapsBtn.href = googleMapsUrl;
+    googleMapsBtn.setAttribute("aria-label", "Buka lokasi " + mapLabel + " di Google Maps (tab baharu)");
   }
   if (wazeBtn) {
     wazeBtn.href = wazeUrl;
+    wazeBtn.setAttribute("aria-label", "Buka lokasi " + mapLabel + " di Waze (tab baharu)");
   }
   if (mapEmbed && map.embedUrl) {
     mapEmbed.src = map.embedUrl;
     mapEmbed.title = "Peta pin lokasi " + mapLabel;
   }
   setHidden(mapPreview, !map.embedUrl);
-  if (qrImage) {
-    qrImage.src =
-      "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" +
-      encodeURIComponent(googleMapsUrl);
-    qrImage.alt = "Kod QR lokasi " + mapLabel;
+  if (mapAddress) {
+    setText(mapAddress, mapLabel ? "Lokasi: " + mapLabel : "");
+    setHidden(mapAddress, !mapLabel);
   }
 
   const swatchRoot = document.getElementById("dressSwatches");

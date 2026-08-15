@@ -572,9 +572,10 @@ body::before {
    MAP
 ===================== */
 .map-preview {
-  max-width: 320px;
-  height: 210px;
-  margin: 12px auto;
+  width: min(100%, 340px);
+  max-width: 340px;
+  height: clamp(205px, 60vw, 235px);
+  margin: 12px auto 0;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -588,64 +589,51 @@ body::before {
   border: 0;
 }
 
-.map-pin-link {
-  display: flex;
-  width: fit-content;
-  max-width: 100%;
-  margin: -2px auto 10px;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border: 1px solid var(--border);
-  padding: 7px 12px;
-  border-radius: 14px;
-  font-size: 11px;
-  color: var(--ink);
-  text-decoration: none;
-  white-space: nowrap;
+.map-address {
+  width: min(100%, 340px);
+  margin: 10px auto 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(164, 111, 52, 0.21);
+  border-radius: 16px;
+  background: rgba(255, 253, 247, 0.9);
+  box-shadow: 0 8px 20px rgba(77, 50, 24, 0.055);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .map-actions {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+  margin-top: 12px;
 }
 
 .map-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 10px 16px;
-  border-radius: 999px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
   border: 1px solid var(--accent);
   text-decoration: none;
   color: var(--ink);
-  font-size: 12px;
   background: #fff;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.qr-box {
-  margin: 12px auto 0;
-  width: fit-content;
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid rgba(185, 146, 110, 0.2);
-  padding: 10px;
+.map-btn:hover {
+  transform: translateY(-1px);
 }
 
-.qr-title {
-  font-size: 11px;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-.qr-box img {
-  width: 120px;
-  height: 120px;
+.map-brand-icon {
+  width: 27px;
+  height: 27px;
   display: block;
-  margin: 0 auto;
 }
 
 /* =====================
@@ -1676,8 +1664,7 @@ body::after {
 .calendar-title,
 .countdown-title,
 .calendar-header,
-.countdown-status,
-.qr-title {
+.countdown-status {
   color: var(--muted);
 }
 
@@ -1718,7 +1705,6 @@ body::after {
 .mini-calendar,
 .time-box,
 .slot,
-.qr-box,
 .attendance-stat,
 .wish-card,
 .empty-state {
@@ -1741,7 +1727,6 @@ body::after {
   box-shadow: 0 14px 28px rgba(58, 42, 24, 0.18);
 }
 
-.map-pin-link,
 .map-btn,
 .save-date-btn.secondary,
 .rsvp-dialog__close,
@@ -1752,7 +1737,6 @@ body::after {
 }
 
 .map-btn:hover,
-.map-pin-link:hover,
 .save-date-btn.secondary:hover,
 .fab-btn:hover {
   background: #f3e5cc;
