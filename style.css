@@ -630,10 +630,12 @@ body::before {
   transform: translateY(-1px);
 }
 
-.map-brand-icon {
+.map-brand-image {
   width: 27px;
   height: 27px;
   display: block;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 /* =====================
