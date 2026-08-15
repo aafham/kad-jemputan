@@ -383,24 +383,6 @@ body::before {
   font-weight: 600;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 6px;
-}
-
-.chip {
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  background: #ffffff;
-  border: 1px solid var(--border);
-  color: var(--muted);
-}
-
 .section {
   margin: 18px 0 12px;
 }
@@ -1691,16 +1673,6 @@ body::after {
 .qr-title,
 .privacy-note {
   color: var(--muted);
-}
-
-.chips {
-  gap: 7px;
-}
-
-.chip {
-  border-color: rgba(169, 112, 53, 0.3);
-  background: rgba(255, 253, 247, 0.82);
-  box-shadow: 0 5px 14px rgba(77, 50, 24, 0.05);
 }
 
 .section {

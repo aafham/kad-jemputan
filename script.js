@@ -950,8 +950,6 @@ const applyConfig = () => {
   setText("fullNamesText", (Array.isArray(couple.fullNames) ? couple.fullNames : []).filter(Boolean).join("\n"));
   setText("eventDateText", event.dateText);
   setText("hijriDateText", event.hijriDate || "");
-  setText("chipTime", event.timeText);
-  setText("chipVenue", event.venue);
   setText("quoteHeading", invitation.heading || "Jemputan");
   setText("bismillahText", invitation.bismillah || "");
   setText("quoteText", invitation.intro || config.quote || "");
