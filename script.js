@@ -590,7 +590,6 @@ const applyConfig = () => {
   setText("openInitialBride", getNameInitial(coupleNames[1]));
   setText("heroGroom", coupleNames[0] || "");
   setText("heroBride", coupleNames[1] || "");
-  setText("sealText", couple.monogram);
   setText("eventTitle", event.title ? event.title.toUpperCase() : "");
   setText("fullNamesText", (Array.isArray(couple.fullNames) ? couple.fullNames : []).filter(Boolean).join("\n"));
   setText("eventDateText", event.dateText);

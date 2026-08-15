@@ -2085,3 +2085,85 @@ textarea:focus-visible {
   box-shadow: 0 10px 22px rgba(77, 50, 24, 0.12);
   object-fit: contain;
 }
+
+/* =====================
+   SIMPLIFIED HERO + COUNTDOWN
+===================== */
+.card::after {
+  display: none;
+}
+
+.hero {
+  padding-top: 28px;
+}
+
+.hero::before,
+.hero::after {
+  content: none;
+  display: none;
+}
+
+.countdown-section {
+  margin-top: 20px;
+  padding: 16px 4px 4px;
+  border-top: 1px solid rgba(164, 111, 52, 0.18);
+}
+
+.countdown-title {
+  margin-bottom: 12px;
+  color: #74716c;
+  font-family: "Montserrat", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.3px;
+}
+
+.countdown {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 0;
+}
+
+.time-box {
+  min-width: 0;
+  padding: 6px 2px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.time-box + .time-box {
+  border-left: 1px solid rgba(137, 122, 97, 0.2);
+}
+
+.time-box span {
+  color: #737572;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(20px, 6.2vw, 28px);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+.time-box small {
+  margin-top: 5px;
+  color: #8d8e89;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: 1;
+  text-transform: none;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
