@@ -69,7 +69,7 @@ window.invitationConfig = {
         phones: [{ display: "012-362 8981", number: "60123628981" }]
       },
       {
-        name: "Nabil",
+        name: "En. Nabil",
         phones: [
           { display: "013-985 7271", number: "60139857271" },
           { display: "019-978 8416", number: "60199788416" }

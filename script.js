@@ -849,7 +849,11 @@ const createContactIcon = type => {
     );
   }
 
-  path.setAttribute("fill", "currentColor");
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "currentColor");
+  path.setAttribute("stroke-width", type === "whatsapp" ? "1.45" : "1.8");
+  path.setAttribute("stroke-linecap", "round");
+  path.setAttribute("stroke-linejoin", "round");
   svg.appendChild(path);
   return svg;
 };

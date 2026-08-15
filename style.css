@@ -528,13 +528,15 @@ body::before {
   height: 44px;
   place-items: center;
   border-radius: 50%;
+  background: transparent;
+  color: var(--batik);
   text-decoration: none;
-  transition: transform 0.2s ease, filter 0.2s ease;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .contact-action:hover {
   transform: translateY(-1px);
-  filter: brightness(0.96);
+  color: var(--accent-strong);
 }
 
 .contact-action svg {
@@ -542,14 +544,10 @@ body::before {
   height: 20px;
 }
 
-.contact-action--whatsapp {
-  background: #25d366;
-  color: #ffffff;
-}
-
+.contact-action--whatsapp,
 .contact-action--call {
-  background: var(--batik, #254b49);
-  color: #ffffff;
+  background: transparent;
+  color: var(--batik);
 }
 
 .info-grid {
@@ -1930,15 +1928,15 @@ textarea:focus-visible {
 }
 
 .contact-action {
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 0 4px 10px rgba(40, 55, 44, 0.1);
+  width: 44px;
+  height: 44px;
+  border: 0;
+  box-shadow: none;
 }
 
 .contact-action svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 @media (max-width: 480px) {
