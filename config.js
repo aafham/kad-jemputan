@@ -13,7 +13,7 @@ window.invitationConfig = {
     groom: "Nabil",
     displayNames: ["Nabil", "Hani"],
     fullNames: [
-      "Mohammad Nabil bin Mohd Eirwan @ Keliwon",
+      "Mohammad Nabil bin Mohd Eirwan",
       "Nurul Haniszan binti Mohd Sham"
     ],
     monogram: "N&H"
