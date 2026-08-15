@@ -1956,14 +1956,14 @@ textarea:focus-visible {
 /* =====================
    FLORAL OPENING COVER (PREVIEW)
 ===================== */
-#openPage:not(.opened) .door {
+#openPage .door {
   background: #fcf8f2;
   border-color: rgba(177, 134, 75, 0.2);
   box-shadow: none;
 }
 
-#openPage:not(.opened) .door::before,
-#openPage:not(.opened) .door::after {
+#openPage .door::before,
+#openPage .door::after {
   display: none;
 }
 
