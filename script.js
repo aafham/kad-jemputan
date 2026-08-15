@@ -961,7 +961,6 @@ const applyConfig = () => {
 
   renderFamily(family);
 
-  setText("infoVenue", (event.address || event.venue) ? "Lokasi: " + (event.address || event.venue) : "");
   setText("infoTime", event.timeText ? "Masa: " + event.timeText : "");
   setText("infoDressCode", dressCode.shortText ? "Tema: " + dressCode.shortText : "");
   setText("dressCodeText", dressCode.text);
