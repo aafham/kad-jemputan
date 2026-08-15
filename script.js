@@ -514,8 +514,16 @@ const renderContacts = people => {
 
   contactRoot.replaceChildren();
   contacts.forEach(person => {
+    const phoneEntries = (Array.isArray(person.phones) ? person.phones : []).flatMap(phone => {
+      const number = cleanWhatsappNumber(phone?.number);
+      return isValidWhatsappNumber(number) ? [{ phone, number }] : [];
+    });
+
     const card = document.createElement("div");
     card.className = "contact-card";
+    if (phoneEntries.length === 1) {
+      card.classList.add("contact-card--single");
+    }
 
     if (person.name) {
       const name = document.createElement("p");
@@ -524,12 +532,7 @@ const renderContacts = people => {
       card.appendChild(name);
     }
 
-    (Array.isArray(person.phones) ? person.phones : []).forEach(phone => {
-      const number = cleanWhatsappNumber(phone?.number);
-      if (!isValidWhatsappNumber(number)) {
-        return;
-      }
-
+    phoneEntries.forEach(({ phone, number }) => {
       const displayNumber = phone.display || number;
       const phoneRow = document.createElement("div");
       phoneRow.className = "contact-phone";
