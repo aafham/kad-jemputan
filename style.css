@@ -309,6 +309,12 @@ body::before {
   color: var(--name-ink);
 }
 
+/* The heading receives programmatic focus after opening for screen readers.
+   It is not keyboard-tabbed to, so suppress browser-specific focus rings here. */
+#invitationTitle:focus {
+  outline: none;
+}
+
 #invitationTitle .amp {
   display: inline-block;
   margin: 0 0.06em;
