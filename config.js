@@ -84,7 +84,8 @@ window.invitationConfig = {
   },
   schedule: [
     { time: "11.00 pagi", title: "Jamuan makan hingga 4.00 petang" },
-    { time: "12.30 tgh.", title: "Ketibaan pengantin" }
+    { time: "12.30 tgh.", title: "Ketibaan pengantin" },
+    { time: "4.00 petang", title: "Majlis tamat" }
   ],
   rsvp: {
     enabled: true,
