@@ -691,11 +691,15 @@ const applyConfig = () => {
     config.gallery.forEach((item, index) => {
       const figure = document.createElement("figure");
       figure.className = "gallery-item";
+      const layout = ["portrait", "portrait-center", "hero", "landscape"].includes(item.layout)
+        ? item.layout
+        : "portrait";
+      figure.classList.add("gallery-item--" + layout);
 
       const img = document.createElement("img");
       img.className = "gallery-photo";
       img.src = item.src;
-      img.alt = item.caption || "Galeri majlis " + (index + 1);
+      img.alt = item.alt || item.caption || "Galeri majlis " + (index + 1);
       img.loading = "lazy";
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";

@@ -91,7 +91,68 @@ window.invitationConfig = {
     endpoint: "/api/rsvp"
   },
   dressCode: {},
-  gallery: [],
+  gallery: [
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (1).png",
+      alt: "Nabil dan Hanis di taman",
+      layout: "portrait"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (2).png",
+      alt: "Nabil dan Hanis bersama bunga lili",
+      layout: "portrait"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_12_58 PM (3).png",
+      alt: "Potret Nabil dan Hanis",
+      layout: "portrait-center"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (1).png",
+      alt: "Nabil dan Hanis berpegangan tangan di taman",
+      layout: "hero"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (2).png",
+      alt: "Nabil dan Hanis saling berpandangan di taman",
+      layout: "landscape"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (3).png",
+      alt: "Nabil dan Hanis berpegangan tangan",
+      layout: "landscape"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (4).png",
+      alt: "Nabil dan Hanis bersama bunga lili",
+      layout: "landscape"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (5).png",
+      alt: "Potret Nabil dan Hanis saling berpandangan",
+      layout: "landscape"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (6).png",
+      alt: "Potret Nabil dan Hanis",
+      layout: "landscape"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (7).png",
+      alt: "Hanis bersalaman dengan Nabil",
+      layout: "landscape"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (8).png",
+      alt: "Hanis bersalaman dengan Nabil",
+      layout: "landscape"
+    },
+    {
+      src: "assets/images/ChatGPT Image Aug 15, 2026, 07_13_27 PM (9).png",
+      alt: "Nabil dan Hanis dalam suasana majlis",
+      layout: "landscape"
+    }
+  ],
   audio: {
     enabled: true
   }
