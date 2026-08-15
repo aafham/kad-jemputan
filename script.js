@@ -797,6 +797,25 @@ const renderSchedule = schedule => {
   });
 };
 
+const appendNamePair = (root, names, tagName) => {
+  const people = Array.isArray(names) ? names.filter(Boolean) : [];
+
+  people.forEach((person, index) => {
+    const name = document.createElement(tagName);
+    name.className = "name-pair-line";
+    name.textContent = person;
+    root.appendChild(name);
+
+    if (people.length === 2 && index === 0) {
+      const separator = document.createElement(tagName);
+      separator.className = "name-pair-separator";
+      separator.textContent = "&";
+      separator.setAttribute("aria-label", "dan");
+      root.appendChild(separator);
+    }
+  });
+};
+
 const renderFamily = family => {
   const familyRoot = document.getElementById("familyList");
   if (!familyRoot) {
@@ -819,11 +838,7 @@ const renderFamily = family => {
       card.appendChild(label);
     }
 
-    (Array.isArray(host.people) ? host.people : []).filter(Boolean).forEach(person => {
-      const name = document.createElement("p");
-      name.textContent = person;
-      card.appendChild(name);
-    });
+    appendNamePair(card, host.people, "p");
 
     familyRoot.appendChild(card);
   });
@@ -947,7 +962,11 @@ const applyConfig = () => {
   setText("heroGroom", coupleNames[0] || "");
   setText("heroBride", coupleNames[1] || "");
   setText("eventTitle", event.title ? event.title.toUpperCase() : "");
-  setText("fullNamesText", (Array.isArray(couple.fullNames) ? couple.fullNames : []).filter(Boolean).join("\n"));
+  const fullNamesRoot = document.getElementById("fullNamesText");
+  if (fullNamesRoot) {
+    fullNamesRoot.replaceChildren();
+    appendNamePair(fullNamesRoot, couple.fullNames, "span");
+  }
   setText("eventDateText", event.dateText);
   setText("hijriDateText", event.hijriDate || "");
   setText("heroTime", event.timeText ? "Masa: " + event.timeText : "");

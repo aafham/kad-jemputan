@@ -415,7 +415,7 @@ body::before {
   font-size: 11px;
   line-height: 1.55;
   color: var(--muted);
-  white-space: pre-line;
+  text-align: center;
 }
 
 .hijri-date {
@@ -774,8 +774,8 @@ body::before {
 
 .slot > span:first-child {
   min-width: 0;
-  justify-self: start;
-  text-align: left;
+  justify-self: end;
+  text-align: right;
   white-space: nowrap;
   font-weight: 600;
   color: var(--accent-strong);
@@ -783,8 +783,8 @@ body::before {
 
 .slot > span:last-child {
   min-width: 0;
-  justify-self: end;
-  text-align: right;
+  justify-self: start;
+  text-align: left;
 }
 
 /* =====================
@@ -2478,6 +2478,21 @@ textarea:focus-visible {
   margin: 2px 0;
 }
 
+.name-pair-line {
+  display: block;
+}
+
+.invitation-letter .name-pair-separator {
+  display: block;
+  margin: 0.1em 0;
+  color: #9f895f;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 0.78em;
+  font-weight: 600;
+  line-height: 0.8;
+  text-align: center;
+}
+
 .invitation-letter .family-title {
   display: none;
 }
@@ -2498,7 +2513,7 @@ textarea:focus-visible {
   font-size: clamp(20px, 5vw, 24px);
   font-weight: 700;
   line-height: 1.12;
-  white-space: pre-line;
+  text-align: center;
 }
 
 @media (max-width: 480px) {
