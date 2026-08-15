@@ -797,13 +797,24 @@ const renderSchedule = schedule => {
   });
 };
 
-const appendNamePair = (root, names, tagName) => {
+const appendNamePair = (root, names, tagName, { formalHonorifics = false } = {}) => {
   const people = Array.isArray(names) ? names.filter(Boolean) : [];
 
   people.forEach((person, index) => {
     const name = document.createElement(tagName);
     name.className = "name-pair-line";
-    name.textContent = person;
+    const nameText = String(person);
+    const honorific = formalHonorifics ? nameText.match(/^(En\.|Puan)\s+(.+)$/i) : null;
+
+    if (honorific) {
+      const title = document.createElement("span");
+      title.className = "name-honorific";
+      title.textContent = honorific[1];
+      name.append(title, document.createTextNode(" " + honorific[2]));
+    } else {
+      name.textContent = nameText;
+    }
+
     root.appendChild(name);
 
     if (people.length === 2 && index === 0) {
@@ -838,10 +849,45 @@ const renderFamily = family => {
       card.appendChild(label);
     }
 
-    appendNamePair(card, host.people, "p");
+    appendNamePair(card, host.people, "p", { formalHonorifics: true });
 
     familyRoot.appendChild(card);
   });
+};
+
+const renderInvitationCopy = text => {
+  const copyRoot = document.getElementById("quoteText");
+  if (!copyRoot) {
+    return;
+  }
+
+  const invitationText = String(text || "").trim();
+  copyRoot.replaceChildren();
+  if (!invitationText) {
+    return;
+  }
+
+  const honorificPattern = /Dato'\s*\|\s*Datin\s*\|\s*Tuan\s*\|\s*Puan\s*\|\s*Encik\s*\|\s*Cik/i;
+  const honorificMatch = honorificPattern.exec(invitationText);
+  const appendCopyPart = (className, content) => {
+    if (!content) {
+      return;
+    }
+
+    const part = document.createElement("span");
+    part.className = className;
+    part.textContent = content;
+    copyRoot.appendChild(part);
+  };
+
+  if (!honorificMatch) {
+    appendCopyPart("invitation-copy__lead", invitationText);
+    return;
+  }
+
+  appendCopyPart("invitation-copy__lead", invitationText.slice(0, honorificMatch.index).trim());
+  appendCopyPart("invitation-copy__honorifics", honorificMatch[0]);
+  appendCopyPart("invitation-copy__tail", invitationText.slice(honorificMatch.index + honorificMatch[0].length).trim());
 };
 
 const createContactIcon = type => {
@@ -973,7 +1019,7 @@ const applyConfig = () => {
   setText("quoteHeading", invitation.heading || "Jemputan");
   setText("bismillahText", invitation.bismillah || "");
   setText("pantunText", invitation.pantun || config.quote || "");
-  setText("quoteText", invitation.intro || "");
+  renderInvitationCopy(invitation.intro || "");
   setText("closingText", invitation.closing || "");
   setHidden(document.getElementById("bismillahText"), !invitation.bismillah);
   setHidden(document.getElementById("pantunText"), !(invitation.pantun || config.quote));
