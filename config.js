@@ -88,6 +88,6 @@ window.invitationConfig = {
   dressCode: {},
   gallery: [],
   audio: {
-    enabled: false
+    enabled: true
   }
 };
