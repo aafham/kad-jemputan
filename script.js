@@ -950,6 +950,7 @@ const applyConfig = () => {
   setText("fullNamesText", (Array.isArray(couple.fullNames) ? couple.fullNames : []).filter(Boolean).join("\n"));
   setText("eventDateText", event.dateText);
   setText("hijriDateText", event.hijriDate || "");
+  setText("heroTime", event.timeText ? "Masa: " + event.timeText : "");
   setText("quoteHeading", invitation.heading || "Jemputan");
   setText("bismillahText", invitation.bismillah || "");
   setText("pantunText", invitation.pantun || config.quote || "");
@@ -958,14 +959,12 @@ const applyConfig = () => {
   setHidden(document.getElementById("bismillahText"), !invitation.bismillah);
   setHidden(document.getElementById("pantunText"), !(invitation.pantun || config.quote));
   setHidden(document.getElementById("hijriDateText"), !event.hijriDate);
+  setHidden(document.getElementById("heroTime"), !event.timeText);
 
   renderFamily(family);
 
-  setText("infoTime", event.timeText ? "Masa: " + event.timeText : "");
-  setText("infoDressCode", dressCode.shortText ? "Tema: " + dressCode.shortText : "");
   setText("dressCodeText", dressCode.text);
   const hasDressCode = Boolean(dressCode.text || dressCode.shortText || (Array.isArray(dressCode.colors) && dressCode.colors.length));
-  setHidden(document.getElementById("infoDressCode"), !hasDressCode);
   setHidden(document.getElementById("dressCodeSection"), !hasDressCode);
 
   const fallbackTitle = [event.title, ...coupleNames].filter(Boolean).join(" ");
