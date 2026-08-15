@@ -148,7 +148,7 @@ body::before {
 }
 
 .open-name {
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 26px;
   letter-spacing: 2px;
   color: var(--ink);
@@ -292,7 +292,7 @@ body::before {
 }
 
 .card h1 {
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 30px;
   margin: 10px 0 6px;
 }
@@ -324,7 +324,7 @@ body::before {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 20px;
   letter-spacing: 2px;
   color: var(--ink);
@@ -403,7 +403,7 @@ body::before {
 
 .bismillah {
   margin-top: 10px;
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 18px;
   line-height: 1.8;
   color: var(--accent-strong);
@@ -821,7 +821,7 @@ body::before {
 
 .attendance-number {
   color: var(--accent-strong);
-  font-family: "Playfair Display", serif;
+  font-family: "Cormorant Garamond", serif;
   font-size: 24px;
   font-weight: 700;
   line-height: 1;
@@ -1243,4 +1243,505 @@ textarea:focus-visible {
 .split-right,
 .animation-layer {
   pointer-events: none;
+}
+
+/* =====================
+   KAMPUNG BATIK VISUAL REFRESH
+===================== */
+:root {
+  --ink: #233331;
+  --muted: #62523d;
+  --accent: #8d4b31;
+  --accent-strong: #69341f;
+  --gold: #b98536;
+  --batik: #254b49;
+  --batik-deep: #173936;
+  --leaf: #5e704d;
+  --paper: #fbf4e7;
+  --panel: #fffdf8;
+  --border: rgba(137, 91, 42, 0.34);
+  --shadow: 0 24px 64px rgba(55, 38, 20, 0.2);
+}
+
+body {
+  background:
+    radial-gradient(circle at 50% -20%, rgba(255, 255, 255, 0.82), transparent 42%),
+    linear-gradient(145deg, #eee1c9 0%, #f8f1e5 48%, #e7d2ad 100%);
+}
+
+body::before {
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.72), transparent 52%),
+    radial-gradient(circle at 86% 4%, rgba(205, 170, 113, 0.19), transparent 46%),
+    radial-gradient(circle at 50% 100%, rgba(115, 69, 43, 0.13), transparent 58%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  background-image:
+    radial-gradient(ellipse at 50% 50%, transparent 54%, rgba(87, 58, 34, 0.22) 55% 58%, transparent 59%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.38) 0 28%, transparent 29%);
+  background-size: 72px 52px, 72px 52px;
+  background-position: 0 0, 36px 26px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent 72%);
+}
+
+/* Dua daun pintu ini memakai corak parang/kawung CSS, bukan imej luaran. */
+.door {
+  background:
+    linear-gradient(160deg, rgba(23, 57, 54, 0.98), rgba(37, 75, 73, 0.98) 52%, rgba(27, 61, 56, 0.98));
+  border-color: rgba(239, 211, 159, 0.45);
+  box-shadow: inset 0 0 0 10px rgba(255, 244, 218, 0.04), inset 0 0 80px rgba(5, 25, 23, 0.4);
+  overflow: hidden;
+}
+
+.door::before,
+.door::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.door::before {
+  inset: 26px 20px;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(ellipse at 50% 50%, transparent 50%, rgba(235, 199, 126, 0.58) 52% 56%, transparent 58%),
+    linear-gradient(135deg, transparent 44%, rgba(235, 199, 126, 0.44) 45% 55%, transparent 56%);
+  background-size: 56px 42px, 80px 80px;
+  border-top: 1px solid rgba(235, 199, 126, 0.55);
+  border-bottom: 1px solid rgba(235, 199, 126, 0.55);
+}
+
+.door::after {
+  inset: 13px;
+  border: 1px solid rgba(235, 199, 126, 0.72);
+  box-shadow: inset 0 0 0 5px rgba(235, 199, 126, 0.08);
+}
+
+.door.left::before {
+  background-position: 0 0, -18px 0;
+}
+
+.door.right::before {
+  background-position: 28px 21px, 22px 0;
+}
+
+.open-circle {
+  width: min(88vw, 360px);
+  height: 246px;
+  padding: 24px 28px 20px;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(225, 188, 119, 0.9);
+  border-radius: 30px 30px 42px 42px;
+  color: #fff7e7;
+  background:
+    linear-gradient(135deg, rgba(22, 53, 50, 0.98), rgba(43, 84, 79, 0.96) 48%, rgba(28, 61, 54, 0.98));
+  box-shadow:
+    0 26px 68px rgba(5, 25, 22, 0.42),
+    inset 0 0 0 7px rgba(255, 237, 198, 0.06);
+}
+
+.open-circle::before {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border: 1px solid rgba(231, 197, 128, 0.62);
+  border-radius: 23px 23px 34px 34px;
+  pointer-events: none;
+}
+
+.open-circle::after {
+  inset: 17px;
+  border: 1px solid rgba(231, 197, 128, 0.24);
+  border-radius: 19px 19px 30px 30px;
+  filter: none;
+  animation: ringGlow 3.6s ease-in-out infinite;
+}
+
+.open-circle:hover {
+  transform: translate(-50%, -50%) translateY(-3px);
+  box-shadow:
+    0 32px 76px rgba(5, 25, 22, 0.48),
+    inset 0 0 0 7px rgba(255, 237, 198, 0.08);
+}
+
+.open-circle:active {
+  transform: translate(-50%, -50%) scale(0.985);
+}
+
+.open-circle > * {
+  position: relative;
+  z-index: 1;
+}
+
+.open-pattern {
+  position: absolute !important;
+  inset: 20px 26px;
+  z-index: 0 !important;
+  opacity: 0.24;
+  background-image:
+    radial-gradient(ellipse at 50% 50%, transparent 51%, #efd096 52% 55%, transparent 56%),
+    radial-gradient(ellipse at 50% 50%, transparent 51%, #efd096 52% 55%, transparent 56%);
+  background-position: 0 0, 31px 23px;
+  background-size: 62px 46px;
+}
+
+.open-eyebrow,
+.open-small {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.open-eyebrow {
+  color: rgba(255, 235, 195, 0.9);
+  font-size: 10px;
+  letter-spacing: 3.5px;
+}
+
+.open-monogram {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  margin: 7px 0 4px;
+}
+
+.open-initial {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 74px;
+  font-weight: 600;
+  line-height: 0.78;
+  letter-spacing: -2px;
+  color: #fff8e8;
+  text-shadow: 0 4px 22px rgba(0, 0, 0, 0.24);
+}
+
+.open-and {
+  color: #e7bd75;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.open-names {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  margin-top: 4px;
+  color: rgba(255, 246, 226, 0.92);
+}
+
+.open-name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: inherit;
+}
+
+.open-name:first-child {
+  text-align: right;
+}
+
+.open-name:last-child {
+  text-align: left;
+}
+
+.open-name-divider {
+  padding: 0 10px;
+  color: rgba(231, 189, 117, 0.9);
+  font-size: 13px;
+}
+
+.open-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  margin-top: 16px;
+  padding: 8px 17px;
+  border: 1px solid rgba(235, 203, 143, 0.68);
+  border-radius: 999px;
+  color: #fff6e1;
+  font-size: 9px;
+  letter-spacing: 2.8px;
+  background: rgba(255, 242, 211, 0.08);
+}
+
+.card {
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(178, 132, 68, 0.42);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(204, 168, 104, 0.12), transparent 30%),
+    linear-gradient(145deg, #fffdf8, #fbf3e5 56%, #f6ead7);
+  box-shadow: var(--shadow);
+}
+
+.card::before,
+.card::after {
+  z-index: 0;
+}
+
+.card::before {
+  inset: 12px;
+  border-color: rgba(168, 115, 53, 0.42);
+  border-radius: 24px;
+}
+
+.card::after {
+  top: 10px;
+  width: 164px;
+  height: 8px;
+  border-radius: 999px;
+  opacity: 0.92;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, rgba(255, 242, 211, 0.98) 9px 12px, transparent 12px 21px),
+    linear-gradient(90deg, var(--batik), var(--gold), var(--batik));
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero {
+  margin: -4px -4px 2px;
+  padding: 12px 10px 20px;
+  border-bottom: 1px solid rgba(157, 103, 46, 0.2);
+}
+
+.hero::before,
+.hero::after {
+  content: "✦";
+  position: absolute;
+  top: 49px;
+  color: rgba(185, 133, 54, 0.86);
+  font-size: 15px;
+}
+
+.hero::before {
+  left: 8%;
+}
+
+.hero::after {
+  right: 8%;
+}
+
+.small {
+  color: var(--batik);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 3.2px;
+}
+
+.seal {
+  width: 76px;
+  height: 76px;
+  border: 1px solid rgba(177, 124, 48, 0.64);
+  color: var(--batik-deep);
+  background:
+    radial-gradient(circle at 36% 28%, #fffdf5, #e7cf9e 70%, #c48c43);
+  box-shadow: 0 12px 24px rgba(74, 47, 22, 0.16), inset 0 0 0 5px rgba(255, 250, 232, 0.46);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.card h1 {
+  color: var(--batik-deep);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 42px;
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.9px;
+}
+
+.amp {
+  color: var(--gold);
+  font-size: 0.8em;
+}
+
+.full-names,
+.hijri-date,
+.date,
+.section-subtitle,
+.quote-text,
+.doa,
+.calendar-title,
+.countdown-title,
+.calendar-header,
+.countdown-status,
+.qr-title,
+.privacy-note {
+  color: var(--muted);
+}
+
+.chips {
+  gap: 7px;
+}
+
+.chip {
+  border-color: rgba(169, 112, 53, 0.3);
+  background: rgba(255, 253, 247, 0.82);
+  box-shadow: 0 5px 14px rgba(77, 50, 24, 0.05);
+}
+
+.section {
+  margin: 21px 0 14px;
+}
+
+.section h2 {
+  color: var(--batik);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  line-height: 1;
+  text-transform: none;
+}
+
+.section h2::after {
+  content: "";
+  display: block;
+  width: 42px;
+  height: 2px;
+  margin: 8px auto 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.bismillah {
+  color: var(--accent-strong);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 22px;
+  line-height: 1.5;
+}
+
+.family-card,
+.contact-card,
+.info-item,
+.mini-calendar,
+.time-box,
+.slot,
+.qr-box,
+.attendance-stat,
+.wish-card,
+.empty-state {
+  border-color: rgba(164, 111, 52, 0.21);
+  background: rgba(255, 253, 247, 0.9);
+  box-shadow: 0 8px 20px rgba(77, 50, 24, 0.055);
+}
+
+.family-title,
+.contact-name,
+.slot span:first-child,
+.attendance-number,
+.wish-card__meta {
+  color: var(--accent-strong);
+}
+
+.map-preview {
+  border: 4px solid rgba(255, 253, 247, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 14px 28px rgba(58, 42, 24, 0.18);
+}
+
+.map-pin-link,
+.map-btn,
+.save-date-btn.secondary,
+.rsvp-dialog__close,
+.fab-btn {
+  border-color: rgba(137, 75, 49, 0.45);
+  background: rgba(255, 253, 247, 0.94);
+  color: var(--batik-deep);
+}
+
+.map-btn:hover,
+.map-pin-link:hover,
+.save-date-btn.secondary:hover,
+.fab-btn:hover {
+  background: #f3e5cc;
+}
+
+.date.event {
+  background: linear-gradient(145deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 4px 10px rgba(104, 52, 31, 0.26);
+}
+
+.rsvp-btn,
+.save-date-btn {
+  border: 1px solid rgba(89, 44, 25, 0.25);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  box-shadow: 0 12px 25px rgba(94, 46, 26, 0.21);
+}
+
+.rsvp-dialog {
+  border-color: rgba(159, 102, 45, 0.42);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(214, 178, 111, 0.13), transparent 32%),
+    #fffaf2;
+}
+
+.rsvp-dialog::backdrop {
+  background: rgba(20, 48, 45, 0.66);
+}
+
+.fab-btn.is-on {
+  background: #f1dfbd;
+}
+
+.petal {
+  color: rgba(185, 133, 54, 0.56);
+  text-shadow: 0 2px 8px rgba(42, 74, 65, 0.26);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: var(--batik);
+}
+
+@media (max-width: 480px) {
+  .open-circle {
+    width: min(88vw, 330px);
+    height: 236px;
+    padding: 23px 20px 18px;
+  }
+
+  .open-initial {
+    font-size: 66px;
+  }
+
+  .open-name {
+    font-size: 20px;
+  }
+
+  .open-small {
+    margin-top: 14px;
+  }
+
+  .card h1 {
+    font-size: 38px;
+  }
+
+  .section h2 {
+    font-size: 24px;
+  }
+
+  .bismillah {
+    font-size: 19px;
+  }
 }

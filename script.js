@@ -73,6 +73,11 @@ const getCoupleNames = couple => {
   return [couple?.groom, couple?.bride].filter(Boolean);
 };
 
+const getNameInitial = value => {
+  const name = typeof value === "string" ? value.trim() : "";
+  return name ? name.slice(0, 1).toLocaleUpperCase("ms-MY") : "";
+};
+
 const setInteractive = (el, enabled) => {
   if (!el) {
     return;
@@ -531,6 +536,8 @@ const applyConfig = () => {
 
   setText("openGroom", coupleNames[0] || "");
   setText("openBride", coupleNames[1] || "");
+  setText("openInitialGroom", getNameInitial(coupleNames[0]));
+  setText("openInitialBride", getNameInitial(coupleNames[1]));
   setText("heroGroom", coupleNames[0] || "");
   setText("heroBride", coupleNames[1] || "");
   setText("sealText", couple.monogram);
@@ -659,6 +666,9 @@ const applyConfig = () => {
   renderContacts(contact.people);
 
   const coupleText = coupleNames.join(" & ");
+  if (btn && coupleText) {
+    btn.setAttribute("aria-label", "Buka jemputan perkahwinan " + coupleText);
+  }
   const waText =
     "Assalamualaikum, saya ingin bertanya tentang majlis perkahwinan " + coupleText + ".";
   const waNo = cleanWhatsappNumber(contact.whatsapp);
