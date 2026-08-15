@@ -86,6 +86,10 @@ window.invitationConfig = {
     { time: "11.00 pagi", title: "Jamuan makan hingga 4.00 petang" },
     { time: "12.30 tgh.", title: "Ketibaan pengantin" }
   ],
+  rsvp: {
+    enabled: true,
+    endpoint: "/api/rsvp"
+  },
   dressCode: {},
   gallery: [],
   audio: {

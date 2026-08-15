@@ -11,6 +11,18 @@ const audioToggle = document.getElementById("audioToggle");
 const bgAudio = document.getElementById("bgAudio");
 const rsvpForm = document.getElementById("rsvpForm");
 const rsvpStatus = document.getElementById("rsvpStatus");
+const rsvpDialog = document.getElementById("rsvpDialog");
+const openRsvpDialog = document.getElementById("openRsvpDialog");
+const closeRsvpDialog = document.getElementById("closeRsvpDialog");
+const cancelRsvp = document.getElementById("cancelRsvp");
+const guestCountField = document.getElementById("guestCountField");
+const guestCount = document.getElementById("guestCount");
+const guestWishes = document.getElementById("guestWishes");
+const wishCount = document.getElementById("wishCount");
+const attendanceSummary = document.getElementById("attendanceSummary");
+const rsvpDataStatus = document.getElementById("rsvpDataStatus");
+const wishesList = document.getElementById("wishesList");
+const reloadRsvpData = document.getElementById("reloadRsvpData");
 const shareInvite = document.getElementById("shareInvite");
 const flowerLayer = document.getElementById("flowerLayer");
 
@@ -18,6 +30,8 @@ let audioShouldPlay = false;
 let audioResumeTimer = null;
 let audioWatchdogTimer = null;
 let flowersInitialized = false;
+let rsvpFormStartedAt = Date.now();
+let rsvpDataLoading = false;
 
 document.body.classList.add("js-enabled");
 
@@ -82,6 +96,203 @@ const setInteractive = (el, enabled) => {
 const setRsvpStatus = message => {
   if (rsvpStatus) {
     rsvpStatus.textContent = message;
+  }
+};
+
+const rsvpIsEnabled = () => config?.rsvp?.enabled !== false;
+
+const getRsvpEndpoint = () => {
+  const endpoint = config?.rsvp?.endpoint;
+  return typeof endpoint === "string" && endpoint.startsWith("/") ? endpoint : "/api/rsvp";
+};
+
+const setRsvpDataStatus = (message, state = "info") => {
+  if (rsvpDataStatus) {
+    rsvpDataStatus.textContent = message;
+    rsvpDataStatus.dataset.state = state;
+  }
+};
+
+const getSafeNumber = value => {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? Math.floor(number) : 0;
+};
+
+const formatWishDate = value => {
+  const date = new Date(value || "");
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("ms-MY", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+};
+
+const renderAttendanceSummary = summary => {
+  setText("attendingCount", getSafeNumber(summary?.hadir));
+  setText("notAttendingCount", getSafeNumber(summary?.tidakHadir));
+  setText("guestTotalCount", getSafeNumber(summary?.tetamuHadir));
+};
+
+const renderWishes = wishes => {
+  if (!wishesList) {
+    return;
+  }
+
+  wishesList.replaceChildren();
+  const publicWishes = Array.isArray(wishes)
+    ? wishes.filter(item => typeof item?.wish === "string" && item.wish.trim())
+    : [];
+
+  if (publicWishes.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "empty-state";
+    empty.textContent = "Belum ada ucapan dipaparkan. Jadilah yang pertama mengirimkan doa.";
+    wishesList.appendChild(empty);
+    return;
+  }
+
+  publicWishes.forEach(item => {
+    const card = document.createElement("article");
+    card.className = "wish-card";
+
+    const message = document.createElement("p");
+    message.className = "wish-card__message";
+    message.textContent = item.wish.trim();
+
+    const meta = document.createElement("p");
+    meta.className = "wish-card__meta";
+    const name = typeof item.name === "string" && item.name.trim() ? item.name.trim() : "Tetamu";
+    const date = formatWishDate(item.createdAt);
+    meta.textContent = date ? name + " · " + date : name;
+
+    card.append(message, meta);
+    wishesList.appendChild(card);
+  });
+};
+
+const renderWishesError = () => {
+  if (!wishesList || wishesList.children.length > 0) {
+    return;
+  }
+
+  const error = document.createElement("p");
+  error.className = "empty-state error-state";
+  error.textContent = "Ucapan tidak dapat dimuatkan sekarang. Sila cuba semula.";
+  wishesList.appendChild(error);
+};
+
+const updateWishCount = () => {
+  if (wishCount && guestWishes) {
+    wishCount.textContent = guestWishes.value.length + " / 250";
+  }
+};
+
+const updateGuestCountField = () => {
+  const attendance = rsvpForm?.querySelector('input[name="attendanceStatus"]:checked')?.value;
+  const isAttending = attendance === "hadir";
+  setHidden(guestCountField, !isAttending);
+
+  if (guestCount) {
+    guestCount.disabled = !isAttending;
+    guestCount.required = isAttending;
+  }
+};
+
+const setRsvpDataBusy = busy => {
+  if (attendanceSummary) {
+    attendanceSummary.setAttribute("aria-busy", String(Boolean(busy)));
+  }
+  if (wishesList) {
+    wishesList.setAttribute("aria-busy", String(Boolean(busy)));
+  }
+  if (reloadRsvpData) {
+    reloadRsvpData.disabled = Boolean(busy);
+  }
+};
+
+const getJsonResponse = async response => {
+  try {
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+};
+
+const loadRsvpData = async () => {
+  if (!rsvpIsEnabled() || rsvpDataLoading) {
+    return;
+  }
+
+  rsvpDataLoading = true;
+  setRsvpDataBusy(true);
+  setHidden(reloadRsvpData, true);
+
+  try {
+    const response = await fetch(getRsvpEndpoint(), {
+      headers: { Accept: "application/json" },
+    });
+    const data = await getJsonResponse(response);
+
+    if (!response.ok || !data?.ok) {
+      const error = new Error("RSVP data unavailable");
+      error.status = response.status;
+      throw error;
+    }
+
+    renderAttendanceSummary(data.summary);
+    renderWishes(data.wishes);
+    setRsvpDataStatus("");
+  } catch (error) {
+    const isUnavailable = error?.status === 503;
+    const isRateLimited = error?.status === 429;
+    setRsvpDataStatus(
+      isUnavailable
+        ? "Sistem RSVP sedang disediakan. Sila hubungi penganjur jika perlu."
+        : isRateLimited
+          ? "Terlalu banyak permintaan. Sila cuba semula sebentar lagi."
+          : "Tidak dapat memuatkan RSVP sekarang. Sila cuba semula.",
+      "error"
+    );
+    renderWishesError();
+    setHidden(reloadRsvpData, false);
+  } finally {
+    rsvpDataLoading = false;
+    setRsvpDataBusy(false);
+  }
+};
+
+const openRsvpForm = () => {
+  if (!rsvpDialog) {
+    return;
+  }
+
+  rsvpFormStartedAt = Date.now();
+  setRsvpStatus("");
+  if (typeof rsvpDialog.showModal === "function") {
+    if (!rsvpDialog.open) {
+      rsvpDialog.showModal();
+    }
+  } else {
+    rsvpDialog.setAttribute("open", "");
+  }
+
+  window.setTimeout(() => document.getElementById("guestName")?.focus(), 0);
+};
+
+const closeRsvpForm = () => {
+  if (!rsvpDialog) {
+    return;
+  }
+
+  if (typeof rsvpDialog.close === "function" && rsvpDialog.open) {
+    rsvpDialog.close();
+  } else {
+    rsvpDialog.removeAttribute("open");
+    openRsvpDialog?.focus();
   }
 };
 
@@ -314,6 +525,7 @@ const applyConfig = () => {
   const invitation = config.invitation || {};
   const metadata = config.metadata || {};
   const calendar = config.calendar || {};
+  const rsvp = config.rsvp || {};
   const coupleNames = getCoupleNames(couple);
   const primaryContactName = contact.rsvpName || "penganjur";
 
@@ -448,18 +660,21 @@ const applyConfig = () => {
 
   const coupleText = coupleNames.join(" & ");
   const waText =
-    "Assalamualaikum, saya ingin RSVP kehadiran ke majlis perkahwinan " + coupleText + ".";
+    "Assalamualaikum, saya ingin bertanya tentang majlis perkahwinan " + coupleText + ".";
   const waNo = cleanWhatsappNumber(contact.whatsapp);
 
   const whatsappDirectBtn = document.getElementById("whatsappDirectBtn");
   if (whatsappDirectBtn && isValidWhatsappNumber(waNo)) {
     whatsappDirectBtn.href =
       "https://wa.me/" + waNo + "?text=" + encodeURIComponent(waText);
-    whatsappDirectBtn.textContent = "WhatsApp " + primaryContactName;
-    whatsappDirectBtn.setAttribute("aria-label", "Buka WhatsApp " + primaryContactName + " untuk RSVP (tab baharu)");
+    whatsappDirectBtn.textContent = "Hubungi " + primaryContactName;
+    whatsappDirectBtn.setAttribute("aria-label", "Buka WhatsApp " + primaryContactName + " (tab baharu)");
   }
   setHidden(whatsappDirectBtn, !isValidWhatsappNumber(waNo));
-  setText("rsvpSubmitText", "Hantar RSVP kepada " + primaryContactName);
+  setText("rsvpSubmitText", "Hantar RSVP & Ucapan");
+  const hasRsvp = rsvp.enabled !== false;
+  setHidden(document.getElementById("rsvpSection"), !hasRsvp);
+  setHidden(document.getElementById("wishesSection"), !hasRsvp);
 };
 
 const initFlowerRain = () => {
@@ -588,6 +803,9 @@ if (audioEnabled && bgAudio) {
 setInteractive(invitation, false);
 setInteractive(floatingActions, false);
 applyConfig();
+if (rsvpIsEnabled()) {
+  loadRsvpData();
+}
 updateCountdown();
 setInterval(updateCountdown, 1000);
 if (audioEnabled) {
@@ -695,35 +913,118 @@ if (shareInvite) {
   });
 }
 
+if (openRsvpDialog) {
+  openRsvpDialog.addEventListener("click", openRsvpForm);
+}
+
+if (closeRsvpDialog) {
+  closeRsvpDialog.addEventListener("click", closeRsvpForm);
+}
+
+if (cancelRsvp) {
+  cancelRsvp.addEventListener("click", closeRsvpForm);
+}
+
+if (rsvpDialog) {
+  rsvpDialog.addEventListener("cancel", event => {
+    event.preventDefault();
+    closeRsvpForm();
+  });
+  rsvpDialog.addEventListener("close", () => openRsvpDialog?.focus());
+}
+
+if (guestWishes) {
+  guestWishes.addEventListener("input", updateWishCount);
+  updateWishCount();
+}
+
 if (rsvpForm) {
-  rsvpForm.addEventListener("submit", event => {
+  rsvpForm.addEventListener("change", updateGuestCountField);
+  updateGuestCountField();
+
+  rsvpForm.addEventListener("submit", async event => {
     event.preventDefault();
 
-    const name = document.getElementById("guestName")?.value?.trim() || "Tetamu";
-    const count = document.getElementById("guestCount")?.value || "1";
-    const wishes = document.getElementById("guestWishes")?.value?.trim() || "-";
-    const waNo = cleanWhatsappNumber(config?.contact?.whatsapp);
-
-    if (!isValidWhatsappNumber(waNo)) {
-      setRsvpStatus("Nombor WhatsApp penganjur belum sah. Sila hubungi penganjur secara terus.");
+    if (!rsvpIsEnabled()) {
+      setRsvpStatus("RSVP tidak tersedia buat masa ini. Sila hubungi penganjur.");
       return;
     }
 
-    const coupleText = getCoupleNames(config?.couple || {}).join(" & ");
-    const message = [
-      "Assalamualaikum, saya ingin RSVP kehadiran ke majlis perkahwinan " + coupleText + ".",
-      "Nama: " + name,
-      "Jumlah hadir: " + count,
-      "Ucapan: " + wishes,
-    ].join("\n");
-    const url = "https://wa.me/" + waNo + "?text=" + encodeURIComponent(message);
-    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+    if (!rsvpForm.checkValidity()) {
+      rsvpForm.reportValidity();
+      return;
+    }
 
-    setRsvpStatus(
-      newWindow
-        ? "WhatsApp dibuka untuk semakan RSVP."
-        : "Pelayar menyekat WhatsApp. Benarkan pop-up dan cuba lagi."
-    );
+    const attendance = rsvpForm.querySelector('input[name="attendanceStatus"]:checked')?.value;
+    const submitButton = document.getElementById("rsvpSubmitText");
+    const payload = {
+      name: document.getElementById("guestName")?.value?.trim() || "",
+      phone: document.getElementById("guestPhone")?.value?.trim() || "",
+      attendance,
+      guestCount: attendance === "hadir" ? Number(guestCount?.value || 0) : 0,
+      wish: guestWishes?.value?.trim() || "",
+      website: document.getElementById("guestWebsite")?.value || "",
+      formStartedAt: rsvpFormStartedAt,
+    };
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Menghantar…";
+    }
+    setRsvpStatus("Menghantar RSVP anda…");
+
+    try {
+      const response = await fetch(getRsvpEndpoint(), {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await getJsonResponse(response);
+
+      if (!response.ok || !data?.ok) {
+        const error = new Error("RSVP submission failed");
+        error.status = response.status;
+        throw error;
+      }
+
+      const hasWish = Boolean(payload.wish);
+      const pendingWish = data.wishStatus === "pending" && hasWish;
+      rsvpForm.reset();
+      updateGuestCountField();
+      updateWishCount();
+      rsvpFormStartedAt = Date.now();
+      setRsvpStatus(
+        pendingWish
+          ? "Terima kasih. RSVP diterima; ucapan anda akan dipaparkan selepas semakan penganjur."
+          : hasWish
+            ? "Terima kasih. RSVP diterima dan ucapan anda kini dipaparkan."
+            : "Terima kasih. RSVP anda telah diterima."
+      );
+      await loadRsvpData();
+    } catch (error) {
+      const status = error?.status;
+      const message =
+        status === 429
+          ? "Terlalu banyak cubaan. Sila tunggu sebentar sebelum menghantar semula."
+          : status === 503
+            ? "Sistem RSVP sedang disediakan. Sila hubungi penganjur jika perlu."
+            : "RSVP tidak dapat dihantar sekarang. Sila cuba semula.";
+      setRsvpStatus(message);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Hantar RSVP & Ucapan";
+      }
+    }
+  });
+}
+
+if (reloadRsvpData) {
+  reloadRsvpData.addEventListener("click", () => {
+    loadRsvpData();
   });
 }
 

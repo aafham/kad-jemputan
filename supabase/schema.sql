@@ -1,0 +1,257 @@
+-- RSVP persistence for the Hanis & Nabil invitation.
+-- Run this once in the Supabase SQL Editor before enabling the Vercel API.
+
+begin;
+
+create table if not exists public.rsvp_entries (
+  id bigint generated always as identity primary key,
+  name text not null,
+  phone_normalized text not null,
+  phone_hash text not null unique,
+  ip_hash text not null,
+  attendance text not null,
+  guest_count smallint not null default 0,
+  wish text,
+  wish_status text not null default 'published',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint rsvp_entries_name_length_check check (char_length(btrim(name)) between 2 and 80),
+  constraint rsvp_entries_phone_format_check check (phone_normalized ~ E'^\\+[1-9][0-9]{7,14}$'),
+  constraint rsvp_entries_phone_hash_format_check check (phone_hash ~ '^[a-f0-9]{64}$'),
+  constraint rsvp_entries_ip_hash_format_check check (ip_hash ~ '^[a-f0-9]{64}$'),
+  constraint rsvp_entries_attendance_check check (attendance in ('hadir', 'tidak_hadir')),
+  constraint rsvp_entries_guest_count_check check (
+    (attendance = 'hadir' and guest_count between 1 and 10)
+    or (attendance = 'tidak_hadir' and guest_count = 0)
+  ),
+  constraint rsvp_entries_wish_length_check check (wish is null or char_length(wish) <= 250),
+  constraint rsvp_entries_wish_status_check check (wish_status in ('published', 'pending'))
+);
+
+create table if not exists public.rsvp_submission_events (
+  id bigint generated always as identity primary key,
+  ip_hash text not null,
+  created_at timestamptz not null default now(),
+  constraint rsvp_submission_events_ip_hash_format_check check (ip_hash ~ '^[a-f0-9]{64}$')
+);
+
+-- One short-lived counter per anonymous, hashed IP. This prevents the public
+-- wishes endpoint from being scraped without retaining raw IP addresses.
+create table if not exists public.rsvp_read_rate_limits (
+  ip_hash text primary key,
+  window_started_at timestamptz not null default now(),
+  read_count smallint not null default 0,
+  updated_at timestamptz not null default now(),
+  constraint rsvp_read_rate_limits_ip_hash_format_check check (ip_hash ~ '^[a-f0-9]{64}$'),
+  constraint rsvp_read_rate_limits_read_count_check check (read_count >= 0)
+);
+
+create index if not exists rsvp_entries_published_wishes_idx
+  on public.rsvp_entries (updated_at desc)
+  where wish_status = 'published' and wish is not null;
+
+create index if not exists rsvp_submission_events_ip_created_idx
+  on public.rsvp_submission_events (ip_hash, created_at desc);
+
+create index if not exists rsvp_read_rate_limits_updated_idx
+  on public.rsvp_read_rate_limits (updated_at);
+
+-- Phone numbers and IP hashes are private: RLS is enabled and no public policies exist.
+alter table public.rsvp_entries enable row level security;
+alter table public.rsvp_submission_events enable row level security;
+alter table public.rsvp_read_rate_limits enable row level security;
+
+revoke all on table public.rsvp_entries from public, anon, authenticated;
+revoke all on table public.rsvp_submission_events from public, anon, authenticated;
+revoke all on table public.rsvp_read_rate_limits from public, anon, authenticated;
+revoke all on sequence public.rsvp_entries_id_seq from public, anon, authenticated;
+revoke all on sequence public.rsvp_submission_events_id_seq from public, anon, authenticated;
+
+create or replace function public.set_rsvp_updated_at()
+returns trigger
+language plpgsql
+set search_path = pg_catalog
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists rsvp_entries_set_updated_at on public.rsvp_entries;
+create trigger rsvp_entries_set_updated_at
+before update on public.rsvp_entries
+for each row
+execute function public.set_rsvp_updated_at();
+
+create or replace function public.consume_rsvp_read_budget(p_ip_hash text)
+returns void
+language plpgsql
+security definer
+set search_path = pg_catalog
+as $$
+declare
+  within_limit boolean;
+begin
+  insert into public.rsvp_read_rate_limits as limits (
+    ip_hash,
+    window_started_at,
+    read_count,
+    updated_at
+  )
+  values (p_ip_hash, now(), 1, now())
+  on conflict (ip_hash) do update
+     set read_count = case
+           when limits.window_started_at <= now() - interval '1 minute' then 1
+           else limits.read_count + 1
+         end,
+         window_started_at = case
+           when limits.window_started_at <= now() - interval '1 minute' then now()
+           else limits.window_started_at
+         end,
+         updated_at = now()
+  returning read_count <= 30 into within_limit;
+
+  if not coalesce(within_limit, false) then
+    raise exception 'rsvp_read_rate_limit' using errcode = 'P0001';
+  end if;
+end;
+$$;
+
+create or replace function public.submit_rsvp(
+  p_name text,
+  p_phone_normalized text,
+  p_phone_hash text,
+  p_ip_hash text,
+  p_attendance text,
+  p_guest_count integer,
+  p_wish text,
+  p_wish_status text
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog
+as $$
+declare
+  recent_submission_count integer;
+begin
+  -- Serialise requests per anonymous IP hash so the three-per-ten-minute limit
+  -- remains correct even when several requests arrive at the same instant.
+  perform pg_advisory_xact_lock(pg_catalog.hashtext(p_ip_hash));
+
+  select count(*)
+    into recent_submission_count
+    from public.rsvp_submission_events
+   where ip_hash = p_ip_hash
+     and created_at > now() - interval '10 minutes';
+
+  if recent_submission_count >= 3 then
+    raise exception 'rsvp_rate_limit' using errcode = 'P0001';
+  end if;
+
+  insert into public.rsvp_submission_events (ip_hash)
+  values (p_ip_hash);
+
+  insert into public.rsvp_entries (
+    name,
+    phone_normalized,
+    phone_hash,
+    ip_hash,
+    attendance,
+    guest_count,
+    wish,
+    wish_status
+  )
+  values (
+    p_name,
+    p_phone_normalized,
+    p_phone_hash,
+    p_ip_hash,
+    p_attendance,
+    p_guest_count,
+    p_wish,
+    p_wish_status
+  )
+  on conflict (phone_hash) do update
+     set name = excluded.name,
+         phone_normalized = excluded.phone_normalized,
+         ip_hash = excluded.ip_hash,
+         attendance = excluded.attendance,
+         guest_count = excluded.guest_count,
+         wish = excluded.wish,
+         wish_status = excluded.wish_status;
+
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+drop function if exists public.get_public_rsvp();
+drop function if exists public.get_public_rsvp(text);
+
+create function public.get_public_rsvp(p_ip_hash text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = pg_catalog
+as $$
+declare
+  result jsonb;
+begin
+  perform public.consume_rsvp_read_budget(p_ip_hash);
+
+  with summary as (
+    select
+      count(*) filter (where attendance = 'hadir') as hadir,
+      coalesce(sum(guest_count) filter (where attendance = 'hadir'), 0) as "tetamuHadir",
+      count(*) filter (where attendance = 'tidak_hadir') as "tidakHadir"
+    from public.rsvp_entries
+  ),
+  latest_wishes as (
+    select name, wish, updated_at
+    from public.rsvp_entries
+    where wish_status = 'published'
+      and wish is not null
+      and btrim(wish) <> ''
+    order by updated_at desc
+    limit 100
+  )
+  select jsonb_build_object(
+    'summary', jsonb_build_object(
+      'hadir', summary.hadir,
+      'tetamuHadir', summary."tetamuHadir",
+      'tidakHadir', summary."tidakHadir"
+    ),
+    'wishes', coalesce(
+      (
+        select jsonb_agg(
+          jsonb_build_object(
+            'name', latest_wishes.name,
+            'wish', latest_wishes.wish,
+            'createdAt', latest_wishes.updated_at
+          )
+          order by latest_wishes.updated_at desc
+        )
+        from latest_wishes
+      ),
+      '[]'::jsonb
+    )
+  )
+    into result
+  from summary;
+
+  return result;
+end;
+$$;
+
+revoke all on function public.set_rsvp_updated_at() from public, anon, authenticated;
+revoke all on function public.consume_rsvp_read_budget(text) from public, anon, authenticated;
+revoke all on function public.submit_rsvp(text, text, text, text, text, integer, text, text)
+  from public, anon, authenticated;
+revoke all on function public.get_public_rsvp(text) from public, anon, authenticated;
+
+grant execute on function public.submit_rsvp(text, text, text, text, text, integer, text, text)
+  to service_role;
+grant execute on function public.get_public_rsvp(text) to service_role;
+
+commit;

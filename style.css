@@ -367,7 +367,10 @@ body::before {
 .section[hidden],
 .info-item[hidden],
 .map-preview[hidden],
-.fab-btn[hidden] {
+.fab-btn[hidden],
+.rsvp-form label[hidden],
+.save-date-btn[hidden],
+.text-action[hidden] {
   display: none !important;
 }
 
@@ -793,6 +796,264 @@ body::before {
   resize: vertical;
 }
 
+.attendance-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0 8px;
+}
+
+.attendance-stat {
+  display: grid;
+  gap: 3px;
+  min-height: 76px;
+  place-items: center;
+  align-content: center;
+  padding: 8px 6px;
+  border: 1px solid rgba(185, 146, 110, 0.22);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.attendance-number {
+  color: var(--accent-strong);
+  font-family: "Playfair Display", serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rsvp-data-status {
+  min-height: 1.3em;
+  margin: 8px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.rsvp-data-status:empty {
+  display: none;
+}
+
+.rsvp-data-status[data-state="error"] {
+  color: #8a3f2f;
+}
+
+.text-action {
+  margin: 4px auto 0;
+  padding: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.wishes-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  text-align: left;
+}
+
+.wish-card,
+.empty-state {
+  margin: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(185, 146, 110, 0.2);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 7px 18px rgba(41, 28, 15, 0.06);
+}
+
+.wish-card__message {
+  margin: 0;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.wish-card__meta {
+  margin: 8px 0 0;
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  overflow-wrap: anywhere;
+}
+
+.empty-state {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.error-state {
+  color: #8a3f2f;
+}
+
+.rsvp-dialog {
+  width: min(calc(100% - 24px), 480px);
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  overflow-y: auto;
+  border: 1px solid rgba(185, 146, 110, 0.28);
+  border-radius: 20px;
+  background: #fffaf5;
+  color: var(--ink);
+  box-shadow: 0 24px 70px rgba(41, 28, 15, 0.32);
+  padding: 20px;
+}
+
+.rsvp-dialog::backdrop {
+  background: rgba(41, 28, 15, 0.55);
+}
+
+.rsvp-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(185, 146, 110, 0.18);
+}
+
+.rsvp-dialog__header h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+}
+
+.rsvp-dialog__header p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rsvp-dialog__close {
+  display: grid;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid rgba(185, 146, 110, 0.3);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--ink);
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rsvp-dialog .rsvp-form {
+  margin-top: 16px;
+}
+
+.honeypot {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.attendance-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.attendance-options legend {
+  grid-column: 1 / -1;
+  margin-bottom: 2px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rsvp-form .attendance-option {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(185, 146, 110, 0.35);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.rsvp-form .attendance-option input {
+  width: 18px;
+  min-height: 18px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent-strong);
+}
+
+.optional,
+.wish-count,
+.privacy-note {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.wish-count {
+  margin: -4px 0 0;
+  text-align: right;
+}
+
+.privacy-note {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dialog-actions .save-date-btn,
+.dialog-actions .rsvp-btn {
+  min-height: 44px;
+  margin: 0;
+}
+
+.rsvp-btn:disabled,
+.save-date-btn:disabled,
+.text-action:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.noscript-note {
+  margin: 12px auto;
+  padding: 10px 14px;
+  color: var(--ink);
+  background: #fff7ee;
+  border: 1px solid rgba(185, 146, 110, 0.25);
+  border-radius: 12px;
+  font-size: 12px;
+  text-align: center;
+}
+
 .save-date-btn,
 .rsvp-btn {
   display: inline-flex;
@@ -947,6 +1208,14 @@ textarea:focus-visible {
   .floating-actions {
     right: 10px;
     bottom: 10px;
+  }
+
+  .rsvp-dialog {
+    padding: 16px;
+  }
+
+  .dialog-actions > * {
+    flex: 1 1 130px;
   }
 }
 

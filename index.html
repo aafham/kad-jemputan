@@ -201,35 +201,37 @@
           Kehadiran anda amat kami alu-alukan, terima kasih.
         </p>
 
-        <section class="section rsvp-section reveal" aria-labelledby="rsvpHeading" style="--delay: 1.05s">
-          <h2 id="rsvpHeading">RSVP Ringkas</h2>
-          <form id="rsvpForm" class="rsvp-form">
-            <label>
-              Nama
-              <input type="text" id="guestName" name="guestName" placeholder="Contoh: Ahmad" maxlength="80" autocomplete="name" required />
-            </label>
-            <label>
-              Jumlah Hadir
-              <select id="guestCount" name="guestCount" required>
-                <option value="1">1 orang</option>
-                <option value="2">2 orang</option>
-                <option value="3">3 orang</option>
-                <option value="4">4 orang</option>
-                <option value="5+">5+ orang</option>
-              </select>
-            </label>
-            <label>
-              Doa / Ucapan
-              <textarea id="guestWishes" name="guestWishes" rows="3" maxlength="500" placeholder="Tulis ucapan ringkas..."></textarea>
-            </label>
-            <button type="submit" class="rsvp-btn full-width" id="rsvpSubmitText">Hantar RSVP kepada En. Haziq</button>
-          </form>
-          <p id="rsvpStatus" role="status" aria-live="polite"></p>
+        <section class="section rsvp-section reveal" id="rsvpSection" aria-labelledby="rsvpHeading" style="--delay: 1.05s">
+          <h2 id="rsvpHeading">RSVP &amp; Ucapan</h2>
+          <p class="section-subtitle">Sahkan kehadiran dan titipkan doa buat pengantin.</p>
+          <div class="attendance-summary" id="attendanceSummary" aria-live="polite" aria-busy="true">
+            <div class="attendance-stat">
+              <span class="attendance-number" id="attendingCount">—</span>
+              <span>Hadir</span>
+            </div>
+            <div class="attendance-stat">
+              <span class="attendance-number" id="notAttendingCount">—</span>
+              <span>Tidak hadir</span>
+            </div>
+            <div class="attendance-stat">
+              <span class="attendance-number" id="guestTotalCount">—</span>
+              <span>Jumlah tetamu</span>
+            </div>
+          </div>
+          <p class="rsvp-data-status" id="rsvpDataStatus" role="status" aria-live="polite">Memuatkan kehadiran dan ucapan…</p>
+          <button class="rsvp-btn full-width" id="openRsvpDialog" type="button">Isi RSVP &amp; Ucapan</button>
+          <button class="text-action" id="reloadRsvpData" type="button" hidden>Cuba semula</button>
+        </section>
+
+        <section class="section wishes-section reveal" id="wishesSection" aria-labelledby="wishesHeading" style="--delay: 1.08s">
+          <h2 id="wishesHeading">Ucapan &amp; Doa</h2>
+          <p class="section-subtitle">Doa dan ucapan daripada tetamu buat Nabil &amp; Hanis.</p>
+          <div class="wishes-list" id="wishesList" aria-live="polite" aria-busy="true"></div>
         </section>
 
         <div class="cta reveal" style="--delay: 1.1s">
-          <a id="whatsappDirectBtn" href="https://wa.me/60193103047?text=Assalamualaikum,%20saya%20ingin%20RSVP%20majlis%20perkahwinan%20Nabil%20%26%20Hanis." target="_blank" rel="noopener noreferrer" class="rsvp-btn">
-            WhatsApp En. Haziq
+          <a id="whatsappDirectBtn" href="https://wa.me/60193103047?text=Assalamualaikum,%20saya%20ingin%20bertanya%20tentang%20majlis%20perkahwinan%20Nabil%20%26%20Hanis." target="_blank" rel="noopener noreferrer" class="rsvp-btn">
+            Hubungi En. Haziq
           </a>
           <a href="./assets/calendar/walimatul-urus.ics" class="save-date-btn secondary" download>
             Save The Date
@@ -237,6 +239,71 @@
         </div>
       </div>
     </main>
+
+    <dialog class="rsvp-dialog" id="rsvpDialog" aria-labelledby="rsvpDialogTitle">
+      <div class="rsvp-dialog__header">
+        <div>
+          <h2 id="rsvpDialogTitle">RSVP &amp; Ucapan</h2>
+          <p>Sila isi maklumat kehadiran anda.</p>
+        </div>
+        <button class="rsvp-dialog__close" id="closeRsvpDialog" type="button" aria-label="Tutup borang RSVP">×</button>
+      </div>
+      <form id="rsvpForm" class="rsvp-form">
+        <div class="honeypot" aria-hidden="true">
+          <label for="guestWebsite">Jangan isi ruangan ini</label>
+          <input id="guestWebsite" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <label>
+          Nama <span aria-hidden="true">*</span>
+          <input type="text" id="guestName" name="guestName" placeholder="Contoh: Ahmad" minlength="2" maxlength="80" autocomplete="name" required />
+        </label>
+        <label>
+          Nombor telefon <span aria-hidden="true">*</span>
+          <input type="tel" id="guestPhone" name="guestPhone" placeholder="Contoh: 0123456789" inputmode="tel" maxlength="20" autocomplete="tel-national" required />
+        </label>
+        <fieldset class="attendance-options">
+          <legend>Kehadiran <span aria-hidden="true">*</span></legend>
+          <label class="attendance-option">
+            <input type="radio" name="attendanceStatus" value="hadir" required />
+            <span>Hadir</span>
+          </label>
+          <label class="attendance-option">
+            <input type="radio" name="attendanceStatus" value="tidak_hadir" />
+            <span>Tidak hadir</span>
+          </label>
+        </fieldset>
+        <label id="guestCountField" hidden>
+          Jumlah tetamu <span aria-hidden="true">*</span>
+          <select id="guestCount" name="guestCount" disabled>
+            <option value="1">1 orang</option>
+            <option value="2">2 orang</option>
+            <option value="3">3 orang</option>
+            <option value="4">4 orang</option>
+            <option value="5">5 orang</option>
+            <option value="6">6 orang</option>
+            <option value="7">7 orang</option>
+            <option value="8">8 orang</option>
+            <option value="9">9 orang</option>
+            <option value="10">10 orang</option>
+          </select>
+        </label>
+        <label>
+          Doa / Ucapan <span class="optional">(jika ada)</span>
+          <textarea id="guestWishes" name="guestWishes" rows="4" maxlength="250" placeholder="Semoga berbahagia!"></textarea>
+        </label>
+        <p class="wish-count" id="wishCount">0 / 250</p>
+        <p class="privacy-note">Nombor telefon hanya digunakan oleh penganjur untuk rekod kehadiran dan tidak dipaparkan kepada umum.</p>
+        <div class="dialog-actions">
+          <button type="button" class="save-date-btn secondary" id="cancelRsvp">Batal</button>
+          <button type="submit" class="rsvp-btn" id="rsvpSubmitText">Hantar RSVP &amp; Ucapan</button>
+        </div>
+        <p id="rsvpStatus" role="status" aria-live="polite"></p>
+      </form>
+    </dialog>
+
+    <noscript>
+      <p class="noscript-note">Sila gunakan WhatsApp penganjur untuk RSVP kerana borang memerlukan JavaScript.</p>
+    </noscript>
 
     <div class="floating-actions" id="floatingActions">
       <button type="button" class="fab-btn" id="audioToggle" aria-label="Toggle audio" hidden>

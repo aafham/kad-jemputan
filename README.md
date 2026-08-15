@@ -10,7 +10,8 @@ Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan
 - Paparan nama penuh pasangan, keluarga yang menjemput, tarikh Masihi/Hijrah, masa dan lokasi melalui satu fail konfigurasi.
 - Countdown ke hari majlis.
 - Peta, pautan Google Maps/Waze dan kod QR lokasi.
-- Atur cara, senarai nombor untuk dihubungi, pautan kalendar `.ics`, perkongsian pautan dan RSVP WhatsApp.
+- Atur cara, senarai nombor untuk dihubungi, pautan kalendar `.ics` dan perkongsian pautan.
+- RSVP sebenar, kiraan kehadiran dan paparan ucapan tetamu melalui Vercel Function + Supabase.
 - Reka letak responsif untuk desktop dan telefon mudah alih.
 
 ## Jalankan secara lokal
@@ -32,6 +33,9 @@ Kemudian buka `http://127.0.0.1:4173` dalam pelayar.
 ├── script.js                   # Interaksi kad
 ├── config.js                   # Maklumat majlis yang boleh dikemaskini
 ├── vercel.json                  # Header keselamatan deployment
+├── api/                         # Endpoint RSVP Vercel
+├── supabase/schema.sql           # Jadual RSVP dan ucapan
+├── .env.example                 # Nama pemboleh ubah server
 └── assets/
     ├── audio/                  # Muzik latar
     ├── calendar/               # Fail Save The Date (.ics)
@@ -62,6 +66,19 @@ Projek ini telah diimport ke Vercel daripada repositori GitHub dan menggunakan t
 - Header keselamatan: dikonfigurasi dalam `vercel.json`
 
 Push baharu ke branch `main` akan mencetuskan deployment produksi automatik pada Vercel. Untuk domain sendiri, tambahkannya melalui tetapan **Domains** projek Vercel.
+
+## RSVP dan ucapan tetamu
+
+RSVP tidak disimpan dalam WhatsApp atau pelayar. Ia menggunakan endpoint dalaman `/api/rsvp` pada Vercel dan jadual Supabase supaya kehadiran serta ucapan boleh dilihat semula pada kad.
+
+Sebelum mengaktifkannya di Vercel:
+
+1. Cipta projek Supabase dan jalankan [supabase/schema.sql](supabase/schema.sql) dalam **SQL Editor** projek tersebut.
+2. Tambah pemboleh ubah berikut dalam **Vercel Project Settings → Environment Variables** untuk Production, Preview dan Development: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `RSVP_HASH_SECRET`.
+3. Jana `RSVP_HASH_SECRET` rawak sekurang-kurangnya 32 aksara. Jangan masukkan apa-apa secret ke dalam `config.js` atau GitHub.
+4. Redeploy projek. Contoh nama pemboleh ubah tersedia dalam [.env.example](.env.example).
+
+Secara lalai ucapan terus dipaparkan seperti rujukan. Jika mahu semak dahulu, tetapkan `RSVP_WISH_MODE=pending` di Vercel; kemudian ubah `wish_status` kepada `published` dalam dashboard Supabase untuk menerbitkannya. Nombor telefon tidak pernah dipulangkan oleh API awam atau dipaparkan pada kad.
 
 ## Privasi dan penerbitan
 
