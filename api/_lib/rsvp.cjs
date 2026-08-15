@@ -1,6 +1,7 @@
 "use strict";
 
 const crypto = require("node:crypto");
+const { neon } = require("@neondatabase/serverless");
 
 const MAX_BODY_BYTES = 8 * 1024;
 const MIN_FORM_DURATION_MS = 3_000;
@@ -28,10 +29,7 @@ function getHeader(req, name) {
 }
 
 function getServerConfig(env = process.env) {
-  const rawUrl = typeof env.SUPABASE_URL === "string" ? env.SUPABASE_URL.trim() : "";
-  const supabaseKey = typeof env.SUPABASE_SECRET_KEY === "string" && env.SUPABASE_SECRET_KEY.trim()
-    ? env.SUPABASE_SECRET_KEY.trim()
-    : (typeof env.SUPABASE_SERVICE_ROLE_KEY === "string" ? env.SUPABASE_SERVICE_ROLE_KEY.trim() : "");
+  const rawUrl = typeof env.DATABASE_URL === "string" ? env.DATABASE_URL.trim() : "";
   const hashSecret = typeof env.RSVP_HASH_SECRET === "string" ? env.RSVP_HASH_SECRET : "";
   const configuredWishMode = typeof env.RSVP_WISH_MODE === "string"
     ? env.RSVP_WISH_MODE.trim().toLowerCase()
@@ -44,7 +42,12 @@ function getServerConfig(env = process.env) {
     throw new InternalApiError();
   }
 
-  if (!rawUrl || !["https:", "http:"].includes(parsedUrl.protocol) || !supabaseKey || hashSecret.length < 32) {
+  if (!rawUrl
+    || !["postgres:", "postgresql:"].includes(parsedUrl.protocol)
+    || !parsedUrl.hostname
+    || !parsedUrl.pathname
+    || parsedUrl.pathname === "/"
+    || hashSecret.length < 32) {
     throw new InternalApiError();
   }
 
@@ -53,13 +56,9 @@ function getServerConfig(env = process.env) {
   }
 
   return Object.freeze({
-    supabaseUrl: parsedUrl.toString().replace(/\/$/, ""),
-    supabaseKey,
-    // New sb_secret_* keys must be sent only as apikey. Legacy service-role
-    // JWTs still use Authorization to set the elevated PostgREST role.
-    supabaseAuthorization: /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(supabaseKey)
-      ? "Bearer " + supabaseKey
-      : null,
+    // This value is server-only: it is read only by the Vercel Function and
+    // is never sent to the browser or included in API responses.
+    databaseUrl: parsedUrl.toString(),
     hashSecret,
     wishMode: configuredWishMode || "published"
   });
@@ -263,70 +262,60 @@ async function readJsonBody(req) {
   }
 }
 
-async function fetchWithTimeout(url, options, fetchImpl = globalThis.fetch) {
-  if (typeof fetchImpl !== "function") {
-    throw new InternalApiError();
+function isRsvpRateLimitError(error) {
+  if (!error || typeof error !== "object") {
+    return false;
   }
 
+  const code = typeof error.code === "string"
+    ? error.code
+    : (error.sourceError && typeof error.sourceError.code === "string" ? error.sourceError.code : "");
+  const messages = [
+    error.message,
+    error.sourceError && error.sourceError.message
+  ];
+
+  return code === "P0001" && messages.some(message => (
+    message === "rsvp_rate_limit" || message === "rsvp_read_rate_limit"
+  ));
+}
+
+async function callNeonQuery(config, query, parameters, options = {}) {
+  const neonFactory = options.neonFactory || neon;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    return await fetchImpl(url, { ...options, signal: controller.signal });
-  } catch {
+    const sql = neonFactory(config.databaseUrl);
+    if (!sql || typeof sql.query !== "function") {
+      throw new InternalApiError();
+    }
+
+    // The Neon serverless driver passes fetchOptions directly to its HTTPS
+    // query request. Aborting keeps the existing eight-second API timeout.
+    const rows = await sql.query(query, parameters, {
+      fetchOptions: { signal: controller.signal }
+    });
+
+    if (!Array.isArray(rows)) {
+      throw new InternalApiError();
+    }
+
+    return rows;
+  } catch (error) {
+    if (error instanceof PublicApiError || error instanceof InternalApiError) {
+      throw error;
+    }
+
+    if (isRsvpRateLimitError(error)) {
+      throw new PublicApiError(429, "Terlalu banyak permintaan daripada sambungan ini. Sila cuba lagi kemudian.");
+    }
+
+    // Do not expose database errors: they can contain implementation or row
+    // details, while the public route must retain its existing generic error.
     throw new InternalApiError();
   } finally {
     clearTimeout(timeout);
-  }
-}
-
-function responseIndicatesRateLimit(rawResponse) {
-  try {
-    const payload = JSON.parse(rawResponse);
-    return payload && (
-      payload.message === "rsvp_rate_limit"
-      || payload.message === "rsvp_read_rate_limit"
-      || payload.code === "RSVP_RATE_LIMIT"
-      || payload.code === "RSVP_READ_RATE_LIMIT"
-    );
-  } catch {
-    return false;
-  }
-}
-
-async function callSupabaseRpc(config, functionName, payload, options = {}) {
-  const response = await fetchWithTimeout(
-    `${config.supabaseUrl}/rest/v1/rpc/${functionName}`,
-    {
-      method: "POST",
-      headers: {
-        apikey: config.supabaseKey,
-        "content-type": "application/json",
-        accept: "application/json",
-        ...(config.supabaseAuthorization ? { authorization: config.supabaseAuthorization } : {}),
-        ...(options.returnMinimal ? { Prefer: "return=minimal" } : {})
-      },
-      body: JSON.stringify(payload)
-    },
-    options.fetchImpl
-  );
-
-  const rawResponse = await response.text();
-  if (!response.ok) {
-    if (responseIndicatesRateLimit(rawResponse)) {
-      throw new PublicApiError(429, "Terlalu banyak permintaan daripada sambungan ini. Sila cuba lagi kemudian.");
-    }
-    throw new InternalApiError();
-  }
-
-  if (!options.expectJson) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(rawResponse);
-  } catch {
-    throw new InternalApiError();
   }
 }
 
@@ -335,7 +324,16 @@ function safeCount(value) {
 }
 
 function sanitizePublicRsvpResult(result) {
-  const payload = Array.isArray(result) ? result[0] : result;
+  let parsedResult = result;
+  if (typeof parsedResult === "string") {
+    try {
+      parsedResult = JSON.parse(parsedResult);
+    } catch {
+      throw new InternalApiError();
+    }
+  }
+
+  const payload = Array.isArray(parsedResult) ? parsedResult[0] : parsedResult;
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
     throw new InternalApiError();
   }
@@ -372,31 +370,43 @@ function sanitizePublicRsvpResult(result) {
   };
 }
 
-async function submitRsvp(config, submission, req, fetchImpl) {
+async function submitRsvp(config, submission, req, options) {
   const phoneHash = hashForPurpose(submission.phone, config.hashSecret, "rsvp-phone");
   const ipHash = hashForPurpose(getClientIp(req), config.hashSecret, "rsvp-ip");
 
-  await callSupabaseRpc(config, "submit_rsvp", {
-    p_name: submission.name,
-    p_phone_normalized: submission.phone,
-    p_phone_hash: phoneHash,
-    p_ip_hash: ipHash,
-    p_attendance: submission.attendance,
-    p_guest_count: submission.guestCount,
-    p_wish: submission.wish,
-    p_wish_status: submission.wish ? config.wishMode : "published"
-  }, { returnMinimal: true, fetchImpl });
+  await callNeonQuery(
+    config,
+    "select public.submit_rsvp($1::text, $2::text, $3::text, $4::text, $5::text, $6::integer, $7::text, $8::text) as result",
+    [
+      submission.name,
+      submission.phone,
+      phoneHash,
+      ipHash,
+      submission.attendance,
+      submission.guestCount,
+      submission.wish,
+      submission.wish ? config.wishMode : "published"
+    ],
+    options
+  );
 }
 
-async function getPublicRsvp(config, req, fetchImpl) {
+async function getPublicRsvp(config, req, options) {
   // Keep the read budget separate from the submission IP hash. This limits
   // scraping without storing a directly reusable IP identifier.
   const ipHash = hashForPurpose(getClientIp(req), config.hashSecret, "rsvp-read-ip");
-  const result = await callSupabaseRpc(config, "get_public_rsvp", { p_ip_hash: ipHash }, {
-    expectJson: true,
-    fetchImpl
-  });
-  return sanitizePublicRsvpResult(result);
+  const rows = await callNeonQuery(
+    config,
+    "select public.get_public_rsvp($1::text) as result",
+    [ipHash],
+    options
+  );
+
+  if (rows.length !== 1 || !rows[0] || typeof rows[0] !== "object") {
+    throw new InternalApiError();
+  }
+
+  return sanitizePublicRsvpResult(rows[0].result);
 }
 
 function sendJson(res, status, payload) {
@@ -425,11 +435,12 @@ module.exports = {
   MAX_BODY_BYTES,
   PublicApiError,
   InternalApiError,
-  callSupabaseRpc,
+  callNeonQuery,
   getClientIp,
   getPublicRsvp,
   getServerConfig,
   hashForPurpose,
+  isRsvpRateLimitError,
   readJsonBody,
   sendJson,
   sendPublicError,

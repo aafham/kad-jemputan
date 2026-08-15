@@ -11,7 +11,7 @@ Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan
 - Countdown ke hari majlis.
 - Peta, pautan Google Maps/Waze dan kod QR lokasi.
 - Atur cara, senarai nombor untuk dihubungi, pautan kalendar `.ics` dan perkongsian pautan.
-- RSVP sebenar, kiraan kehadiran dan paparan ucapan tetamu melalui Vercel Function + Supabase (sehingga cutover Neon selesai).
+- RSVP sebenar, kiraan kehadiran dan paparan ucapan tetamu melalui Vercel Function + Neon PostgreSQL.
 - Reka letak responsif untuk desktop dan telefon mudah alih.
 
 ## Jalankan secara lokal
@@ -34,7 +34,8 @@ Kemudian buka `http://127.0.0.1:4173` dalam pelayar.
 ├── config.js                   # Maklumat majlis yang boleh dikemaskini
 ├── vercel.json                  # Header keselamatan deployment
 ├── api/                         # Endpoint RSVP Vercel
-├── supabase/schema.sql           # Jadual RSVP dan ucapan
+├── neon/schema.sql               # Jadual dan fungsi RSVP aktif
+├── supabase/schema.sql           # Rekod schema sistem terdahulu
 ├── .env.example                 # Nama pemboleh ubah server
 └── assets/
     ├── audio/                  # Muzik latar
@@ -69,27 +70,20 @@ Push baharu ke branch `main` akan mencetuskan deployment produksi automatik pada
 
 ## RSVP dan ucapan tetamu
 
-RSVP tidak disimpan dalam WhatsApp atau pelayar. Ia menggunakan endpoint dalaman `/api/rsvp` pada Vercel dan jadual Supabase supaya kehadiran serta ucapan boleh dilihat semula pada kad.
+RSVP tidak disimpan dalam WhatsApp atau pelayar. Endpoint dalaman `/api/rsvp` pada Vercel menyimpan kehadiran serta ucapan dalam Neon PostgreSQL, kemudian hanya memulangkan ringkasan dan ucapan yang telah diterbitkan kepada kad.
 
-Sebelum mengaktifkannya di Vercel:
+Untuk deployment baharu atau pemulihan database:
 
-1. Cipta projek Supabase dan jalankan [supabase/schema.sql](supabase/schema.sql) dalam **SQL Editor** projek tersebut.
-2. Tambah pemboleh ubah berikut dalam **Vercel Project Settings → Environment Variables** untuk Production, Preview dan Development: `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `RSVP_HASH_SECRET`.
-3. Jana `RSVP_HASH_SECRET` rawak sekurang-kurangnya 32 aksara. Jangan masukkan apa-apa secret ke dalam `config.js` atau GitHub.
-4. Redeploy projek. Contoh nama pemboleh ubah tersedia dalam [.env.example](.env.example).
+1. Cipta database Neon dan jalankan [neon/schema.sql](neon/schema.sql) sekali melalui **Neon SQL Editor**.
+2. Dalam **Vercel Project Settings → Environment Variables**, tambah untuk Production, Preview dan Development: `DATABASE_URL` (pooled Neon connection string) dan `RSVP_HASH_SECRET`.
+3. Jana `RSVP_HASH_SECRET` rawak sekurang-kurangnya 32 aksara. Jika data RSVP telah dipindahkan daripada sistem lama, kekalkan nilai yang sama supaya hash nombor telefon terus sepadan.
+4. Redeploy projek. Contoh nama pemboleh ubah tersedia dalam [.env.example](.env.example). Jangan letakkan connection string atau secret dalam `config.js` atau GitHub.
 
-Secara lalai ucapan terus dipaparkan seperti rujukan. Jika mahu semak dahulu, tetapkan `RSVP_WISH_MODE=pending` di Vercel; kemudian ubah `wish_status` kepada `published` dalam dashboard Supabase untuk menerbitkannya. Nombor telefon tidak pernah dipulangkan oleh API awam atau dipaparkan pada kad.
+Secara lalai ucapan diterbitkan terus. Untuk semakan penganjur, tetapkan `RSVP_WISH_MODE=pending` dan ubah `wish_status` kepada `published` dalam Neon apabila ucapan sedia dipaparkan. Nombor telefon tidak pernah dipulangkan oleh API awam atau dipaparkan pada kad.
 
-## Persediaan migrasi Neon
+Jika perlu membekukan penerimaan RSVP semasa penyelenggaraan, tetapkan `RSVP_WRITE_ENABLED=false` lalu redeploy. Paparan RSVP (`GET`) kekal berjalan manakala penghantaran (`POST`) menerima respons sementara 503. Biarkan pemboleh ubah itu unset atau `true` untuk mengaktifkan semula penghantaran.
 
-Scaffold migrasi satu-kali disediakan tanpa menukar endpoint produksi `/api/rsvp` yang masih menggunakan Supabase. Ini membolehkan data disalin dan disemak dahulu sebelum cutover sebenar.
-
-1. Cipta database Neon, kemudian jalankan [neon/schema.sql](neon/schema.sql) dalam **Neon SQL Editor**.
-2. Di Vercel, tambah `DATABASE_URL` (connection string Neon pooled) dan `NEON_MIGRATION_SECRET` rawak sekurang-kurangnya 32 aksara. Kekalkan `SUPABASE_URL`, `SUPABASE_SECRET_KEY` dan `RSVP_HASH_SECRET` buat sementara waktu.
-3. Hantar satu `POST` berautoriti ke `/api/migrate-to-neon` dengan header `Authorization: Bearer <NEON_MIGRATION_SECRET>`. Endpoint itu membaca ketiga-tiga jadual RSVP secara server-side dan melakukan penggantian snapshot atomik di Neon.
-4. Semak kiraan agregat `source` dan `target` dalam respons. Respons tidak mengandungi nama, nombor telefon, ucapan atau hash IP. Untuk sync terakhir, tetapkan `RSVP_WRITE_ENABLED=false` di Vercel dan redeploy; `GET /api/rsvp` kekal berfungsi tetapi `POST` RSVP menerima respons sementara. Jalankan semula migrasi, kemudian teruskan cutover supaya tiada respons baharu tertinggal.
-
-`api/migrate-to-neon.js` ialah endpoint sementara. Selepas API RSVP telah ditukar dan disahkan menggunakan Neon, buang endpoint serta `NEON_MIGRATION_SECRET`. Jangan padam projek/data Supabase sehingga semakan akhir dan pelan rollback selesai.
+[Supabase schema](supabase/schema.sql) disimpan sebagai rekod sistem terdahulu sahaja; runtime kad tidak lagi menggunakan kredensial atau endpoint Supabase.
 
 ## Privasi dan penerbitan
 
