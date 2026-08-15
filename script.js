@@ -1,28 +1,95 @@
 const config = window.invitationConfig || {};
+const audioEnabled = config?.audio?.enabled !== false;
 
 const btn = document.getElementById("btn");
+const invitation = document.getElementById("invitation");
+const invitationTitle = document.getElementById("invitationTitle");
+const floatingActions = document.getElementById("floatingActions");
 const countdownIds = ["days", "hours", "minutes", "seconds"];
 const countdownStatus = document.getElementById("countdownStatus");
 const audioToggle = document.getElementById("audioToggle");
 const bgAudio = document.getElementById("bgAudio");
 const rsvpForm = document.getElementById("rsvpForm");
+const rsvpStatus = document.getElementById("rsvpStatus");
 const shareInvite = document.getElementById("shareInvite");
 const flowerLayer = document.getElementById("flowerLayer");
+
 let audioShouldPlay = false;
 let audioResumeTimer = null;
 let audioWatchdogTimer = null;
+let flowersInitialized = false;
 
-if (bgAudio) {
-  bgAudio.loop = true;
-  bgAudio.preload = "auto";
-}
+document.body.classList.add("js-enabled");
 
 const setText = (id, value) => {
   const el = document.getElementById(id);
-  if (el && value) {
+  if (el && value !== undefined && value !== null) {
     el.textContent = value;
   }
 };
+
+const setMetaContent = (id, value) => {
+  const el = document.getElementById(id);
+  if (!el) {
+    return;
+  }
+
+  if (value) {
+    el.setAttribute("content", value);
+  } else {
+    el.removeAttribute("content");
+  }
+};
+
+const setHidden = (el, hidden) => {
+  if (el) {
+    el.hidden = Boolean(hidden);
+  }
+};
+
+const getCoupleNames = couple => {
+  const configuredNames = Array.isArray(couple?.displayNames)
+    ? couple.displayNames.filter(Boolean)
+    : [];
+
+  if (configuredNames.length > 0) {
+    return configuredNames;
+  }
+
+  return [couple?.groom, couple?.bride].filter(Boolean);
+};
+
+const setInteractive = (el, enabled) => {
+  if (!el) {
+    return;
+  }
+
+  if (enabled) {
+    el.removeAttribute("inert");
+    if ("inert" in el) {
+      el.inert = false;
+    }
+    el.removeAttribute("aria-hidden");
+  } else {
+    el.setAttribute("inert", "");
+    if ("inert" in el) {
+      el.inert = true;
+    }
+    el.setAttribute("aria-hidden", "true");
+  }
+};
+
+const setRsvpStatus = message => {
+  if (rsvpStatus) {
+    rsvpStatus.textContent = message;
+  }
+};
+
+const cleanWhatsappNumber = value => String(value || "").replace(/\D/g, "");
+
+const isValidWhatsappNumber = value => /^\d{8,15}$/.test(value);
+
+const isSafeColor = value => /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(value || "");
 
 const setAudioVisual = state => {
   if (!audioToggle) {
@@ -32,7 +99,7 @@ const setAudioVisual = state => {
   const labelMap = {
     on: "Audio ON",
     off: "Audio OFF",
-    blocked: "Audio blocked oleh browser",
+    blocked: "Audio disekat oleh browser",
     missing: "Fail audio tiada",
   };
 
@@ -42,8 +109,8 @@ const setAudioVisual = state => {
   audioToggle.classList.toggle("is-on", state === "on");
 };
 
-const tryPlayAudio = async (source = "manual") => {
-  if (!bgAudio || !audioShouldPlay) {
+const tryPlayAudio = async source => {
+  if (!audioEnabled || !bgAudio || !audioShouldPlay) {
     return false;
   }
 
@@ -62,57 +129,259 @@ const tryPlayAudio = async (source = "manual") => {
     setAudioVisual("on");
     return true;
   } catch (error) {
-    if (source === "user") {
-      setAudioVisual("blocked");
-    }
+    setAudioVisual(source === "user" ? "blocked" : "off");
     return false;
   }
+};
+
+const renderCalendar = (event, calendar) => {
+  const grid = document.getElementById("calendarGrid");
+  const header = document.getElementById("calendarHeader");
+  const title = document.getElementById("calendarTitle");
+  const eventDate = new Date(event.dateTime || "");
+
+  if (!grid || Number.isNaN(eventDate.getTime())) {
+    return;
+  }
+
+  const locale = calendar.locale || "ms-MY";
+  const weekStartsOn = Number.isInteger(calendar.weekStartsOn) ? calendar.weekStartsOn : 0;
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Kuala_Lumpur",
+  });
+  const monthFormatter = new Intl.DateTimeFormat(locale, {
+    month: "long",
+    year: "numeric",
+    timeZone: "Asia/Kuala_Lumpur",
+  });
+
+  const year = eventDate.getUTCFullYear();
+  const month = eventDate.getUTCMonth();
+  const day = eventDate.getUTCDate();
+  const firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const firstCell = (firstDay - weekStartsOn + 7) % 7;
+  const weekdays = ["A", "I", "S", "R", "K", "J", "S"];
+  const orderedWeekdays = weekdays.slice(weekStartsOn).concat(weekdays.slice(0, weekStartsOn));
+
+  setText("calendarTitle", calendar.title || "Tarikh Majlis");
+  if (title) {
+    title.setAttribute("aria-label", (calendar.title || "Tarikh Majlis") + ": " + dateFormatter.format(eventDate));
+  }
+  if (header) {
+    header.textContent = monthFormatter.format(eventDate);
+  }
+
+  grid.replaceChildren();
+  orderedWeekdays.forEach(label => {
+    const weekday = document.createElement("div");
+    weekday.className = "day";
+    weekday.textContent = label;
+    weekday.setAttribute("aria-hidden", "true");
+    grid.appendChild(weekday);
+  });
+
+  for (let index = 0; index < firstCell; index += 1) {
+    const empty = document.createElement("div");
+    empty.className = "date empty";
+    empty.setAttribute("aria-hidden", "true");
+    grid.appendChild(empty);
+  }
+
+  for (let date = 1; date <= daysInMonth; date += 1) {
+    const cell = document.createElement("div");
+    cell.className = "date";
+    cell.textContent = date;
+
+    if (date === day) {
+      cell.classList.add("event");
+      cell.setAttribute("aria-label", "Tarikh majlis: " + dateFormatter.format(eventDate));
+    } else {
+      cell.setAttribute("aria-label", String(date));
+    }
+
+    grid.appendChild(cell);
+  }
+};
+
+const renderSchedule = schedule => {
+  const scheduleRoot = document.getElementById("scheduleList");
+  if (!scheduleRoot || !Array.isArray(schedule) || schedule.length === 0) {
+    return;
+  }
+
+  scheduleRoot.replaceChildren();
+  schedule.forEach(item => {
+    const slot = document.createElement("div");
+    slot.className = "slot";
+
+    const time = document.createElement("span");
+    time.textContent = item.time || "";
+
+    const title = document.createElement("span");
+    title.textContent = item.title || "";
+
+    slot.append(time, title);
+    scheduleRoot.appendChild(slot);
+  });
+};
+
+const renderFamily = family => {
+  const familyRoot = document.getElementById("familyList");
+  if (!familyRoot) {
+    return;
+  }
+
+  const hosts = Array.isArray(family?.hosts)
+    ? family.hosts.filter(host => host && (host.label || (Array.isArray(host.people) && host.people.length)))
+    : [];
+
+  familyRoot.replaceChildren();
+  hosts.forEach(host => {
+    const card = document.createElement("div");
+    card.className = "family-card";
+
+    if (host.label) {
+      const label = document.createElement("p");
+      label.className = "family-title";
+      label.textContent = host.label;
+      card.appendChild(label);
+    }
+
+    (Array.isArray(host.people) ? host.people : []).filter(Boolean).forEach(person => {
+      const name = document.createElement("p");
+      name.textContent = person;
+      card.appendChild(name);
+    });
+
+    familyRoot.appendChild(card);
+  });
+};
+
+const renderContacts = people => {
+  const contactSection = document.getElementById("contactSection");
+  const contactRoot = document.getElementById("contactList");
+  const contacts = Array.isArray(people) ? people.filter(Boolean) : [];
+
+  setHidden(contactSection, contacts.length === 0);
+  if (!contactRoot || contacts.length === 0) {
+    return;
+  }
+
+  contactRoot.replaceChildren();
+  contacts.forEach(person => {
+    const card = document.createElement("div");
+    card.className = "contact-card";
+
+    if (person.name) {
+      const name = document.createElement("p");
+      name.className = "contact-name";
+      name.textContent = person.name;
+      card.appendChild(name);
+    }
+
+    (Array.isArray(person.phones) ? person.phones : []).forEach(phone => {
+      const number = cleanWhatsappNumber(phone?.number);
+      if (!isValidWhatsappNumber(number)) {
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = "https://wa.me/" + number;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = phone.display || number;
+      link.setAttribute("aria-label", "WhatsApp " + (person.name || "penganjur") + " di " + link.textContent);
+      card.appendChild(link);
+    });
+
+    if (card.children.length > 0) {
+      contactRoot.appendChild(card);
+    }
+  });
 };
 
 const applyConfig = () => {
   const couple = config.couple || {};
   const event = config.event || {};
   const family = config.family || {};
-  const groomSide = family.groomSide || {};
-  const brideSide = family.brideSide || {};
   const dressCode = config.dressCode || {};
   const map = config.map || {};
   const contact = config.contact || {};
+  const invitation = config.invitation || {};
+  const metadata = config.metadata || {};
+  const calendar = config.calendar || {};
+  const coupleNames = getCoupleNames(couple);
+  const primaryContactName = contact.rsvpName || "penganjur";
 
-  setText("openGroom", couple.groom);
-  setText("openBride", couple.bride);
-  setText("heroGroom", couple.groom);
-  setText("heroBride", couple.bride);
+  setText("openGroom", coupleNames[0] || "");
+  setText("openBride", coupleNames[1] || "");
+  setText("heroGroom", coupleNames[0] || "");
+  setText("heroBride", coupleNames[1] || "");
   setText("sealText", couple.monogram);
   setText("eventTitle", event.title ? event.title.toUpperCase() : "");
+  setText("fullNamesText", (Array.isArray(couple.fullNames) ? couple.fullNames : []).filter(Boolean).join("\n"));
   setText("eventDateText", event.dateText);
+  setText("hijriDateText", event.hijriDate || "");
   setText("chipTime", event.timeText);
   setText("chipVenue", event.venue);
-  setText("quoteText", config.quote);
+  setText("quoteHeading", invitation.heading || "Jemputan");
+  setText("bismillahText", invitation.bismillah || "");
+  setText("quoteText", invitation.intro || config.quote || "");
+  setText("closingText", invitation.closing || "");
+  setHidden(document.getElementById("bismillahText"), !invitation.bismillah);
+  setHidden(document.getElementById("hijriDateText"), !event.hijriDate);
 
-  setText("groomFamilyLabel", groomSide.label);
-  setText("groomFather", groomSide.father);
-  setText("groomMother", groomSide.mother);
-  setText("brideFamilyLabel", brideSide.label);
-  setText("brideFather", brideSide.father);
-  setText("brideMother", brideSide.mother);
+  renderFamily(family);
 
-  setText("infoVenue", event.venue ? "Lokasi: " + event.venue : "");
+  setText("infoVenue", (event.address || event.venue) ? "Lokasi: " + (event.address || event.venue) : "");
   setText("infoTime", event.timeText ? "Masa: " + event.timeText : "");
+  setText("infoDressCode", dressCode.shortText ? "Tema: " + dressCode.shortText : "");
   setText("dressCodeText", dressCode.text);
+  const hasDressCode = Boolean(dressCode.text || dressCode.shortText || (Array.isArray(dressCode.colors) && dressCode.colors.length));
+  setHidden(document.getElementById("infoDressCode"), !hasDressCode);
+  setHidden(document.getElementById("dressCodeSection"), !hasDressCode);
 
-  const mapQuery = encodeURIComponent(map.query || event.venue || "");
-  const googleMapsUrl = "https://www.google.com/maps/search/?api=1&query=" + mapQuery;
-  const wazeUrl = "https://waze.com/ul?q=" + mapQuery + "&navigate=yes";
+  const fallbackTitle = [event.title, ...coupleNames].filter(Boolean).join(" ");
+  const pageTitle = metadata.title || fallbackTitle;
+  setText("pageTitle", pageTitle);
+  if (pageTitle) {
+    document.title = pageTitle;
+  }
+  setMetaContent("metaDescription", metadata.description);
+  setMetaContent("metaRobots", metadata.robots);
+  setMetaContent("ogTitle", metadata.title || pageTitle);
+  setMetaContent("ogDescription", metadata.description);
+  setMetaContent("ogImage", metadata.image);
+  setMetaContent("ogImageAlt", metadata.imageAlt);
+  setMetaContent("twitterTitle", metadata.title || pageTitle);
+  setMetaContent("twitterDescription", metadata.description);
+  setMetaContent("twitterImage", metadata.image);
+  setMetaContent("ogUrl", metadata.url || window.location.href);
+
+  const canonical = document.getElementById("canonicalUrl");
+  if (canonical && (metadata.url || window.location.href)) {
+    canonical.href = metadata.url || window.location.href;
+  }
+
+  const mapQuery = encodeURIComponent(map.query || event.address || event.venue || "");
+  const googleMapsUrl = map.googleMapsUrl || "https://www.google.com/maps/search/?api=1&query=" + mapQuery;
+  const wazeUrl = map.wazeUrl || "https://waze.com/ul?q=" + mapQuery + "&navigate=yes";
+  const mapLabel = event.address || event.venue || "lokasi majlis";
 
   const googleMapsLink = document.getElementById("googleMapsLink");
   const googleMapsBtn = document.getElementById("googleMapsBtn");
   const wazeBtn = document.getElementById("wazeBtn");
+  const mapPreview = document.getElementById("mapPreview");
   const mapImage = document.getElementById("mapImage");
   const qrImage = document.getElementById("qrImage");
 
   if (googleMapsLink) {
     googleMapsLink.href = googleMapsUrl;
+    googleMapsLink.setAttribute("aria-label", "Buka lokasi " + mapLabel + " di Google Maps (tab baharu)");
   }
   if (googleMapsBtn) {
     googleMapsBtn.href = googleMapsUrl;
@@ -120,30 +389,37 @@ const applyConfig = () => {
   if (wazeBtn) {
     wazeBtn.href = wazeUrl;
   }
-  if (mapImage && map.image) {
-    mapImage.src = map.image;
+  if (mapImage) {
+    if (map.image) {
+      mapImage.src = map.image;
+    }
+    mapImage.alt = "Peta lokasi " + mapLabel;
   }
+  setHidden(mapPreview, !map.image);
   if (qrImage) {
     qrImage.src =
       "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" +
       encodeURIComponent(googleMapsUrl);
+    qrImage.alt = "Kod QR lokasi " + mapLabel;
   }
 
   const swatchRoot = document.getElementById("dressSwatches");
   if (swatchRoot && Array.isArray(dressCode.colors) && dressCode.colors.length > 0) {
-    swatchRoot.innerHTML = "";
+    swatchRoot.replaceChildren();
     dressCode.colors.forEach(color => {
       const swatch = document.createElement("span");
       swatch.className = "swatch";
-      swatch.style.setProperty("--swatch", color.hex || "#eee");
-      swatch.textContent = color.name || "Color";
+      swatch.style.setProperty("--swatch", isSafeColor(color.hex) ? color.hex : "#eee");
+      swatch.textContent = color.name || "Warna";
       swatchRoot.appendChild(swatch);
     });
   }
 
   const galleryRoot = document.getElementById("galleryGrid");
-  if (galleryRoot && Array.isArray(config.gallery)) {
-    galleryRoot.innerHTML = "";
+  const hasGallery = Array.isArray(config.gallery) && config.gallery.length > 0;
+  setHidden(document.getElementById("gallerySection"), !hasGallery);
+  if (galleryRoot && hasGallery) {
+    galleryRoot.replaceChildren();
     config.gallery.forEach((item, index) => {
       const figure = document.createElement("figure");
       figure.className = "gallery-item";
@@ -155,46 +431,44 @@ const applyConfig = () => {
       img.loading = "lazy";
       img.decoding = "async";
       img.referrerPolicy = "no-referrer";
-      img.addEventListener("error", () => {
-        if (map.image && img.src !== map.image) {
-          img.src = map.image;
-          return;
-        }
-        figure.style.display = "none";
-      });
+      img.addEventListener("error", () => figure.remove(), { once: true });
 
       figure.appendChild(img);
+      if (item.caption) {
+        const caption = document.createElement("figcaption");
+        caption.textContent = item.caption;
+        figure.appendChild(caption);
+      }
       galleryRoot.appendChild(figure);
     });
   }
 
-  const coupleText = [couple.groom, couple.bride].filter(Boolean).join(" & ");
+  renderCalendar(event, calendar);
+  renderSchedule(config.schedule);
+  renderContacts(contact.people);
+
+  const coupleText = coupleNames.join(" & ");
   const waText =
-    "Assalamualaikum, saya ingin RSVP majlis " +
-    (event.title || "") +
-    " " +
-    coupleText +
-    ".";
-  const waNo = contact.whatsapp || "";
+    "Assalamualaikum, saya ingin RSVP kehadiran ke majlis perkahwinan " + coupleText + ".";
+  const waNo = cleanWhatsappNumber(contact.whatsapp);
 
   const whatsappDirectBtn = document.getElementById("whatsappDirectBtn");
-  if (whatsappDirectBtn && waNo) {
+  if (whatsappDirectBtn && isValidWhatsappNumber(waNo)) {
     whatsappDirectBtn.href =
       "https://wa.me/" + waNo + "?text=" + encodeURIComponent(waText);
+    whatsappDirectBtn.textContent = "WhatsApp " + primaryContactName;
+    whatsappDirectBtn.setAttribute("aria-label", "Buka WhatsApp " + primaryContactName + " untuk RSVP (tab baharu)");
   }
-
-  if (event.title && coupleText) {
-    document.title = event.title + " " + coupleText;
-  }
+  setHidden(whatsappDirectBtn, !isValidWhatsappNumber(waNo));
+  setText("rsvpSubmitText", "Hantar RSVP kepada " + primaryContactName);
 };
 
-applyConfig();
-
 const initFlowerRain = () => {
-  if (!flowerLayer) {
+  if (!flowerLayer || flowersInitialized) {
     return;
   }
 
+  flowersInitialized = true;
   const flowerCount = 18;
   for (let i = 0; i < flowerCount; i += 1) {
     const petal = document.createElement("span");
@@ -219,15 +493,15 @@ const initFlowerRain = () => {
   }
 };
 
-initFlowerRain();
-
-const eventDate = new Date(config?.event?.dateTime || "2026-08-20T11:00:00").getTime();
+const eventStart = new Date(config?.event?.dateTime || "").getTime();
+const eventEnd = new Date(config?.event?.endDateTime || config?.event?.dateTime || "").getTime();
 
 const pad = value => String(value).padStart(2, "0");
 
 const updateCountdown = () => {
   const now = Date.now();
-  const rawDiff = eventDate - now;
+  const hasValidStart = Number.isFinite(eventStart);
+  const rawDiff = hasValidStart ? eventStart - now : 0;
   const diff = Math.max(rawDiff, 0);
 
   const values = {
@@ -240,20 +514,25 @@ const updateCountdown = () => {
   countdownIds.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      el.innerText = id === "days" ? values[id] : pad(values[id]);
+      el.textContent = id === "days" ? values[id] : pad(values[id]);
     }
   });
 
   if (countdownStatus) {
-    countdownStatus.textContent =
-      rawDiff <= 0
-        ? "Majlis sedang berlangsung. Selamat datang."
-        : "Persiapan menuju hari bahagia sedang berjalan.";
+    if (!hasValidStart) {
+      countdownStatus.textContent = "Tarikh majlis belum ditetapkan.";
+    } else if (rawDiff > 0) {
+      countdownStatus.textContent = "Persiapan menuju hari bahagia sedang berjalan.";
+    } else if (Number.isFinite(eventEnd) && now <= eventEnd) {
+      countdownStatus.textContent = "Majlis sedang berlangsung. Selamat datang.";
+    } else {
+      countdownStatus.textContent = "Majlis telah berlangsung. Terima kasih atas doa dan ingatan anda.";
+    }
   }
 };
 
 const toggleAudio = async () => {
-  if (!audioToggle || !bgAudio) {
+  if (!audioEnabled || !audioToggle || !bgAudio) {
     return;
   }
 
@@ -273,27 +552,58 @@ const toggleAudio = async () => {
   setAudioVisual("off");
 };
 
-if (btn) {
-  btn.onclick = async () => {
-    document.body.classList.add("opened");
-    btn.style.opacity = "0";
-    btn.style.pointerEvents = "none";
+const openInvitation = async () => {
+  document.body.classList.add("opened");
+  setInteractive(invitation, true);
+  setInteractive(floatingActions, true);
+  initFlowerRain();
 
-    if (bgAudio) {
-      audioShouldPlay = true;
-      const ok = await tryPlayAudio("user");
-      if (!ok) {
-        audioShouldPlay = false;
-      }
+  if (btn) {
+    btn.setAttribute("aria-expanded", "true");
+    btn.setAttribute("aria-hidden", "true");
+    window.setTimeout(() => {
+      btn.hidden = true;
+    }, 300);
+  }
+
+  window.setTimeout(() => invitationTitle?.focus(), 100);
+
+  if (audioEnabled && bgAudio) {
+    audioShouldPlay = true;
+    const isPlaying = await tryPlayAudio("user");
+    if (!isPlaying) {
+      audioShouldPlay = false;
     }
-  };
-}
+  }
+};
 
 if (audioToggle) {
+  setHidden(audioToggle, !audioEnabled);
+}
+
+if (audioEnabled && bgAudio) {
+  bgAudio.loop = true;
+  bgAudio.preload = "metadata";
+}
+
+setInteractive(invitation, false);
+setInteractive(floatingActions, false);
+applyConfig();
+updateCountdown();
+setInterval(updateCountdown, 1000);
+if (audioEnabled) {
+  setAudioVisual("off");
+}
+
+if (btn) {
+  btn.addEventListener("click", openInvitation, { once: true });
+}
+
+if (audioEnabled && audioToggle) {
   audioToggle.addEventListener("click", toggleAudio);
 }
 
-if (bgAudio) {
+if (audioEnabled && bgAudio) {
   bgAudio.addEventListener("pause", () => {
     if (!audioShouldPlay) {
       return;
@@ -301,19 +611,10 @@ if (bgAudio) {
 
     clearTimeout(audioResumeTimer);
     audioResumeTimer = setTimeout(async () => {
-      if (!audioShouldPlay || !bgAudio.paused) {
-        return;
+      if (audioShouldPlay && bgAudio.paused) {
+        await tryPlayAudio("auto");
       }
-      await tryPlayAudio("auto");
     }, 350);
-  });
-
-  bgAudio.addEventListener("ended", async () => {
-    if (!audioShouldPlay) {
-      return;
-    }
-    bgAudio.currentTime = 0;
-    await tryPlayAudio("auto");
   });
 
   bgAudio.addEventListener("error", () => {
@@ -323,29 +624,21 @@ if (bgAudio) {
 }
 
 document.addEventListener("visibilitychange", async () => {
-  if (!bgAudio || !audioShouldPlay || document.hidden || !bgAudio.paused) {
+  if (!audioEnabled || !bgAudio || !audioShouldPlay || document.hidden || !bgAudio.paused) {
     return;
   }
   await tryPlayAudio("auto");
 });
 
 window.addEventListener("focus", async () => {
-  if (!audioShouldPlay) {
-    return;
+  if (audioEnabled && audioShouldPlay) {
+    await tryPlayAudio("auto");
   }
-  await tryPlayAudio("auto");
-});
-
-window.addEventListener("pageshow", async () => {
-  if (!audioShouldPlay) {
-    return;
-  }
-  await tryPlayAudio("auto");
 });
 
 const shareMessage =
-  "Jemputan Walimatul Urus " +
-  [config?.couple?.groom, config?.couple?.bride].filter(Boolean).join(" & ") +
+  "Jemputan majlis perkahwinan " +
+  getCoupleNames(config?.couple || {}).join(" & ") +
   " pada " +
   (config?.event?.dateText || "tarikh majlis") +
   " di " +
@@ -361,28 +654,29 @@ const fallbackShare = async () => {
       await navigator.clipboard.writeText(textToCopy);
       if (shareInvite) {
         shareInvite.title = "Link disalin";
-        shareInvite.setAttribute("aria-label", "Link disalin");
+        shareInvite.setAttribute("aria-label", "Link jemputan disalin");
         shareInvite.classList.add("is-copied");
         setTimeout(() => {
-          shareInvite.title = "Share jemputan";
-          shareInvite.setAttribute("aria-label", "Share jemputan");
+          shareInvite.title = "Kongsi jemputan";
+          shareInvite.setAttribute("aria-label", "Kongsi jemputan");
           shareInvite.classList.remove("is-copied");
         }, 1500);
       }
       return;
     }
   } catch (error) {
-    // Fallback continues to WhatsApp URL below.
+    // Continue to the WhatsApp fallback below.
   }
 
   const waUrl = "https://wa.me/?text=" + encodeURIComponent(textToCopy);
-  window.open(waUrl, "_blank", "noopener");
+  window.open(waUrl, "_blank", "noopener,noreferrer");
 };
 
 if (shareInvite) {
+  shareInvite.title = "Kongsi jemputan";
   shareInvite.addEventListener("click", async () => {
     const shareData = {
-      title: "Jemputan Walimatul Urus",
+      title: config?.metadata?.title || "Jemputan Walimatul Urus",
       text: shareMessage,
       url: window.location.href,
     };
@@ -409,40 +703,39 @@ if (rsvpForm) {
     const name = document.getElementById("guestName")?.value?.trim() || "Tetamu";
     const count = document.getElementById("guestCount")?.value || "1";
     const wishes = document.getElementById("guestWishes")?.value?.trim() || "-";
+    const waNo = cleanWhatsappNumber(config?.contact?.whatsapp);
 
-    const waNo = config?.contact?.whatsapp || "";
-    const coupleText = [config?.couple?.groom, config?.couple?.bride]
-      .filter(Boolean)
-      .join(" & ");
+    if (!isValidWhatsappNumber(waNo)) {
+      setRsvpStatus("Nombor WhatsApp penganjur belum sah. Sila hubungi penganjur secara terus.");
+      return;
+    }
 
+    const coupleText = getCoupleNames(config?.couple || {}).join(" & ");
     const message = [
-      "Assalamualaikum, saya ingin RSVP majlis " + (config?.event?.title || "") + " " + coupleText + ".",
+      "Assalamualaikum, saya ingin RSVP kehadiran ke majlis perkahwinan " + coupleText + ".",
       "Nama: " + name,
       "Jumlah hadir: " + count,
       "Ucapan: " + wishes,
     ].join("\n");
-
     const url = "https://wa.me/" + waNo + "?text=" + encodeURIComponent(message);
+    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
 
-    window.open(url, "_blank", "noopener");
+    setRsvpStatus(
+      newWindow
+        ? "WhatsApp dibuka untuk semakan RSVP."
+        : "Pelayar menyekat WhatsApp. Benarkan pop-up dan cuba lagi."
+    );
   });
-}
-
-updateCountdown();
-setInterval(updateCountdown, 1000);
-setAudioVisual("off");
-if (shareInvite) {
-  shareInvite.title = "Share jemputan";
 }
 
 if (audioWatchdogTimer) {
   clearInterval(audioWatchdogTimer);
 }
-audioWatchdogTimer = setInterval(async () => {
-  if (!audioShouldPlay || !bgAudio || document.hidden) {
-    return;
-  }
-  if (bgAudio.paused) {
+if (audioEnabled) {
+  audioWatchdogTimer = setInterval(async () => {
+    if (!audioShouldPlay || !bgAudio || document.hidden || !bgAudio.paused) {
+      return;
+    }
     await tryPlayAudio("auto");
-  }
-}, 4000);
+  }, 4000);
+}

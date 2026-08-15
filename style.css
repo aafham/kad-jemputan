@@ -9,9 +9,9 @@
 
 :root {
   --ink: #2b2b2b;
-  --muted: #6f5a4a;
-  --accent: #c9a27d;
-  --accent-strong: #b6885e;
+  --muted: #624838;
+  --accent: #9a5c35;
+  --accent-strong: #74401f;
   --paper: #fff8ee;
   --panel: #ffffff;
   --border: rgba(185, 146, 110, 0.4);
@@ -46,6 +46,7 @@ body::before {
    DOOR ANIMATION
 ===================== */
 .door {
+  display: none;
   position: fixed;
   top: 0;
   width: 50%;
@@ -53,6 +54,10 @@ body::before {
   background: linear-gradient(180deg, #ffffff, #f8efe2);
   z-index: 3;
   transition: transform 1.3s ease-in-out;
+}
+
+#openPage.js-enabled .door {
+  display: block;
 }
 
 .door.left {
@@ -81,6 +86,7 @@ body::before {
    OPEN CIRCLE
 ===================== */
 .open-circle {
+  display: none;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -94,11 +100,25 @@ body::before {
   z-index: 10;
   box-shadow: 0 22px 55px rgba(41, 28, 15, 0.25),
     inset 0 0 0 1px rgba(0, 0, 0, 0.08);
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#openPage.js-enabled .open-circle {
+  display: flex;
+}
+
+.open-circle[hidden] {
+  display: none !important;
+}
+
+#openPage.opened .open-circle {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.9);
 }
 
 .open-circle::after {
@@ -149,32 +169,45 @@ body::before {
    INVITATION WRAPPER
 ===================== */
 #invitation {
-  position: absolute;
-  inset: 0;
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  overflow-y: auto;
+  min-height: 100vh;
   padding: 16px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 1s ease;
+  opacity: 1;
+  pointer-events: auto;
   z-index: 5;
 }
 
-#openPage.opened #invitation {
+#openPage.js-enabled #invitation {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1s ease;
+}
+
+#openPage.js-enabled.opened #invitation {
   opacity: 1;
   pointer-events: auto;
 }
 
 .flower-layer {
+  display: none;
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 6;
+  z-index: 4;
   overflow: hidden;
   opacity: 0;
   transition: opacity 0.8s ease;
+}
+
+#openPage.js-enabled .flower-layer {
+  display: block;
 }
 
 #openPage.opened .flower-layer {
@@ -331,7 +364,14 @@ body::before {
   margin: 18px 0 12px;
 }
 
-.section h3 {
+.section[hidden],
+.info-item[hidden],
+.map-preview[hidden],
+.fab-btn[hidden] {
+  display: none !important;
+}
+
+.section h2 {
   font-size: 14px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -342,6 +382,28 @@ body::before {
   margin-top: 8px;
   font-size: 12px;
   color: var(--muted);
+}
+
+.full-names {
+  max-width: 290px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--muted);
+  white-space: pre-line;
+}
+
+.hijri-date {
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.bismillah {
+  margin-top: 10px;
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--accent-strong);
 }
 
 .quote-text {
@@ -371,6 +433,33 @@ body::before {
   font-weight: 600;
   margin-bottom: 4px;
   color: var(--accent-strong);
+}
+
+.contact-list {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.contact-card {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid rgba(185, 146, 110, 0.2);
+  border-radius: 14px;
+  background: #ffffff;
+  font-size: 12px;
+}
+
+.contact-name {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.contact-card a {
+  color: var(--muted);
+  overflow-wrap: anywhere;
 }
 
 .info-grid {
@@ -431,7 +520,8 @@ body::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 9px 14px;
+  min-height: 44px;
+  padding: 10px 16px;
   border-radius: 999px;
   border: 1px solid var(--accent);
   text-decoration: none;
@@ -479,7 +569,7 @@ body::before {
 }
 
 .mini-calendar {
-  width: 250px;
+  width: min(100%, 280px);
   margin: 10px auto;
   background: #fff;
   border-radius: 14px;
@@ -509,8 +599,9 @@ body::before {
 }
 
 .calendar-grid .date {
-  width: 32px;
-  height: 32px;
+  min-width: 0;
+  min-height: 28px;
+  height: clamp(28px, 8vw, 36px);
   display: grid;
   place-items: center;
   border-radius: 10px;
@@ -566,6 +657,14 @@ body::before {
   color: var(--muted);
 }
 
+#rsvpStatus {
+  min-height: 1.5em;
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
 /* =====================
    SCHEDULE
 ===================== */
@@ -577,7 +676,7 @@ body::before {
 
 .slot {
   display: grid;
-  grid-template-columns: 62px 1fr;
+  grid-template-columns: minmax(96px, 1fr) 1.4fr;
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
@@ -673,11 +772,13 @@ body::before {
 .rsvp-form select,
 .rsvp-form textarea {
   width: 100%;
+  min-height: 44px;
   border: 1px solid rgba(185, 146, 110, 0.35);
   background: #fff;
   border-radius: 10px;
   padding: 10px;
   font: inherit;
+  font-size: 16px;
   color: var(--ink);
 }
 
@@ -732,13 +833,17 @@ body::before {
 }
 
 .floating-actions {
+  display: none;
   position: fixed;
   right: 14px;
   bottom: 14px;
-  display: flex;
   flex-direction: column;
   gap: 8px;
   z-index: 80;
+}
+
+#openPage.js-enabled.opened .floating-actions {
+  display: flex;
 }
 
 .fab-btn {
@@ -781,6 +886,15 @@ body::before {
 
 .fab-btn.is-copied .icon-check {
   display: block;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #3f220f;
+  outline-offset: 3px;
 }
 
 /* =====================
@@ -826,6 +940,21 @@ body::before {
   .floating-actions {
     right: 10px;
     bottom: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .petal {
+    display: none;
   }
 }
 

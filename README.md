@@ -1,17 +1,16 @@
-# Kad Jemputan Walimatul Urus
+# Kad Jemputan Perkahwinan Hanis & Nabil
 
-Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu. Projek ini dibina dengan HTML, CSS dan JavaScript biasa—tanpa kebergantungan atau proses binaan—dan boleh terus dihoskan sebagai laman statik.
+Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Hanis dan Nabil pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang. Projek ini dibina dengan HTML, CSS dan JavaScript biasa—tanpa kebergantungan atau proses binaan—dan boleh terus dihoskan sebagai laman statik.
 
 **Laman produksi:** [kad-jemputan.vercel.app](https://kad-jemputan.vercel.app)
 
 ## Ciri-ciri
 
 - Skrin pembuka dengan animasi pintu dan dekorasi bunga.
-- Paparan nama pasangan, keluarga, tarikh, masa dan lokasi melalui satu fail konfigurasi.
+- Paparan nama penuh pasangan, keluarga yang menjemput, tarikh Masihi/Hijrah, masa dan lokasi melalui satu fail konfigurasi.
 - Countdown ke hari majlis.
 - Peta, pautan Google Maps/Waze dan kod QR lokasi.
-- Atur cara, tema pakaian dan galeri gambar.
-- Audio latar, pautan kalendar `.ics`, perkongsian pautan dan RSVP WhatsApp.
+- Atur cara, senarai nombor untuk dihubungi, pautan kalendar `.ics`, perkongsian pautan dan RSVP WhatsApp.
 - Reka letak responsif untuk desktop dan telefon mudah alih.
 
 ## Jalankan secara lokal
@@ -32,6 +31,7 @@ Kemudian buka `http://127.0.0.1:4173` dalam pelayar.
 ├── style.css                   # Reka bentuk dan responsif
 ├── script.js                   # Interaksi kad
 ├── config.js                   # Maklumat majlis yang boleh dikemaskini
+├── vercel.json                  # Header keselamatan deployment
 └── assets/
     ├── audio/                  # Muzik latar
     ├── calendar/               # Fail Save The Date (.ics)
@@ -42,13 +42,14 @@ Kemudian buka `http://127.0.0.1:4173` dalam pelayar.
 
 Sebelum berkongsi kad ini dengan tetamu, kemaskini `config.js`:
 
-1. Nama pengantin dan monogram.
-2. Tarikh, masa dan lokasi majlis.
-3. Gunakan offset Malaysia pada `event.dateTime`, contohnya `2026-08-20T11:00:00+08:00`.
-4. Nama ibu bapa, nombor WhatsApp, alamat/URL peta sebenar dan imej peta.
-5. Tema pakaian serta gambar galeri.
+1. Nama pengantin, nama penuh, turutan paparan dan monogram dalam `couple`.
+2. Tarikh, masa, alamat serta pautan peta dalam `event` dan `map`.
+3. Gunakan offset Malaysia pada `event.dateTime` dan `event.endDateTime`, contohnya `2026-10-03T11:00:00+08:00`.
+4. Keluarga yang menjemput dalam `family.hosts`, serta penerima RSVP utama dan senarai nombor dalam `contact`.
+5. Tambah tema pakaian, galeri atau audio hanya apabila bahan dan kebenaran penggunaannya sudah tersedia.
+6. Maklumat perkongsian: `metadata.title`, `metadata.description`, `metadata.url`, `metadata.image` dan `metadata.imageAlt`.
 
-Beberapa elemen juga masih ditulis terus dalam `index.html`: metadata sosial/SEO, kalendar mini, atur cara, dan teks tema ringkas. Pastikan semuanya sepadan dengan `config.js`, termasuk fail `assets/calendar/walimatul-urus.ics`.
+Kalendar mini, atur cara, keluarga dan kontak dijana daripada `config.js`. Metadata dalam `config.js` dikemas kini pada pelayar, tetapi crawler media sosial biasanya membaca `<head>` statik dalam `index.html`; jika menggunakan domain sendiri, kemaskini kedua-dua tempat tersebut dengan URL mutlak baharu. Fail `assets/calendar/walimatul-urus.ics` masih perlu dikemaskini secara manual apabila tarikh, masa atau lokasi berubah.
 
 ## Deployment Vercel
 
@@ -58,6 +59,7 @@ Projek ini telah diimport ke Vercel daripada repositori GitHub dan menggunakan t
 - Root Directory: `./`
 - Build Command: kosong
 - Output Directory: kosong
+- Header keselamatan: dikonfigurasi dalam `vercel.json`
 
 Push baharu ke branch `main` akan mencetuskan deployment produksi automatik pada Vercel. Untuk domain sendiri, tambahkannya melalui tetapan **Domains** projek Vercel.
 
@@ -69,8 +71,8 @@ Laman menggunakan Google Fonts dan perkhidmatan QR pihak ketiga; QR membawa data
 
 ## Semakan sebelum edar
 
-- Gantikan semua placeholder seperti `Pasangan` dan `[Nama Bapa]`.
-- Semak pautan lokasi, nombor WhatsApp dan fail kalendar pada telefon sebenar.
-- Tentukan sama ada kad perlu diindeks enjin carian; ubah `robots` kepada `noindex,nofollow` jika tidak.
-- Tetapkan `og:url` dan URL imej Open Graph yang mutlak selepas domain muktamad tersedia.
-- Pastikan anda memiliki kebenaran untuk menggunakan semua foto dan audio.
+- Sahkan tarikh Hijrah dengan penganjur sebelum edaran.
+- Semak pautan lokasi, penerima RSVP utama, semua nombor WhatsApp dan fail kalendar pada telefon sebenar.
+- `robots` kini menggunakan `noindex,nofollow`; tukar hanya jika anda memang mahu kad muncul dalam carian.
+- Tetapkan `metadata.url` dan URL imej Open Graph mutlak selepas domain muktamad tersedia; imej Open Graph sengaja dikosongkan sehingga gambar yang betul dibekalkan.
+- Pastikan anda memiliki kebenaran untuk menggunakan semua foto dan audio yang ditambah kemudian.

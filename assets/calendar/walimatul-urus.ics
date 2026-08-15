@@ -1,13 +1,14 @@
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Walimatul Urus//Afham Pasangan//MY
+PRODID:-//Kad Jemputan//Hanis Nabil//MY
+CALSCALE:GREGORIAN
 BEGIN:VEVENT
-UID:walimatul-urus-afham@example.com
-DTSTAMP:20260820T030000Z
-DTSTART:20260820T030000Z
-DTEND:20260820T080000Z
-SUMMARY:Walimatul Urus Afham & Pasangan
-LOCATION:Dewan Seri Indah
-DESCRIPTION:Majlis Walimatul Urus Afham & Pasangan
+UID:hanis-nabil-20261003@kad-jemputan.vercel.app
+DTSTAMP:20260815T000000Z
+DTSTART:20261003T030000Z
+DTEND:20261003T080000Z
+SUMMARY:Majlis Perkahwinan Hanis & Nabil
+LOCATION:No. 24\, Taman Kembara 3\, 11D/KU4\, Jalan Haji Othman\, Baru Rantau Panjang\, Klang\, 42100 Selangor
+DESCRIPTION:Majlis perkahwinan Hanis dan Nabil\n11.00 pagi - 4.00 petang
 END:VEVENT
 END:VCALENDAR
