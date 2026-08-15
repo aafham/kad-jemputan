@@ -1,6 +1,9 @@
 # Vercel local project settings
 .vercel/
 
+# Installed server-side dependencies
+node_modules/
+
 # Local environment files and secrets
 .env
 .env.*

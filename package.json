@@ -1,0 +1,12 @@
+{
+  "name": "kad-jemputan-nabil-hanis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kad jemputan perkahwinan Nabil dan Hanis",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "1.1.0"
+  }
+}

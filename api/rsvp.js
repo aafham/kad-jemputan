@@ -17,6 +17,21 @@ const config = {
   }
 };
 
+// Production remains writable unless this explicitly says false. During the
+// final database sync, set RSVP_WRITE_ENABLED=false in Vercel and redeploy;
+// GET continues to work while POST requests receive a temporary 503 response.
+function isRsvpWriteEnabled(env = process.env) {
+  const configuredValue = typeof env.RSVP_WRITE_ENABLED === "string"
+    ? env.RSVP_WRITE_ENABLED.trim().toLowerCase()
+    : "";
+
+  if (!configuredValue) {
+    return true;
+  }
+
+  return configuredValue === "true" || configuredValue === "1" || configuredValue === "on";
+}
+
 async function handler(req, res) {
   if (req.method === "GET") {
     try {
@@ -31,6 +46,14 @@ async function handler(req, res) {
 
   if (req.method === "POST") {
     try {
+      if (!isRsvpWriteEnabled()) {
+        sendJson(res, 503, {
+          ok: false,
+          error: "Penerimaan RSVP sedang ditutup seketika. Sila cuba lagi nanti."
+        });
+        return;
+      }
+
       const serverConfig = getServerConfig();
       const body = await readJsonBody(req);
       const submission = validateSubmission(body);
@@ -62,3 +85,4 @@ async function handler(req, res) {
 
 module.exports = handler;
 module.exports.config = config;
+module.exports.isRsvpWriteEnabled = isRsvpWriteEnabled;

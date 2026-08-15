@@ -11,7 +11,7 @@ Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan
 - Countdown ke hari majlis.
 - Peta, pautan Google Maps/Waze dan kod QR lokasi.
 - Atur cara, senarai nombor untuk dihubungi, pautan kalendar `.ics` dan perkongsian pautan.
-- RSVP sebenar, kiraan kehadiran dan paparan ucapan tetamu melalui Vercel Function + Supabase.
+- RSVP sebenar, kiraan kehadiran dan paparan ucapan tetamu melalui Vercel Function + Supabase (sehingga cutover Neon selesai).
 - Reka letak responsif untuk desktop dan telefon mudah alih.
 
 ## Jalankan secara lokal
@@ -79,6 +79,17 @@ Sebelum mengaktifkannya di Vercel:
 4. Redeploy projek. Contoh nama pemboleh ubah tersedia dalam [.env.example](.env.example).
 
 Secara lalai ucapan terus dipaparkan seperti rujukan. Jika mahu semak dahulu, tetapkan `RSVP_WISH_MODE=pending` di Vercel; kemudian ubah `wish_status` kepada `published` dalam dashboard Supabase untuk menerbitkannya. Nombor telefon tidak pernah dipulangkan oleh API awam atau dipaparkan pada kad.
+
+## Persediaan migrasi Neon
+
+Scaffold migrasi satu-kali disediakan tanpa menukar endpoint produksi `/api/rsvp` yang masih menggunakan Supabase. Ini membolehkan data disalin dan disemak dahulu sebelum cutover sebenar.
+
+1. Cipta database Neon, kemudian jalankan [neon/schema.sql](neon/schema.sql) dalam **Neon SQL Editor**.
+2. Di Vercel, tambah `DATABASE_URL` (connection string Neon pooled) dan `NEON_MIGRATION_SECRET` rawak sekurang-kurangnya 32 aksara. Kekalkan `SUPABASE_URL`, `SUPABASE_SECRET_KEY` dan `RSVP_HASH_SECRET` buat sementara waktu.
+3. Hantar satu `POST` berautoriti ke `/api/migrate-to-neon` dengan header `Authorization: Bearer <NEON_MIGRATION_SECRET>`. Endpoint itu membaca ketiga-tiga jadual RSVP secara server-side dan melakukan penggantian snapshot atomik di Neon.
+4. Semak kiraan agregat `source` dan `target` dalam respons. Respons tidak mengandungi nama, nombor telefon, ucapan atau hash IP. Untuk sync terakhir, tetapkan `RSVP_WRITE_ENABLED=false` di Vercel dan redeploy; `GET /api/rsvp` kekal berfungsi tetapi `POST` RSVP menerima respons sementara. Jalankan semula migrasi, kemudian teruskan cutover supaya tiada respons baharu tertinggal.
+
+`api/migrate-to-neon.js` ialah endpoint sementara. Selepas API RSVP telah ditukar dan disahkan menggunakan Neon, buang endpoint serta `NEON_MIGRATION_SECRET`. Jangan padam projek/data Supabase sehingga semakan akhir dan pelan rollback selesai.
 
 ## Privasi dan penerbitan
 
