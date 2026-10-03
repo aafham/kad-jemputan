@@ -5,8 +5,8 @@ window.invitationConfig = {
       "Jemputan majlis perkahwinan Nabil dan Hani pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang, Selangor.",
     robots: "noindex,nofollow",
     url: "https://kad-jemputan.vercel.app/",
-    image: "",
-    imageAlt: ""
+    image: "https://kad-jemputan.vercel.app/assets/images/nabil-hanis-floral-cover.webp",
+    imageAlt: "Monogram N dan H dengan hiasan bunga merah jambu dan bingkai emas"
   },
   couple: {
     bride: "Hani",

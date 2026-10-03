@@ -25,6 +25,12 @@ const wishesList = document.getElementById("wishesList");
 const reloadRsvpData = document.getElementById("reloadRsvpData");
 const shareInvite = document.getElementById("shareInvite");
 const flowerLayer = document.getElementById("flowerLayer");
+const motionPreference = typeof window.matchMedia === "function"
+  ? window.matchMedia("(prefers-reduced-motion: reduce)")
+  : null;
+const hoverPreference = typeof window.matchMedia === "function"
+  ? window.matchMedia("(hover: hover) and (pointer: fine)")
+  : null;
 
 let audioShouldPlay = false;
 let audioResumeTimer = null;
@@ -32,19 +38,47 @@ let audioWatchdogTimer = null;
 let flowersInitialized = false;
 let rsvpFormStartedAt = Date.now();
 let rsvpDataLoading = false;
+let rsvpSubmitting = false;
+let rsvpDataPromise = null;
 let wishRotationTimer = null;
 let wishFadeTimer = null;
 let wishRotationRun = 0;
 let startWishRotation = null;
+let disposeWishRotation = null;
+let wishAutoplayPaused = Boolean(motionPreference?.matches);
 let startGalleryAutoplay = null;
 let disposeGalleryAutoplay = null;
+let keyboardInteraction = true;
 
 document.body.classList.add("js-enabled");
 
+document.addEventListener("keydown", event => {
+  if (!event.metaKey && !event.ctrlKey && !event.altKey) {
+    keyboardInteraction = true;
+  }
+});
+for (const eventName of ["pointerdown", "mousedown", "touchstart"]) {
+  document.addEventListener(eventName, () => { keyboardInteraction = false; }, { passive: true });
+}
+
+const hasKeyboardFocusWithin = (root, except = null) => {
+  const active = document.activeElement;
+  if (!root?.contains(active) || active === except) {
+    return false;
+  }
+  try {
+    return active.matches(":focus-visible");
+  } catch (error) {
+    // Older browsers may not support :focus-visible. Pointer-focused buttons
+    // must still let the carousel resume after a tap, while keyboard focus pauses.
+    return keyboardInteraction;
+  }
+};
+
 const setText = (id, value) => {
   const el = document.getElementById(id);
-  if (el && value !== undefined && value !== null) {
-    el.textContent = value;
+  if (el && value !== undefined && value !== null && el.textContent !== String(value)) {
+    el.textContent = String(value);
   }
 };
 
@@ -111,12 +145,14 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
   const carouselRoot = galleryRoot.closest(".gallery-carousel");
   const previousButton = document.getElementById("galleryPrev");
   const nextButton = document.getElementById("galleryNext");
+  const toggleButton = document.getElementById("galleryToggle");
   const controls = document.getElementById("galleryControls");
   const indexStatus = document.getElementById("galleryIndex");
   const cards = [];
   let activeIndex = 0;
   let galleryAutoplayTimer = null;
   let galleryAutoplayStarted = false;
+  let galleryAutoplayPaused = Boolean(motionPreference?.matches);
   let pointerInsideCarousel = false;
   let pointerStart = null;
   let touchStart = null;
@@ -160,15 +196,14 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
         position = "is-far-next";
       }
 
-      const isVisible = position !== "is-hidden";
       figure.classList.add(position);
-      figure.setAttribute("aria-hidden", String(!isVisible));
+      figure.setAttribute("aria-hidden", String(delta !== 0));
       figure.dataset.position = position.replace("is-", "");
     });
 
     if (indexStatus) {
-      indexStatus.textContent = activeIndex + 1 + " / " + total;
       indexStatus.setAttribute("aria-live", announce ? "polite" : "off");
+      indexStatus.textContent = activeIndex + 1 + " / " + total;
     }
     galleryRoot.setAttribute(
       "aria-label",
@@ -205,6 +240,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
       }
       figure.remove();
       updateCarousel();
+      restartGalleryAutoplay();
     }, { once: true });
     img.src = item.src;
 
@@ -232,9 +268,6 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
     galleryRoot.appendChild(figure);
   });
 
-  const prefersReducedMotion =
-    typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
   const clearGalleryAutoplay = () => {
     if (galleryAutoplayTimer) {
       window.clearTimeout(galleryAutoplayTimer);
@@ -245,10 +278,24 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
   const canAutoplayGallery = () =>
     galleryAutoplayStarted &&
     cards.length > 1 &&
-    !prefersReducedMotion &&
+    !galleryAutoplayPaused &&
     !document.hidden &&
     !pointerInsideCarousel &&
-    !(carouselRoot && carouselRoot.contains(document.activeElement));
+    !pointerStart &&
+    !touchStart &&
+    !mouseStart &&
+    !hasKeyboardFocusWithin(carouselRoot, toggleButton);
+
+  const updateGalleryToggle = () => {
+    if (!toggleButton) {
+      return;
+    }
+    toggleButton.textContent = galleryAutoplayPaused ? "Main automatik" : "Jeda";
+    toggleButton.setAttribute("aria-label", galleryAutoplayPaused
+      ? "Mulakan pertukaran foto automatik setiap dua saat"
+      : "Jeda pertukaran foto automatik");
+    toggleButton.dataset.paused = String(galleryAutoplayPaused);
+  };
 
   const scheduleGalleryAutoplay = () => {
     clearGalleryAutoplay();
@@ -302,6 +349,14 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
   }
   if (nextButton) {
     nextButton.onclick = () => moveCarousel(1);
+  }
+  if (toggleButton) {
+    toggleButton.onclick = () => {
+      galleryAutoplayPaused = !galleryAutoplayPaused;
+      updateGalleryToggle();
+      restartGalleryAutoplay();
+    };
+    updateGalleryToggle();
   }
 
   galleryRoot.onkeydown = event => {
@@ -415,9 +470,19 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
     }
     restartGalleryAutoplay();
   };
+  const handleMotionChange = () => {
+    if (motionPreference.matches) {
+      galleryAutoplayPaused = true;
+    }
+    updateGalleryToggle();
+    restartGalleryAutoplay();
+  };
 
   if (carouselRoot) {
     carouselRoot.onmouseenter = () => {
+      if (!hoverPreference?.matches) {
+        return;
+      }
       pointerInsideCarousel = true;
       clearGalleryAutoplay();
     };
@@ -426,7 +491,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
       restartGalleryAutoplay();
     };
     carouselRoot.onfocusin = () => {
-      clearGalleryAutoplay();
+      restartGalleryAutoplay();
     };
     carouselRoot.onfocusout = () => {
       window.setTimeout(restartGalleryAutoplay, 0);
@@ -434,6 +499,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
   }
 
   document.addEventListener("visibilitychange", handleVisibilityChange);
+  motionPreference?.addEventListener?.("change", handleMotionChange);
   startGalleryAutoplay = () => {
     galleryAutoplayStarted = true;
     restartGalleryAutoplay();
@@ -441,6 +507,7 @@ const renderGalleryCarousel = (galleryRoot, gallery) => {
   disposeGalleryAutoplay = () => {
     clearGalleryAutoplay();
     document.removeEventListener("visibilitychange", handleVisibilityChange);
+    motionPreference?.removeEventListener?.("change", handleMotionChange);
     if (carouselRoot) {
       carouselRoot.onmouseenter = null;
       carouselRoot.onmouseleave = null;
@@ -482,7 +549,17 @@ const rsvpIsEnabled = () => config?.rsvp?.enabled !== false;
 
 const getRsvpEndpoint = () => {
   const endpoint = config?.rsvp?.endpoint;
-  return typeof endpoint === "string" && endpoint.startsWith("/") ? endpoint : "/api/rsvp";
+  if (typeof endpoint === "string" && endpoint.startsWith("/")) {
+    try {
+      const url = new URL(endpoint, window.location.origin);
+      if (url.origin === window.location.origin) {
+        return url.pathname + url.search;
+      }
+    } catch (error) {
+      // An invalid configured URL falls back to the same-origin RSVP route.
+    }
+  }
+  return "/api/rsvp";
 };
 
 const setRsvpDataStatus = (message, state = "info") => {
@@ -521,6 +598,8 @@ const WISH_ROTATION_DELAY = 5000;
 const WISH_FADE_DURATION = 320;
 
 const stopWishRotation = () => {
+  disposeWishRotation?.();
+  disposeWishRotation = null;
   wishRotationRun += 1;
   startWishRotation = null;
   if (wishRotationTimer) {
@@ -533,6 +612,7 @@ const stopWishRotation = () => {
   }
   if (wishesList) {
     wishesList.classList.remove("wishes-list--rotating", "is-fading");
+    wishesList.style.minHeight = "";
   }
 };
 
@@ -560,10 +640,18 @@ const renderWishes = wishes => {
   }
 
   stopWishRotation();
+  const wishesSection = document.getElementById("wishesSection");
+  const controls = document.getElementById("wishesControls");
+  const previousButton = document.getElementById("wishesPrev");
+  const nextButton = document.getElementById("wishesNext");
+  const toggleButton = document.getElementById("wishesToggle");
+  const pageStatus = document.getElementById("wishesPageStatus");
   const publicWishes = Array.isArray(wishes)
     ? wishes.filter(item => typeof item?.wish === "string" && item.wish.trim())
     : [];
 
+  const totalPages = Math.ceil(publicWishes.length / WISHES_PER_PAGE);
+  setHidden(controls, totalPages < 2);
   if (publicWishes.length === 0) {
     wishesList.setAttribute("aria-live", "polite");
     wishesList.replaceChildren();
@@ -574,65 +662,232 @@ const renderWishes = wishes => {
     return;
   }
 
-  const totalPages = Math.ceil(publicWishes.length / WISHES_PER_PAGE);
   let pageIndex = 0;
+  let pointerInsideWishes = false;
+  let rotationStarted = document.body.classList.contains("opened");
   const rotationRun = ++wishRotationRun;
-  const showPage = () => {
+  const showPage = (announce = false) => {
     const start = pageIndex * WISHES_PER_PAGE;
+    wishesList.setAttribute("aria-live", "off");
     wishesList.replaceChildren(...publicWishes.slice(start, start + WISHES_PER_PAGE).map(createWishCard));
+    if (pageStatus) {
+      pageStatus.setAttribute("role", "status");
+      pageStatus.setAttribute("aria-live", announce ? "polite" : "off");
+      pageStatus.textContent = (pageIndex + 1) + " / " + totalPages;
+      pageStatus.setAttribute("aria-label", "Halaman ucapan " + (pageIndex + 1) + " daripada " + totalPages);
+    }
   };
 
-  wishesList.setAttribute("aria-live", totalPages > 1 ? "off" : "polite");
   showPage();
-
-  const reduceMotion =
-    typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (totalPages < 2 || reduceMotion) {
+  if (totalPages < 2) {
     return;
   }
 
-  const scheduleNextPage = () => {
-    wishRotationTimer = window.setTimeout(() => {
-      if (wishRotationRun !== rotationRun) {
-        return;
-      }
-      if (document.hidden) {
-        scheduleNextPage();
-        return;
-      }
+  let measuredWidth = 0;
+  let resizeObserver = null;
+  let measureFrame = null;
+  const measurePages = () => {
+    measureFrame = null;
+    if (wishRotationRun !== rotationRun || typeof wishesList.getBoundingClientRect !== "function") {
+      return;
+    }
+    const width = wishesList.getBoundingClientRect().width;
+    const parent = wishesList.parentElement;
+    if (!parent || !Number.isFinite(width) || width <= 0) {
+      return;
+    }
 
-      wishesList.classList.add("is-fading");
-      wishFadeTimer = window.setTimeout(() => {
-        if (wishRotationRun !== rotationRun) {
-          return;
+    const measuringList = document.createElement("div");
+    measuringList.className = "wishes-list";
+    measuringList.setAttribute("aria-hidden", "true");
+    measuringList.setAttribute("inert", "");
+    Object.assign(measuringList.style, {
+      position: "absolute",
+      visibility: "hidden",
+      pointerEvents: "none",
+      width: width + "px",
+      boxSizing: "border-box",
+      minHeight: "0",
+      height: "auto",
+      maxHeight: "none",
+      transition: "none",
+      transform: "none",
+    });
+    parent.appendChild(measuringList);
+    try {
+      let tallestPage = 0;
+      for (let index = 0; index < totalPages; index += 1) {
+        const start = index * WISHES_PER_PAGE;
+        measuringList.replaceChildren(...publicWishes.slice(start, start + WISHES_PER_PAGE).map(createWishCard));
+        tallestPage = Math.max(tallestPage, measuringList.getBoundingClientRect().height);
+      }
+      if (Number.isFinite(tallestPage) && tallestPage > 0) {
+        const minHeight = Math.ceil(tallestPage) + "px";
+        if (wishesList.style.minHeight !== minHeight) {
+          wishesList.style.minHeight = minHeight;
         }
-        pageIndex = (pageIndex + 1) % totalPages;
-        showPage();
-        requestAnimationFrame(() => {
-          if (wishRotationRun !== rotationRun) {
-            return;
-          }
-          wishesList.classList.remove("is-fading");
-          scheduleNextPage();
-        });
-      }, WISH_FADE_DURATION);
+        measuredWidth = width;
+      }
+    } finally {
+      measuringList.remove();
+    }
+  };
+  const schedulePageMeasurement = () => {
+    if (measureFrame === null) {
+      measureFrame = window.requestAnimationFrame(measurePages);
+    }
+  };
+  if (typeof window.ResizeObserver === "function") {
+    resizeObserver = new window.ResizeObserver(() => {
+      const width = wishesList.getBoundingClientRect().width;
+      // min-height also triggers ResizeObserver; only a width change needs work.
+      if (Math.abs(width - measuredWidth) > 0.5) {
+        schedulePageMeasurement();
+      }
+    });
+    resizeObserver.observe(wishesList);
+  } else {
+    window.addEventListener("resize", schedulePageMeasurement);
+  }
+  document.fonts?.addEventListener?.("loadingdone", schedulePageMeasurement);
+  document.fonts?.ready?.then(() => {
+    if (wishRotationRun === rotationRun) {
+      schedulePageMeasurement();
+    }
+  });
+  measurePages();
+
+  const clearPageTimers = () => {
+    clearTimeout(wishRotationTimer);
+    clearTimeout(wishFadeTimer);
+    wishRotationTimer = null;
+    wishFadeTimer = null;
+    wishesList.classList.remove("is-fading");
+  };
+
+  const canRotate = () => rotationRun === wishRotationRun && rotationStarted
+    && !wishAutoplayPaused && !document.hidden && !pointerInsideWishes
+    && !hasKeyboardFocusWithin(wishesSection, toggleButton);
+
+  const updateWishToggle = () => {
+    if (toggleButton) {
+      toggleButton.textContent = wishAutoplayPaused ? "Main automatik" : "Jeda";
+      toggleButton.setAttribute("aria-label", wishAutoplayPaused
+        ? "Mulakan pertukaran ucapan automatik setiap lima saat"
+        : "Jeda pertukaran ucapan automatik");
+      toggleButton.dataset.paused = String(wishAutoplayPaused);
+    }
+    wishesList.classList.add("wishes-list--rotating");
+  };
+
+  const scheduleNextPage = () => {
+    clearTimeout(wishRotationTimer);
+    wishRotationTimer = null;
+    if (!canRotate()) {
+      return;
+    }
+    wishRotationTimer = window.setTimeout(() => {
+      wishRotationTimer = null;
+      if (canRotate()) {
+        movePage(1, false);
+      }
     }, WISH_ROTATION_DELAY);
   };
 
-  const beginRotation = () => {
-    if (wishRotationRun !== rotationRun) {
+  const movePage = (direction, announce = true) => {
+    clearPageTimers();
+    const nextPage = normaliseGalleryIndex(pageIndex + direction, totalPages);
+    const finishTransition = () => {
+      if (wishRotationRun !== rotationRun) {
+        return;
+      }
+      wishFadeTimer = null;
+      pageIndex = nextPage;
+      showPage(announce);
+      wishesList.classList.remove("is-fading");
+      scheduleNextPage();
+    };
+    if (motionPreference?.matches) {
+      finishTransition();
       return;
     }
-    startWishRotation = null;
-    wishesList.classList.add("wishes-list--rotating");
+    wishesList.classList.add("is-fading");
+    wishFadeTimer = window.setTimeout(finishTransition, WISH_FADE_DURATION);
+  };
+
+  if (previousButton) {
+    previousButton.onclick = () => movePage(-1);
+  }
+  if (nextButton) {
+    nextButton.onclick = () => movePage(1);
+  }
+  if (toggleButton) {
+    toggleButton.onclick = () => {
+      wishAutoplayPaused = !wishAutoplayPaused;
+      clearPageTimers();
+      updateWishToggle();
+      scheduleNextPage();
+    };
+  }
+
+  const handleVisibilityChange = () => {
+    clearPageTimers();
+    scheduleNextPage();
+  };
+  const handleMotionChange = () => {
+    if (motionPreference.matches) {
+      wishAutoplayPaused = true;
+    }
+    clearPageTimers();
+    updateWishToggle();
     scheduleNextPage();
   };
 
-  if (document.body.classList.contains("opened")) {
-    beginRotation();
-  } else {
-    startWishRotation = beginRotation;
+  if (wishesSection) {
+    wishesSection.onmouseenter = () => {
+      if (hoverPreference?.matches) {
+        pointerInsideWishes = true;
+        clearPageTimers();
+      }
+    };
+    wishesSection.onmouseleave = () => {
+      pointerInsideWishes = false;
+      scheduleNextPage();
+    };
+    wishesSection.onfocusin = () => {
+      clearPageTimers();
+      scheduleNextPage();
+    };
+    wishesSection.onfocusout = () => window.setTimeout(scheduleNextPage, 0);
   }
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  motionPreference?.addEventListener?.("change", handleMotionChange);
+  disposeWishRotation = () => {
+    clearPageTimers();
+    resizeObserver?.disconnect();
+    window.removeEventListener("resize", schedulePageMeasurement);
+    document.fonts?.removeEventListener?.("loadingdone", schedulePageMeasurement);
+    if (measureFrame !== null) {
+      window.cancelAnimationFrame(measureFrame);
+      measureFrame = null;
+    }
+    wishesList.style.minHeight = "";
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    motionPreference?.removeEventListener?.("change", handleMotionChange);
+    if (wishesSection) {
+      wishesSection.onmouseenter = null;
+      wishesSection.onmouseleave = null;
+      wishesSection.onfocusin = null;
+      wishesSection.onfocusout = null;
+    }
+  };
+  startWishRotation = () => {
+    rotationStarted = true;
+    startWishRotation = null;
+    scheduleNextPage();
+  };
+  updateWishToggle();
+  scheduleNextPage();
 };
 
 const renderWishesError = () => {
@@ -684,47 +939,79 @@ const getJsonResponse = async response => {
   }
 };
 
-const loadRsvpData = async () => {
-  if (!rsvpIsEnabled() || rsvpDataLoading) {
+const requestRsvp = async (options = {}) => {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 12000);
+  try {
+    const response = await fetch(getRsvpEndpoint(), { ...options, signal: controller.signal });
+    const data = await getJsonResponse(response);
+    if (controller.signal.aborted) {
+      throw new Error("RSVP request timed out");
+    }
+    if (!response.ok || !data?.ok) {
+      const error = new Error("RSVP request failed");
+      error.status = response.status;
+      if ([400, 413, 415].includes(response.status) && typeof data?.error === "string") {
+        error.publicMessage = data.error.slice(0, 300);
+      }
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    if (controller.signal.aborted) {
+      const timeoutError = new Error("RSVP request timed out");
+      timeoutError.timedOut = true;
+      throw timeoutError;
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+};
+
+const loadRsvpData = async ({ refresh = false } = {}) => {
+  if (!rsvpIsEnabled()) {
     return;
+  }
+  if (rsvpDataLoading) {
+    await rsvpDataPromise;
+    if (!refresh) {
+      return;
+    }
   }
 
   rsvpDataLoading = true;
   setRsvpDataBusy(true);
   setHidden(reloadRsvpData, true);
+  setRsvpDataStatus("Memuatkan kehadiran dan ucapan…");
 
-  try {
-    const response = await fetch(getRsvpEndpoint(), {
-      headers: { Accept: "application/json" },
-    });
-    const data = await getJsonResponse(response);
-
-    if (!response.ok || !data?.ok) {
-      const error = new Error("RSVP data unavailable");
-      error.status = response.status;
-      throw error;
+  rsvpDataPromise = (async () => {
+    try {
+      const data = await requestRsvp({ headers: { Accept: "application/json" } });
+      renderAttendanceSummary(data.summary);
+      renderWishes(data.wishes);
+      setRsvpDataStatus("");
+    } catch (error) {
+      const isUnavailable = error?.status === 503;
+      const isRateLimited = error?.status === 429;
+      setRsvpDataStatus(
+        isUnavailable
+          ? "Sistem RSVP belum tersedia. Sila hubungi penganjur jika perlu."
+          : isRateLimited
+            ? "Terlalu banyak permintaan. Sila cuba semula sebentar lagi."
+            : error?.timedOut
+              ? "Sambungan mengambil masa terlalu lama. Sila cuba muatkan semula."
+              : "Tidak dapat memuatkan RSVP sekarang. Sila cuba semula.",
+        "error"
+      );
+      renderWishesError();
+      setHidden(reloadRsvpData, false);
+    } finally {
+      rsvpDataLoading = false;
+      setRsvpDataBusy(false);
     }
-
-    renderAttendanceSummary(data.summary);
-    renderWishes(data.wishes);
-    setRsvpDataStatus("");
-  } catch (error) {
-    const isUnavailable = error?.status === 503;
-    const isRateLimited = error?.status === 429;
-    setRsvpDataStatus(
-      isUnavailable
-        ? "Sistem RSVP sedang disediakan. Sila hubungi penganjur jika perlu."
-        : isRateLimited
-          ? "Terlalu banyak permintaan. Sila cuba semula sebentar lagi."
-          : "Tidak dapat memuatkan RSVP sekarang. Sila cuba semula.",
-      "error"
-    );
-    renderWishesError();
-    setHidden(reloadRsvpData, false);
-  } finally {
-    rsvpDataLoading = false;
-    setRsvpDataBusy(false);
-  }
+  })();
+  await rsvpDataPromise;
 };
 
 const openRsvpForm = () => {
@@ -732,8 +1019,12 @@ const openRsvpForm = () => {
     return;
   }
 
-  rsvpFormStartedAt = Date.now();
-  setRsvpStatus("");
+  if (!rsvpSubmitting) {
+    rsvpFormStartedAt = Date.now();
+    setRsvpStatus("");
+    setHidden(rsvpForm, false);
+    setHidden(document.getElementById("rsvpSuccess"), true);
+  }
   if (typeof rsvpDialog.showModal === "function") {
     if (!rsvpDialog.open) {
       rsvpDialog.showModal();
@@ -871,9 +1162,8 @@ const renderCalendar = (event, calendar) => {
 
     if (date === day) {
       cell.classList.add("event");
+      cell.setAttribute("role", "img");
       cell.setAttribute("aria-label", "Tarikh majlis: " + dateFormatter.format(eventDate));
-    } else {
-      cell.setAttribute("aria-label", String(date));
     }
 
     grid.appendChild(cell);
@@ -926,6 +1216,7 @@ const appendNamePair = (root, names, tagName, { formalHonorifics = false } = {})
       const separator = document.createElement(tagName);
       separator.className = "name-pair-separator";
       separator.textContent = "&";
+      separator.setAttribute("role", "img");
       separator.setAttribute("aria-label", "dan");
       root.appendChild(separator);
     }
@@ -1184,7 +1475,7 @@ const applyConfig = () => {
   }
   setHidden(mapPreview, !map.embedUrl);
   if (mapAddress) {
-    setText(mapAddress, mapLabel ? "Lokasi: " + mapLabel : "");
+    setText("mapAddress", mapLabel ? "Lokasi: " + mapLabel : "");
     setHidden(mapAddress, !mapLabel);
   }
 
@@ -1217,6 +1508,7 @@ const applyConfig = () => {
   }
   setText("rsvpSubmitText", "Hantar RSVP & Ucapan");
   const hasRsvp = rsvp.enabled !== false;
+  setHidden(document.getElementById("quickRsvp"), !hasRsvp);
   setHidden(document.getElementById("rsvpSection"), !hasRsvp);
   setHidden(document.getElementById("wishesSection"), !hasRsvp);
 };
@@ -1252,41 +1544,65 @@ const initFlowerRain = () => {
 };
 
 const eventStart = new Date(config?.event?.dateTime || "").getTime();
-const eventEnd = new Date(config?.event?.endDateTime || config?.event?.dateTime || "").getTime();
+const malaysiaDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  timeZone: "Asia/Kuala_Lumpur",
+});
+const getMalaysiaDateKey = value => {
+  const parts = malaysiaDateFormatter.formatToParts(new Date(value));
+  const part = type => parts.find(item => item.type === type)?.value || "";
+  return part("year") + "-" + part("month") + "-" + part("day");
+};
+const eventDateKey = Number.isFinite(eventStart) ? getMalaysiaDateKey(eventStart) : null;
+let countdownPhase = null;
 
 const pad = value => String(value).padStart(2, "0");
 
 const updateCountdown = () => {
   const now = Date.now();
-  const hasValidStart = Number.isFinite(eventStart);
-  const rawDiff = hasValidStart ? eventStart - now : 0;
-  const diff = Math.max(rawDiff, 0);
+  const currentDateKey = getMalaysiaDateKey(now);
+  const phase = !eventDateKey ? "unavailable"
+    : currentDateKey < eventDateKey ? "upcoming"
+      : currentDateKey === eventDateKey ? "today" : "ended";
 
+  if (phase !== countdownPhase) {
+    countdownPhase = phase;
+    const section = document.getElementById("countdownSection");
+    const eventStatus = document.getElementById("eventStatus");
+    setHidden(section, phase === "ended" || phase === "unavailable");
+    setHidden(document.getElementById("countdownValues"), phase !== "upcoming");
+    setHidden(eventStatus, phase !== "today");
+    if (section) {
+      section.dataset.phase = phase;
+    }
+    if (eventStatus) {
+      eventStatus.dataset.phase = phase;
+    }
+    setText("countdownTitle", phase === "today" ? "Majlis Hari Ini" : "Menghitung Hari");
+    setText("eventStatusText", phase === "today" ? "Majlis Hari Ini" : "");
+    if (countdownStatus) {
+      // The visible hero status announces date changes; seconds remain silent.
+      countdownStatus.setAttribute("aria-live", "off");
+      countdownStatus.removeAttribute("role");
+      setText("countdownStatus", phase === "today"
+        ? "Kami menantikan kehadiran anda. " + (config?.event?.timeText || "Selamat datang.")
+        : phase === "upcoming" ? "Persiapan menuju hari bahagia sedang berjalan." : "");
+    }
+  }
+
+  if (phase !== "upcoming") {
+    return;
+  }
+  const diff = Math.max(eventStart - now, 0);
   const values = {
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
     hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
     minutes: Math.floor((diff / (1000 * 60)) % 60),
     seconds: Math.floor((diff / 1000) % 60),
   };
-
-  countdownIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.textContent = id === "days" ? values[id] : pad(values[id]);
-    }
-  });
-
-  if (countdownStatus) {
-    if (!hasValidStart) {
-      countdownStatus.textContent = "Tarikh majlis belum ditetapkan.";
-    } else if (rawDiff > 0) {
-      countdownStatus.textContent = "Persiapan menuju hari bahagia sedang berjalan.";
-    } else if (Number.isFinite(eventEnd) && now <= eventEnd) {
-      countdownStatus.textContent = "Majlis sedang berlangsung. Selamat datang.";
-    } else {
-      countdownStatus.textContent = "Majlis telah berlangsung. Terima kasih atas doa dan ingatan anda.";
-    }
-  }
+  countdownIds.forEach(id => setText(id, id === "days" ? values[id] : pad(values[id])));
 };
 
 const toggleAudio = async () => {
@@ -1317,6 +1633,9 @@ const openInvitation = async () => {
   initFlowerRain();
   startWishRotation?.();
   startGalleryAutoplay?.();
+  if (rsvpIsEnabled()) {
+    void loadRsvpData();
+  }
 
   if (btn) {
     btn.setAttribute("aria-expanded", "true");
@@ -1349,9 +1668,6 @@ if (audioEnabled && bgAudio) {
 setInteractive(invitation, false);
 setInteractive(floatingActions, false);
 applyConfig();
-if (rsvpIsEnabled()) {
-  loadRsvpData();
-}
 updateCountdown();
 setInterval(updateCountdown, 1000);
 if (audioEnabled) {
@@ -1408,13 +1724,29 @@ const shareMessage =
   (config?.event?.venue || "lokasi majlis") +
   ".";
 
+const getShareUrl = () => {
+  try {
+    const canonical = new URL(config?.metadata?.url || "", window.location.href);
+    if (config?.metadata?.url && ["https:", "http:"].includes(canonical.protocol)) {
+      return canonical.href;
+    }
+  } catch (error) {
+    // Use this invitation's clean URL when metadata has no valid canonical URL.
+  }
+  const current = new URL(window.location.href);
+  current.search = "";
+  current.hash = "";
+  return current.href;
+};
+
 const fallbackShare = async () => {
-  const shareUrl = window.location.href;
+  const shareUrl = getShareUrl();
   const textToCopy = shareMessage + " " + shareUrl;
 
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(textToCopy);
+      setText("shareStatus", "Pautan jemputan telah disalin.");
       if (shareInvite) {
         shareInvite.title = "Link disalin";
         shareInvite.setAttribute("aria-label", "Link jemputan disalin");
@@ -1423,6 +1755,7 @@ const fallbackShare = async () => {
           shareInvite.title = "Kongsi jemputan";
           shareInvite.setAttribute("aria-label", "Kongsi jemputan");
           shareInvite.classList.remove("is-copied");
+          setText("shareStatus", "");
         }, 1500);
       }
       return;
@@ -1441,12 +1774,13 @@ if (shareInvite) {
     const shareData = {
       title: config?.metadata?.title || "Jemputan Walimatul Urus",
       text: shareMessage,
-      url: window.location.href,
+      url: getShareUrl(),
     };
 
     if (navigator.share) {
       try {
         await navigator.share(shareData);
+        setText("shareStatus", "Jemputan telah dikongsi.");
         return;
       } catch (error) {
         if (error && error.name === "AbortError") {
@@ -1490,6 +1824,9 @@ if (rsvpForm) {
 
   rsvpForm.addEventListener("submit", async event => {
     event.preventDefault();
+    if (rsvpSubmitting) {
+      return;
+    }
 
     if (!rsvpIsEnabled()) {
       setRsvpStatus("RSVP tidak tersedia buat masa ini. Sila hubungi penganjur.");
@@ -1512,6 +1849,8 @@ if (rsvpForm) {
       formStartedAt: rsvpFormStartedAt,
     };
 
+    rsvpSubmitting = true;
+    rsvpForm.setAttribute("aria-busy", "true");
     if (submitButton) {
       submitButton.disabled = true;
       submitButton.textContent = "Menghantar…";
@@ -1519,7 +1858,7 @@ if (rsvpForm) {
     setRsvpStatus("Menghantar RSVP anda…");
 
     try {
-      const response = await fetch(getRsvpEndpoint(), {
+      const data = await requestRsvp({
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -1527,13 +1866,6 @@ if (rsvpForm) {
         },
         body: JSON.stringify(payload),
       });
-      const data = await getJsonResponse(response);
-
-      if (!response.ok || !data?.ok) {
-        const error = new Error("RSVP submission failed");
-        error.status = response.status;
-        throw error;
-      }
 
       const hasWish = Boolean(payload.wish);
       const pendingWish = data.wishStatus === "pending" && hasWish;
@@ -1541,24 +1873,40 @@ if (rsvpForm) {
       updateGuestCountField();
       updateWishCount();
       rsvpFormStartedAt = Date.now();
-      setRsvpStatus(
-        pendingWish
-          ? "Terima kasih. RSVP diterima; ucapan anda akan dipaparkan selepas semakan penganjur."
-          : hasWish
-            ? "Terima kasih. RSVP diterima dan ucapan anda kini dipaparkan."
-            : "Terima kasih. RSVP anda telah diterima."
-      );
-      await loadRsvpData();
+      const successMessage = pendingWish
+        ? "Terima kasih. RSVP diterima; ucapan anda akan dipaparkan selepas semakan penganjur."
+        : hasWish
+          ? "Terima kasih. RSVP diterima dan ucapan anda kini dipaparkan."
+          : "Terima kasih. RSVP anda telah diterima.";
+      setRsvpStatus(successMessage);
+      const successPanel = document.getElementById("rsvpSuccess");
+      if (successPanel) {
+        const attendanceText = payload.attendance === "hadir"
+          ? "Hadir, " + payload.guestCount + " orang."
+          : "Tidak hadir.";
+        setText("rsvpSuccessText", payload.name + " — " + attendanceText + " " + successMessage);
+        setHidden(rsvpForm, true);
+        setHidden(successPanel, false);
+        successPanel.setAttribute("tabindex", "-1");
+        if (rsvpDialog?.open) {
+          successPanel.focus();
+        }
+      }
+      await loadRsvpData({ refresh: true });
     } catch (error) {
       const status = error?.status;
       const message =
-        status === 429
+        error?.publicMessage
+          ? error.publicMessage
+          : status === 429
           ? "Terlalu banyak cubaan. Sila tunggu sebentar sebelum menghantar semula."
           : status === 503
-            ? "Sistem RSVP sedang disediakan. Sila hubungi penganjur jika perlu."
-            : "RSVP tidak dapat dihantar sekarang. Sila cuba semula.";
+            ? "Sistem RSVP belum tersedia. Maklumat anda dikekalkan; sila cuba lagi kemudian."
+            : "Status penghantaran belum dapat disahkan. Maklumat anda dikekalkan. Semak dengan penganjur sebelum menghantar semula untuk mengelakkan RSVP berulang.";
       setRsvpStatus(message);
     } finally {
+      rsvpSubmitting = false;
+      rsvpForm.setAttribute("aria-busy", "false");
       if (submitButton) {
         submitButton.disabled = false;
         submitButton.textContent = "Hantar RSVP & Ucapan";

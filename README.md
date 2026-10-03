@@ -11,13 +11,17 @@ Frontend dibina dengan HTML, CSS dan JavaScript biasa tanpa framework atau prose
 | Bahagian | Fungsi |
 | --- | --- |
 | Pembukaan kad | Cover floral, animasi pintu, fokus papan kekunci yang betul dan muzik yang bermula selepas tetamu menekan **Buka Jemputan**. |
-| Maklumat majlis | Nama pasangan, keluarga, pantun, tarikh Masihi/Hijrah, countdown, atur cara dan lokasi dipacu oleh `config.js`. |
+| Maklumat majlis | Nama pasangan, keluarga, pantun, tarikh Masihi/Hijrah, atur cara dan lokasi dipacu oleh `config.js`; pautan pantas ke RSVP, Lokasi dan Hubungi. |
+| Countdown | Sebelum tarikh majlis: kira detik. Sepanjang 3 Oktober 2026: **Majlis Hari Ini** tanpa nombor. Mulai 4 Oktober 2026: bahagian countdown disembunyikan. Semua sempadan hari mengikut **Asia/Kuala_Lumpur**, bukan zon masa telefon tetamu. |
 | Lokasi | Peta Google terbenam, alamat, serta ikon pautan terus ke Google Maps dan Waze. |
 | Save the Date | Muat turun fail `.ics` untuk kalendar tetamu. |
-| RSVP | Nama, status kehadiran, jumlah tetamu dan ucapan; nombor telefon tidak dikumpul. |
-| Ucapan & Doa | Maksimum tiga ucapan dipaparkan pada satu masa dan bertukar setiap lima saat. |
-| Galeri | Carousel berlapis 3D, klik kad sisi, keyboard, swipe, autoplay setiap dua saat dan loop semula. Autoplay berhenti sementara ketika hover, fokus atau interaksi. |
+| RSVP | Nama, status kehadiran, jumlah tetamu termasuk pengisi dan ucapan; nombor telefon tidak dikumpul. Ada ringkasan berjaya, cegahan klik hantar berganda, timeout 12 saat, mesej ralat dan cuba semula. Input dikekalkan jika gagal. |
+| Ucapan & Doa | Maksimum tiga ucapan dipaparkan pada satu masa dan bertukar setiap lima saat. Ada butang sebelum/seterusnya serta Jeda/Main automatik. Halaman terakhir boleh mengandungi kurang daripada tiga ucapan. |
+| Galeri | Semua 12 gambar kekal dalam carousel berlapis 3D, klik kad sisi, keyboard, swipe, autoplay setiap dua saat dan loop semula; dengan kawalan Jeda/Main automatik. |
 | Hubungi kami | Aksi WhatsApp dan panggilan terus untuk setiap nombor penganjur. |
+| Aksesibiliti | Saiz kawalan sentuh sekurang-kurangnya 44px, fokus keyboard, sokongan reduced motion, paparan telefon kecil dan ruang safe-area. Reduced motion mematikan autoplay awal tetapi semua foto/ucapan masih boleh dilihat secara manual. |
+
+Galeri dan ucapan dijeda sementara ketika halaman tidak aktif, pengguna berinteraksi atau fokus papan kekunci berada pada kawalan. Tinggi senarai ucapan dikekalkan mengikut halaman paling tinggi supaya bahagian bawah tidak melonjak semasa pertukaran. Data RSVP hanya dimuatkan selepas kad dibuka; tiada polling automatik berkala. Muzik P. Ramlee yang sedia ada dikekalkan, dengan kawalan main/jeda.
 
 ## Struktur projek
 
@@ -33,6 +37,7 @@ Frontend dibina dengan HTML, CSS dan JavaScript biasa tanpa framework atau prose
 ├── neon/
 │   ├── schema.sql                     # Schema RSVP baharu tanpa nombor telefon
 │   └── migrations/                    # Migrasi database sekali guna
+├── tests/                             # Ujian Node tanpa akses database sebenar
 ├── assets/
 │   ├── audio/                         # Muzik latar
 │   ├── calendar/                      # Fail Save the Date (.ics)
@@ -76,7 +81,7 @@ Perkara yang perlu dikemas kini secara berasingan:
 - `assets/calendar/walimatul-urus.ics` apabila nama, masa atau alamat berubah.
 - Sumber muzik dalam elemen `<audio>` di `index.html`.
 
-`metadata.image` kini kosong. Tambah imej Open Graph mutlak bersaiz kira-kira **1200 × 630 px** sebelum berkongsi pautan secara meluas supaya preview WhatsApp/Facebook kelihatan kemas.
+`metadata.image` dan metadata statik kini menggunakan cover floral WebP sedia ada (1254 × 1254). Preview pautan mungkin mengambil masa untuk berubah kerana cache aplikasi perkongsian. Imej sosial khusus 1200 × 630 boleh ditambah kemudian tanpa menukar cover kad.
 
 ## RSVP dan Neon PostgreSQL
 
@@ -116,18 +121,28 @@ Tetapan projek:
 
 Push ke `main` mencetuskan deployment produksi automatik. Selepas deployment, semak laman live, `/api/rsvp`, Google Maps, Waze, `Save The Date`, audio dan preview pautan sosial.
 
-## Semakan teknikal yang disyorkan
+## Ujian dan semakan
 
 ```powershell
-node --check config.js
-node --check script.js
-node --check api\rsvp.js
-node --check api\_lib\rsvp.cjs
+npm ci
+npm run check
+npm test
 npm audit --omit=dev
 git diff --check
 ```
 
-Tiada test runner automatik dalam projek ini lagi. Sebelum majlis, uji aliran sebenar pada telefon: buka kad, audio, RSVP, paparan ucapan, galeri, navigasi peta dan pautan panggilan/WhatsApp.
+Ujian menggunakan `node:test` dan tidak menulis ke database. Liputan termasuk:
+
+- Konsistensi aset, nama Hani, metadata dan fail kalendar (masa UTC, alamat, lipatan baris).
+- Sempadan hari Malaysia untuk countdown; galeri 2 saat dan ucapan 5 saat, jeda, keyboard dan reduced motion.
+- RSVP: validasi, emoji gabungan, had saiz JSON, timeout, cegah double-submit dan ringkasan berjaya.
+- Pertanyaan database berparameter dan penapisan data awam melalui mock; secret atau ralat dalaman tidak didedahkan.
+
+Semakan UI 3 Oktober 2026 menggunakan Chromium pada viewport 320px, 390px dan 1440px. Aliran hantar RSVP diuji dengan respons lokal tiruan, bukan rekod tetamu produksi. Ujian Node/Chromium tidak menggantikan semakan pada iPhone Safari dan Android sebenar, khususnya polisi autoplay audio, aplikasi peta serta perkongsian native.
+
+Untuk QA manual: buka kad → semak audio → gunakan pautan pantas → buka/tutup RSVP dan cuba validasi → semak pertukaran ucapan dan galeri → peta/panggilan/WhatsApp → muat turun kalendar. Jangan hantar RSVP palsu ke produksi.
+
+Jika penghantaran RSVP timeout, status penerimaan mungkin belum diketahui: semak paparan ucapan/kehadiran atau hubungi penganjur sebelum menghantar semula. Sistem kini bersifat insert-only, bukan kemas kini rekod lama.
 
 ## Privasi, hak media dan penerbitan
 
@@ -140,7 +155,7 @@ Tiada test runner automatik dalam projek ini lagi. Sebelum majlis, uji aliran se
 
 - Sahkan tarikh Hijrah, masa, alamat, atur cara dan nombor hubungan dengan penganjur.
 - Pastikan kandungan `.ics` sepadan dengan `config.js`.
-- Tambah dan uji imej Open Graph melalui WhatsApp/Facebook Debugger selepas domain muktamad dipilih.
+- Uji preview cover Open Graph selepas domain muktamad dipilih.
 - Pilih sama ada ucapan perlu terus diterbitkan atau melalui moderasi.
-- Semak saiz foto/audio dan optimumkan WebP/AVIF atau audio bitrate rendah untuk tetamu menggunakan data mudah alih.
+- Media aktif sudah dioptimumkan: galeri WebP sekitar 1 MB, cover sekitar 157 KB dan audio MP3 sekitar 4.7 MB. Kekalkan versi teroptimum apabila menukar media.
 - Uji pada Android, iPhone dan desktop sebelum pautan diedarkan.

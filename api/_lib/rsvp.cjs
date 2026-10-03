@@ -117,7 +117,14 @@ function normalizeWish(value) {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-  if (/[^\P{C}\n\t]/u.test(normalized) || characterLength(normalized) > 250) {
+  // Joiners are used by ordinary family/couple emoji and some written scripts.
+  // Keep allowing those while rejecting other invisible controls, including
+  // bidirectional overrides that can misrepresent the displayed message.
+  if (/[^\P{C}\n\t\u200c\u200d]/u.test(normalized)) {
+    throw new PublicApiError(400, "Ucapan mengandungi aksara yang tidak disokong. Sila semak semula.");
+  }
+
+  if (characterLength(normalized) > 250) {
     throw new PublicApiError(400, "Ucapan mesti tidak melebihi 250 aksara.");
   }
 

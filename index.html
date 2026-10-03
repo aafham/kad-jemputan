@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <title id="pageTitle">Jemputan Majlis Perkahwinan Nabil &amp; Hani</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       id="metaDescription"
       name="description"
@@ -21,8 +21,10 @@
       property="og:description"
       content="Dengan penuh kesyukuran, kami menjemput anda ke majlis perkahwinan Nabil dan Hani pada 3 Oktober 2026 di Rantau Panjang, Klang."
     />
-    <meta id="ogImage" property="og:image" />
-    <meta id="ogImageAlt" property="og:image:alt" />
+    <meta id="ogImage" property="og:image" content="https://kad-jemputan.vercel.app/assets/images/nabil-hanis-floral-cover.webp" />
+    <meta id="ogImageAlt" property="og:image:alt" content="Monogram N dan H dengan hiasan bunga merah jambu dan bingkai emas" />
+    <meta property="og:image:width" content="1254" />
+    <meta property="og:image:height" content="1254" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta id="twitterTitle" name="twitter:title" content="Jemputan Majlis Perkahwinan Nabil &amp; Hani" />
@@ -31,8 +33,11 @@
       name="twitter:description"
       content="Majlis pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang. Sila RSVP untuk pengesahan kehadiran."
     />
-    <meta id="twitterImage" name="twitter:image" />
+    <meta id="twitterImage" name="twitter:image" content="https://kad-jemputan.vercel.app/assets/images/nabil-hanis-floral-cover.webp" />
     <link id="canonicalUrl" rel="canonical" href="https://kad-jemputan.vercel.app/" />
+    <link rel="icon" href="./assets/images/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Great+Vibes&amp;family=Montserrat:wght@300;400;500;600&amp;display=swap"
@@ -43,8 +48,8 @@
   </head>
 
   <body id="openPage">
-    <div class="door left"></div>
-    <div class="door right"></div>
+    <div class="door left" aria-hidden="true"></div>
+    <div class="door right" aria-hidden="true"></div>
     <div id="flowerLayer" class="flower-layer" aria-hidden="true"></div>
 
     <button
@@ -75,12 +80,19 @@
 
     <main id="invitation" aria-labelledby="invitationTitle">
       <div class="card">
+        <noscript><p class="noscript-note">Kad ini masih boleh dibaca. Untuk RSVP, sila hubungi penganjur melalui pautan WhatsApp di bawah.</p></noscript>
         <header class="hero reveal" style="--delay: 0.1s">
           <p class="small" id="eventTitle">UNDANGAN MAJLIS PERKAHWINAN</p>
           <h1 id="invitationTitle" tabindex="-1"><span id="heroGroom">Nabil</span> <span class="amp">&amp;</span> <span id="heroBride">Hani</span></h1>
           <p class="date" id="eventDateText">Sabtu, 3 Oktober 2026</p>
           <p class="hijri-date" id="hijriDateText">21 Rabiulakhir 1448H</p>
           <p class="hero-time" id="heroTime">Masa: 11.00 pagi - 4.00 petang</p>
+          <p class="event-status" id="eventStatus" role="status" hidden><span id="eventStatusText"></span></p>
+          <nav class="quick-nav" aria-label="Pautan pantas majlis">
+            <a href="#rsvpSection" id="quickRsvp">RSVP</a>
+            <a href="#locationSection">Lokasi</a>
+            <a href="#contactSection">Hubungi</a>
+          </nav>
         </header>
 
         <section class="section quote-section invitation-letter reveal" aria-labelledby="quoteHeading" style="--delay: 0.15s">
@@ -93,10 +105,10 @@
             Sudilah hadir ke majlis perkahwinan.
           </p>
           <div class="invitation-hosts">
-            <div class="family-grid" id="familyList" aria-label="Keluarga yang menjemput">
+            <div class="family-grid" id="familyList" role="group" aria-label="Keluarga yang menjemput">
               <div class="family-card">
                 <p class="name-pair-line"><span class="name-honorific">En.</span> Mohd Eirwan @ Keliwon</p>
-                <p class="name-pair-separator" aria-label="dan">&amp;</p>
+                <p class="name-pair-separator" role="img" aria-label="dan">&amp;</p>
                 <p class="name-pair-line"><span class="name-honorific">Puan</span> Sarimah binti Said</p>
               </div>
             </div>
@@ -106,7 +118,7 @@
             <span class="invitation-copy__honorifics">Dato' | Datin | Tuan | Puan | Encik | Cik</span>
             <span class="invitation-copy__tail">ke majlis perkahwinan anakanda kami.</span>
           </p>
-          <p class="couple-full-names" id="fullNamesText"><span class="name-pair-line">Mohammad Nabil bin Mohd Eirwan</span><span class="name-pair-separator" aria-label="dan">&amp;</span><span class="name-pair-line">Nurul Haniszan binti Mohd Sham</span></p>
+          <p class="couple-full-names" id="fullNamesText"><span class="name-pair-line">Mohammad Nabil bin Mohd Eirwan</span><span class="name-pair-separator" role="img" aria-label="dan">&amp;</span><span class="name-pair-line">Nurul Haniszan binti Mohd Sham</span></p>
         </section>
 
         <section class="section reveal" id="dressCodeSection" aria-labelledby="dressCodeHeading" style="--delay: 0.3s" hidden>
@@ -118,15 +130,15 @@
         <section class="calendar-section reveal" aria-labelledby="calendarTitle" style="--delay: 0.35s">
           <h2 class="calendar-title" id="calendarTitle">Tarikh Majlis</h2>
 
-          <div class="mini-calendar" aria-label="Kalendar majlis">
+          <div class="mini-calendar" role="group" aria-label="Kalendar majlis">
             <div class="calendar-header" id="calendarHeader">Oktober 2026</div>
-            <div class="calendar-grid" id="calendarGrid" aria-label="Kalendar Oktober 2026"></div>
+            <div class="calendar-grid" id="calendarGrid" role="group" aria-label="Kalendar Oktober 2026"></div>
           </div>
 
-          <section class="countdown-section reveal" aria-labelledby="countdownTitle" style="--delay: 0.4s">
+          <section class="countdown-section reveal" id="countdownSection" aria-labelledby="countdownTitle" style="--delay: 0.4s" hidden>
             <h3 class="countdown-title" id="countdownTitle">Menghitung Hari</h3>
 
-            <div class="countdown">
+            <div class="countdown" id="countdownValues" aria-hidden="true">
               <div class="time-box">
                 <span id="days">0</span>
                 <small>Hari</small>
@@ -158,10 +170,15 @@
 
         <section class="section reveal" aria-labelledby="scheduleHeading" style="--delay: 0.5s">
           <h2 id="scheduleHeading">Aturcara Ringkas</h2>
-          <div class="schedule" id="scheduleList" aria-label="Atur cara majlis"></div>
+          <div class="schedule" id="scheduleList" role="group" aria-label="Atur cara majlis">
+            <div class="slot"><span>11.00 pagi</span><span>Majlis Bermula</span></div>
+            <div class="slot"><span>12.00 tgh.</span><span>Ketibaan Pengantin</span></div>
+            <div class="slot"><span>4.00 petang</span><span>Majlis tamat</span></div>
+          </div>
         </section>
 
-        <section class="map-section reveal" aria-label="Lokasi majlis" style="--delay: 0.55s">
+        <section class="section map-section reveal" id="locationSection" aria-labelledby="locationHeading" style="--delay: 0.55s">
+          <h2 id="locationHeading">Lokasi Majlis</h2>
           <div class="map-preview" id="mapPreview">
             <iframe id="mapEmbed" title="Peta lokasi majlis" src="https://www.google.com/maps?q=3.0653862,101.4074413&amp;z=17&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
@@ -203,16 +220,22 @@
         <section class="section wishes-section reveal" id="wishesSection" aria-labelledby="wishesHeading" style="--delay: 0.65s">
           <h2 id="wishesHeading">Ucapan &amp; Doa</h2>
           <p class="section-subtitle">Doa dan ucapan daripada tetamu buat Nabil &amp; Hani.</p>
-          <div class="wishes-list" id="wishesList" aria-live="polite" aria-busy="true"></div>
+          <div class="wishes-list" id="wishesList" aria-live="off" aria-busy="true"></div>
+          <div class="wishes-navigation" id="wishesControls" role="group" aria-label="Kawalan ucapan" hidden>
+            <button class="gallery-control" id="wishesPrev" type="button" aria-label="Ucapan sebelumnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg></button>
+            <p class="gallery-index" id="wishesPageStatus" aria-live="off" aria-atomic="true"></p>
+            <button class="gallery-control" id="wishesNext" type="button" aria-label="Ucapan seterusnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7" /></svg></button>
+            <button class="carousel-toggle" id="wishesToggle" type="button" aria-label="Jeda ucapan automatik">Jeda</button>
+          </div>
         </section>
 
         <section class="section gallery-section reveal" id="gallerySection" aria-labelledby="galleryHeading" style="--delay: 0.7s" hidden>
           <h2 id="galleryHeading">Galeri Momen Indah</h2>
           <p class="section-subtitle">Detik istimewa Nabil &amp; Hani</p>
-          <div class="gallery-carousel" aria-roledescription="carousel" aria-label="Galeri momen indah">
+          <div class="gallery-carousel" role="group" aria-roledescription="carousel" aria-label="Galeri momen indah">
             <p class="visually-hidden" id="galleryInstructions">Galeri bertukar foto secara automatik setiap dua saat dan berhenti seketika ketika anda berinteraksi. Gunakan butang atau anak panah kiri dan kanan untuk melihat foto lain. Anda juga boleh swipe pada galeri.</p>
-            <div class="gallery-grid" id="galleryGrid" tabindex="0" aria-describedby="galleryInstructions"></div>
-            <div class="gallery-navigation" id="galleryControls" aria-label="Kawalan galeri">
+            <div class="gallery-grid" id="galleryGrid" role="group" tabindex="0" aria-describedby="galleryInstructions"></div>
+            <div class="gallery-navigation" id="galleryControls" role="group" aria-label="Kawalan galeri">
               <button class="gallery-control" id="galleryPrev" type="button" aria-label="Lihat foto sebelumnya">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 5-7 7 7 7" /></svg>
               </button>
@@ -220,6 +243,7 @@
               <button class="gallery-control" id="galleryNext" type="button" aria-label="Lihat foto seterusnya">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9.5 5 7 7-7 7" /></svg>
               </button>
+              <button class="carousel-toggle" id="galleryToggle" type="button" aria-label="Jeda galeri automatik">Jeda</button>
             </div>
             <p class="gallery-swipe-hint" aria-hidden="true">Swipe atau tekan anak panah untuk melihat foto</p>
           </div>
@@ -288,7 +312,7 @@
         </fieldset>
         <label id="guestCountField" hidden>
           Jumlah tetamu <span aria-hidden="true">*</span>
-          <select id="guestCount" name="guestCount" disabled>
+          <select id="guestCount" name="guestCount" aria-describedby="guestCountHint" disabled>
             <option value="1">1 orang</option>
             <option value="2">2 orang</option>
             <option value="3">3 orang</option>
@@ -300,26 +324,29 @@
             <option value="9">9 orang</option>
             <option value="10">10 orang</option>
           </select>
+          <small id="guestCountHint">Termasuk diri anda.</small>
         </label>
         <label>
           Doa / Ucapan <span class="optional">(jika ada)</span>
           <textarea id="guestWishes" name="guestWishes" rows="4" maxlength="250" placeholder="Semoga berbahagia!"></textarea>
         </label>
         <p class="wish-count" id="wishCount">0 / 250</p>
+        <p class="rsvp-privacy-note" id="rsvpPrivacyNote">Nama dan ucapan anda boleh dipaparkan dalam kad ini. Nombor telefon tidak diperlukan.</p>
         <div class="dialog-actions">
           <button type="button" class="save-date-btn secondary" id="cancelRsvp">Batal</button>
           <button type="submit" class="rsvp-btn" id="rsvpSubmitText">Hantar RSVP &amp; Ucapan</button>
         </div>
         <p id="rsvpStatus" role="status" aria-live="polite"></p>
       </form>
+      <div class="rsvp-success" id="rsvpSuccess" hidden>
+        <h3>Terima kasih!</h3>
+        <p id="rsvpSuccessText" role="status"></p>
+        <a href="./assets/calendar/walimatul-urus.ics" class="save-date-btn secondary" download>Simpan dalam kalendar</a>
+      </div>
     </dialog>
 
-    <noscript>
-      <p class="noscript-note">Sila gunakan WhatsApp penganjur untuk RSVP kerana borang memerlukan JavaScript.</p>
-    </noscript>
-
     <div class="floating-actions" id="floatingActions">
-      <button type="button" class="fab-btn" id="audioToggle" aria-label="Toggle audio" hidden>
+      <button type="button" class="fab-btn" id="audioToggle" aria-label="Mainkan muzik" hidden>
         <span class="fab-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
             <path
@@ -329,7 +356,7 @@
           </svg>
         </span>
       </button>
-      <button type="button" class="fab-btn" id="shareInvite" aria-label="Share jemputan">
+      <button type="button" class="fab-btn" id="shareInvite" aria-label="Kongsi jemputan">
         <span class="fab-icon" aria-hidden="true">
           <svg class="icon-share" viewBox="0 0 24 24" role="img" aria-hidden="true">
             <path
@@ -350,6 +377,8 @@
         </span>
       </button>
     </div>
+
+    <p class="visually-hidden" id="shareStatus" role="status" aria-live="polite"></p>
 
     <audio id="bgAudio" loop preload="none" playsinline webkit-playsinline="true">
       <source src="assets/audio/malam-bulan-dipagar-bintang-128.mp3" type="audio/mpeg" />
