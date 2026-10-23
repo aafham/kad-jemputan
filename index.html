@@ -62,6 +62,7 @@
     >
       <span class="open-cover__art" aria-hidden="true">
         <img
+          id="coverImage"
           class="open-cover__image"
           src="assets/images/nabil-hanis-floral-cover.webp"
           alt=""
@@ -90,8 +91,8 @@
           <p class="event-status" id="eventStatus" role="status" hidden><span id="eventStatusText"></span></p>
           <nav class="quick-nav" aria-label="Pautan pantas majlis">
             <a href="#rsvpSection" id="quickRsvp">RSVP</a>
-            <a href="#locationSection">Lokasi</a>
-            <a href="#contactSection">Hubungi</a>
+            <a href="#locationSection" id="quickLocation">Lokasi</a>
+            <a href="#contactSection" id="quickContact">Hubungi</a>
           </nav>
         </header>
 
@@ -127,7 +128,7 @@
           <div class="swatches" id="dressSwatches"></div>
         </section>
 
-        <section class="calendar-section reveal" aria-labelledby="calendarTitle" style="--delay: 0.35s">
+        <section class="calendar-section reveal" id="calendarSection" aria-labelledby="calendarTitle" style="--delay: 0.35s">
           <h2 class="calendar-title" id="calendarTitle">Tarikh Majlis</h2>
 
           <div class="mini-calendar" role="group" aria-label="Kalendar majlis">
@@ -168,7 +169,7 @@
           </a>
         </div>
 
-        <section class="section reveal" aria-labelledby="scheduleHeading" style="--delay: 0.5s">
+        <section class="section reveal" id="scheduleSection" aria-labelledby="scheduleHeading" style="--delay: 0.5s">
           <h2 id="scheduleHeading">Aturcara Ringkas</h2>
           <div class="schedule" id="scheduleList" role="group" aria-label="Atur cara majlis">
             <div class="slot"><span>11.00 pagi</span><span>Majlis Bermula</span></div>
@@ -219,7 +220,7 @@
 
         <section class="section wishes-section reveal" id="wishesSection" aria-labelledby="wishesHeading" style="--delay: 0.65s">
           <h2 id="wishesHeading">Ucapan &amp; Doa</h2>
-          <p class="section-subtitle">Doa dan ucapan daripada tetamu buat Nabil &amp; Hani.</p>
+          <p class="section-subtitle" id="wishesSubtitle">Doa dan ucapan daripada tetamu buat Nabil &amp; Hani.</p>
           <div class="wishes-list" id="wishesList" aria-live="off" aria-busy="true"></div>
           <div class="wishes-navigation" id="wishesControls" role="group" aria-label="Kawalan ucapan" hidden>
             <button class="gallery-control" id="wishesPrev" type="button" aria-label="Ucapan sebelumnya"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg></button>
@@ -231,7 +232,7 @@
 
         <section class="section gallery-section reveal" id="gallerySection" aria-labelledby="galleryHeading" style="--delay: 0.7s" hidden>
           <h2 id="galleryHeading">Galeri Momen Indah</h2>
-          <p class="section-subtitle">Detik istimewa Nabil &amp; Hani</p>
+          <p class="section-subtitle" id="gallerySubtitle">Detik istimewa Nabil &amp; Hani</p>
           <div class="gallery-carousel" role="group" aria-roledescription="carousel" aria-label="Galeri momen indah">
             <p class="visually-hidden" id="galleryInstructions">Galeri bertukar foto secara automatik setiap dua saat dan berhenti seketika ketika anda berinteraksi. Gunakan butang atau anak panah kiri dan kanan untuk melihat foto lain. Anda juga boleh swipe pada galeri.</p>
             <div class="gallery-grid" id="galleryGrid" role="group" tabindex="0" aria-describedby="galleryInstructions"></div>

@@ -1055,6 +1055,18 @@ const isValidWhatsappNumber = value => /^\d{8,15}$/.test(value);
 
 const isSafeColor = value => /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(value || "");
 
+const getExternalUrl = value => {
+  if (typeof value !== "string" || !value.trim()) {
+    return "";
+  }
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) ? url.href : "";
+  } catch (error) {
+    return "";
+  }
+};
+
 const setAudioVisual = state => {
   if (!audioToggle) {
     return;
@@ -1103,8 +1115,17 @@ const renderCalendar = (event, calendar) => {
   const header = document.getElementById("calendarHeader");
   const title = document.getElementById("calendarTitle");
   const eventDate = new Date(event.dateTime || "");
+  const hasDate = !Number.isNaN(eventDate.getTime());
 
-  if (!grid || Number.isNaN(eventDate.getTime())) {
+  setHidden(document.getElementById("calendarSection") || grid?.closest("section"), !hasDate);
+  if (!hasDate) {
+    grid?.replaceChildren();
+    grid?.setAttribute("aria-label", "Kalendar majlis");
+    setText("calendarHeader", "");
+    title?.removeAttribute("aria-label");
+    return;
+  }
+  if (!grid) {
     return;
   }
 
@@ -1122,9 +1143,13 @@ const renderCalendar = (event, calendar) => {
     timeZone: "Asia/Kuala_Lumpur",
   });
 
-  const year = eventDate.getUTCFullYear();
-  const month = eventDate.getUTCMonth();
-  const day = eventDate.getUTCDate();
+  const dateParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kuala_Lumpur", year: "numeric", month: "numeric", day: "numeric",
+  }).formatToParts(eventDate);
+  const datePart = type => Number(dateParts.find(part => part.type === type)?.value);
+  const year = datePart("year");
+  const month = datePart("month") - 1;
+  const day = datePart("day");
   const firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay();
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
   const firstCell = (firstDay - weekStartsOn + 7) % 7;
@@ -1138,6 +1163,7 @@ const renderCalendar = (event, calendar) => {
   if (header) {
     header.textContent = monthFormatter.format(eventDate);
   }
+  grid.setAttribute("aria-label", "Kalendar " + monthFormatter.format(eventDate));
 
   grid.replaceChildren();
   orderedWeekdays.forEach(label => {
@@ -1172,12 +1198,14 @@ const renderCalendar = (event, calendar) => {
 
 const renderSchedule = schedule => {
   const scheduleRoot = document.getElementById("scheduleList");
-  if (!scheduleRoot || !Array.isArray(schedule) || schedule.length === 0) {
+  const slots = Array.isArray(schedule) ? schedule.filter(item => item && (item.time || item.title)) : [];
+  setHidden(document.getElementById("scheduleSection") || scheduleRoot?.closest("section"), slots.length === 0);
+  if (!scheduleRoot) {
     return;
   }
 
   scheduleRoot.replaceChildren();
-  schedule.forEach(item => {
+  slots.forEach(item => {
     const slot = document.createElement("div");
     slot.className = "slot";
 
@@ -1318,10 +1346,12 @@ const createContactIcon = type => {
 const renderContacts = people => {
   const contactSection = document.getElementById("contactSection");
   const contactRoot = document.getElementById("contactList");
-  const contacts = Array.isArray(people) ? people.filter(Boolean) : [];
+  const contacts = Array.isArray(people) ? people.filter(person => person && Array.isArray(person.phones)
+    && person.phones.some(phone => isValidWhatsappNumber(cleanWhatsappNumber(phone?.number)))) : [];
 
   setHidden(contactSection, contacts.length === 0);
-  if (!contactRoot || contacts.length === 0) {
+  setHidden(document.getElementById("quickContact"), contacts.length === 0);
+  if (!contactRoot) {
     return;
   }
 
@@ -1397,6 +1427,23 @@ const applyConfig = () => {
   const calendar = config.calendar || {};
   const rsvp = config.rsvp || {};
   const coupleNames = getCoupleNames(couple);
+  const coupleText = coupleNames.join(" & ");
+  const coverImage = document.getElementById("coverImage");
+  if (coverImage && typeof config.cover?.image === "string" && config.cover.image.trim()) {
+    coverImage.src = config.cover.image.trim();
+  }
+  if (bgAudio && Object.prototype.hasOwnProperty.call(config.audio || {}, "src")) {
+    bgAudio.querySelector("source")?.removeAttribute("src");
+    bgAudio.removeAttribute("src");
+    if (typeof config.audio.src === "string" && config.audio.src.trim()) {
+      bgAudio.setAttribute("src", config.audio.src.trim());
+    }
+    bgAudio.load?.();
+  }
+  setText("wishesSubtitle", coupleText
+    ? "Doa dan ucapan daripada tetamu buat " + coupleText + "."
+    : "Doa dan ucapan daripada tetamu buat pengantin.");
+  setText("gallerySubtitle", coupleText ? "Detik istimewa " + coupleText : "Detik istimewa pengantin");
   setText("openGroom", coupleNames[0] || "");
   setText("openBride", coupleNames[1] || "");
   setText("openInitialGroom", getNameInitial(coupleNames[0]));
@@ -1409,7 +1456,7 @@ const applyConfig = () => {
     fullNamesRoot.replaceChildren();
     appendNamePair(fullNamesRoot, couple.fullNames, "span");
   }
-  setText("eventDateText", event.dateText);
+  setText("eventDateText", event.dateText || "");
   setText("hijriDateText", event.hijriDate || "");
   setText("heroTime", event.timeText ? "Masa: " + event.timeText : "");
   setText("quoteHeading", invitation.heading || "Jemputan");
@@ -1450,9 +1497,15 @@ const applyConfig = () => {
     canonical.href = metadata.url || window.location.href;
   }
 
-  const mapQuery = encodeURIComponent(map.query || event.address || event.venue || "");
-  const googleMapsUrl = map.googleMapsUrl || "https://www.google.com/maps/search/?api=1&query=" + mapQuery;
-  const wazeUrl = map.wazeUrl || "https://waze.com/ul?q=" + mapQuery + "&navigate=yes";
+  const locationText = [map.query, event.address, event.venue]
+    .find(value => typeof value === "string" && value.trim())?.trim() || "";
+  const mapQuery = encodeURIComponent(locationText);
+  const embedUrl = getExternalUrl(map.embedUrl);
+  const googleMapsUrl = getExternalUrl(map.googleMapsUrl)
+    || (locationText ? "https://www.google.com/maps/search/?api=1&query=" + mapQuery : "");
+  const wazeUrl = getExternalUrl(map.wazeUrl)
+    || (locationText ? "https://waze.com/ul?q=" + mapQuery + "&navigate=yes" : "");
+  const hasLocation = map.enabled !== false && Boolean(locationText || googleMapsUrl || wazeUrl || embedUrl);
   const mapLabel = event.address || event.venue || map.query || "lokasi majlis";
 
   const googleMapsBtn = document.getElementById("googleMapsBtn");
@@ -1460,23 +1513,33 @@ const applyConfig = () => {
   const mapPreview = document.getElementById("mapPreview");
   const mapEmbed = document.getElementById("mapEmbed");
   const mapAddress = document.getElementById("mapAddress");
+  setHidden(document.getElementById("locationSection"), !hasLocation);
+  setHidden(document.getElementById("quickLocation"), !hasLocation);
 
   if (googleMapsBtn) {
-    googleMapsBtn.href = googleMapsUrl;
+    if (hasLocation && googleMapsUrl) googleMapsBtn.href = googleMapsUrl;
+    else googleMapsBtn.removeAttribute("href");
+    setHidden(googleMapsBtn, !hasLocation || !googleMapsUrl);
     googleMapsBtn.setAttribute("aria-label", "Buka lokasi " + mapLabel + " di Google Maps (tab baharu)");
   }
   if (wazeBtn) {
-    wazeBtn.href = wazeUrl;
+    if (hasLocation && wazeUrl) wazeBtn.href = wazeUrl;
+    else wazeBtn.removeAttribute("href");
+    setHidden(wazeBtn, !hasLocation || !wazeUrl);
     wazeBtn.setAttribute("aria-label", "Buka lokasi " + mapLabel + " di Waze (tab baharu)");
   }
-  if (mapEmbed && map.embedUrl) {
-    mapEmbed.src = map.embedUrl;
-    mapEmbed.title = "Peta pin lokasi " + mapLabel;
+  if (mapEmbed) {
+    if (hasLocation && embedUrl) {
+      mapEmbed.src = embedUrl;
+      mapEmbed.title = "Peta pin lokasi " + mapLabel;
+    } else {
+      mapEmbed.removeAttribute("src");
+    }
   }
-  setHidden(mapPreview, !map.embedUrl);
+  setHidden(mapPreview, !hasLocation || !embedUrl);
   if (mapAddress) {
-    setText("mapAddress", mapLabel ? "Lokasi: " + mapLabel : "");
-    setHidden(mapAddress, !mapLabel);
+    setText("mapAddress", hasLocation && locationText ? "Lokasi: " + mapLabel : "");
+    setHidden(mapAddress, !hasLocation || !locationText);
   }
 
   const swatchRoot = document.getElementById("dressSwatches");
@@ -1502,7 +1565,6 @@ const applyConfig = () => {
   renderSchedule(config.schedule);
   renderContacts(contact.people);
 
-  const coupleText = coupleNames.join(" & ");
   if (btn && coupleText) {
     btn.setAttribute("aria-label", "Buka jemputan perkahwinan " + coupleText);
   }

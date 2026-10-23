@@ -1,10 +1,35 @@
-# Kad Jemputan Perkahwinan Nabil & Hani
+# Template Kad Jemputan Perkahwinan
 
-Kad jemputan perkahwinan satu halaman dalam Bahasa Melayu untuk majlis Nabil dan Hani pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang.
+Template kad jemputan perkahwinan satu halaman dalam Bahasa Melayu. Kad Nabil dan Hani dalam root ialah contoh lengkap; gunakan generator untuk menghasilkan kad pasangan lain dengan kandungan dan sambungan tersendiri.
 
 **Laman produksi:** [kad-jemputan.vercel.app](https://kad-jemputan.vercel.app)
 
 Frontend dibina dengan HTML, CSS dan JavaScript biasa tanpa framework atau proses binaan. Satu Vercel Function digunakan hanya untuk RSVP dan ucapan tetamu yang disimpan dalam Neon PostgreSQL.
+
+## Guna semula sebagai template
+
+Projek ini kini juga mempunyai generator untuk menghasilkan **kad baharu dalam folder berasingan**. Reka bentuk dan fungsi dikongsi; kandungan pasangan, gambar, muzik, database dan domain ditetapkan untuk setiap kad.
+
+```powershell
+npm run create:invite -- --output ../kad-pasangan-baru
+cd ../kad-pasangan-baru
+```
+
+Edit `config.js` dalam folder yang dijana, kemudian:
+
+```powershell
+npm run build
+npm run check
+python -m http.server 4173 --bind 127.0.0.1
+```
+
+Build menjana HTML statik, `invitation.generated.js`, cover inisial, favicon serta fail kalendar daripada satu konfigurasi. Sumber `config.js` kekal boleh diedit. Kandungan contoh ialah Adam & Hawa; ganti butiran sebelum kad diedarkan. Lihat [panduan template](templates/README.md) dan [contoh konfigurasi](templates/default.config.js).
+
+Generator menolak folder output yang sudah wujud. Ia hanya menyalin fail yang diperlukan: tiada foto/lagu pasangan lama, data tetamu, `.env`, sambungan Vercel atau sejarah Git disalin. RSVP, muzik dan peta dimatikan secara lalai. Galeri menggunakan tiga gambar placeholder.
+
+Untuk RSVP kad baharu, gunakan projek Vercel dan database Neon tersendiri. Schema dan API kosong disertakan; tiada operasi database dijalankan oleh generator. Sambungan database lama tidak digunakan secara automatik.
+
+Kod generator berada dalam `scripts/` dan fail starter neutral berada dalam `templates/`. Laman asal dalam root kekal sebagai contoh kad yang lengkap. Ujian template meliputi eksport bersih, penjanaan semula untuk pasangan berlainan, konsistensi kalendar/metadata dan perlindungan folder output.
 
 ## Fungsi semasa
 

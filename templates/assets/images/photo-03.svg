@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Gambar Anda 03</title>
+  <desc id="desc">Placeholder galeri warna krim dengan bingkai segi lapan dan ornamen emas.</desc>
+  <rect width="800" height="1000" fill="#fbf7ef"/>
+  <rect x="30" y="30" width="740" height="940" rx="20" fill="none" stroke="#d6bc8c" stroke-width="2"/>
+  <path d="m210 160 380 0 100 100v480L590 840H210L110 740V260Z" fill="#f1e7d6" stroke="#b69a64" stroke-width="2"/>
+  <path d="m222 187 356 0 85 85v456l-85 85H222l-85-85V272Z" fill="none" stroke="#cfb98d"/>
+  <g fill="none" stroke="#b69a64" stroke-width="2">
+    <path d="M315 280h55l30-30 30 30h55M315 720h55l30 30 30-30h55"/>
+    <circle cx="400" cy="280" r="5" fill="#b69a64"/>
+    <circle cx="400" cy="720" r="5" fill="#b69a64"/>
+  </g>
+  <text x="400" y="460" text-anchor="middle" font-family="Georgia,serif" font-size="38" fill="#74674e">Gambar Anda</text>
+  <text x="400" y="548" text-anchor="middle" font-family="Georgia,serif" font-size="78" fill="#9b8050">03</text>
+  <text x="400" y="620" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" letter-spacing="3" fill="#786e5d">KISAH BAHAGIA</text>
+</svg>

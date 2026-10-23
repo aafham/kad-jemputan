@@ -10,7 +10,7 @@ const source = fs.readFileSync(path.join(__dirname, "../script.js"), "utf8");
 
 // Exercise the shipped script with a small DOM and deterministic clocks. No
 // request in these tests reaches the live RSVP service or writes to a database.
-function createPage({ reducedMotion = false, hover = false, fetch: fetchMock, dateTime } = {}) {
+function createPage({ reducedMotion = false, hover = false, fetch: fetchMock, dateTime, config: customConfig } = {}) {
   let elapsed = 0;
   let epoch = Date.parse("2026-10-02T12:00:00Z");
   let nextTimer = 0;
@@ -76,6 +76,14 @@ function createPage({ reducedMotion = false, hover = false, fetch: fetchMock, da
     setAttribute(name, value) { this.attributes.set(name, String(value)); }
     getAttribute(name) { return this.attributes.get(name) ?? null; }
     removeAttribute(name) { this.attributes.delete(name); }
+    get src() { return this.getAttribute("src") || ""; }
+    set src(value) { this.setAttribute("src", value); }
+    get href() { return this.getAttribute("href") || ""; }
+    set href(value) { this.setAttribute("href", value); }
+    get currentSrc() { return this.src || this.querySelector("source")?.src || ""; }
+    load() { this.loadCount = (this.loadCount || 0) + 1; }
+    pause() { this.paused = true; }
+    async play() { this.paused = false; }
     append(...children) { children.forEach(child => this.appendChild(child)); }
     appendChild(child) { child.parentElement = this; this.children.push(child); return child; }
     replaceChildren(...children) { this.children = []; this.ownText = ""; this.append(...children); }
@@ -83,9 +91,16 @@ function createPage({ reducedMotion = false, hover = false, fetch: fetchMock, da
       if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(child => child !== this);
     }
     contains(target) { return Boolean(target && (target === this || this.children.some(child => child.contains(target)))); }
-    closest(selector) { return selector === ".gallery-carousel" ? this.parentElement : null; }
+    closest(selector) {
+      if (selector === ".gallery-carousel") return this.parentElement;
+      if (selector === "section") return this.parentElement?.tagName === "section" ? this.parentElement : null;
+      return null;
+    }
     matches() { return Boolean(this.focusVisible); }
-    querySelector() { return { value: this.attendance || "hadir" }; }
+    querySelector(selector) {
+      return selector === "source" ? this.children.find(child => child.tagName === "source") || null
+        : { value: this.attendance || "hadir" };
+    }
     checkValidity() { return true; }
     reportValidity() {}
     reset() { this.resetCount = (this.resetCount || 0) + 1; }
@@ -113,7 +128,27 @@ function createPage({ reducedMotion = false, hover = false, fetch: fetchMock, da
     "guestCount", "guestWishes", "wishCount", "attendanceSummary", "rsvpDataStatus", "reloadRsvpData",
     "rsvpSubmitText", "guestName", "guestWebsite", "rsvpSuccess", "rsvpSuccessText", "shareInvite", "shareStatus", "quickRsvp",
     "attendingCount", "notAttendingCount", "guestTotalCount", "mapAddress",
+    "coverImage", "wishesSubtitle", "gallerySubtitle", "quickLocation", "quickContact", "heroGroom", "heroBride",
+    "eventDateText", "calendarSection", "calendarGrid", "calendarHeader", "calendarTitle", "scheduleSection", "scheduleList",
+    "locationSection", "mapPreview", "mapEmbed", "googleMapsBtn", "wazeBtn", "contactSection", "contactList",
+    "bgAudio", "audioToggle",
   ]) nodes.set(id, new Element());
+  nodes.get("calendarSection").tagName = "section";
+  nodes.get("calendarSection").append(nodes.get("calendarGrid"));
+  nodes.get("scheduleSection").tagName = "section";
+  nodes.get("scheduleSection").append(nodes.get("scheduleList"));
+  nodes.get("eventDateText").textContent = "Sabtu, 3 Oktober 2026";
+  nodes.get("calendarHeader").textContent = "Oktober 2026";
+  nodes.get("calendarGrid").setAttribute("aria-label", "Kalendar Oktober 2026");
+  nodes.get("calendarGrid").append(new Element());
+  nodes.get("scheduleList").textContent = "Jadual asal";
+  nodes.get("contactList").textContent = "Hubungan asal";
+  nodes.get("mapEmbed").src = "https://maps.example.test/original";
+  nodes.get("coverImage").src = "assets/images/original-cover.webp";
+  const audioSource = new Element("source");
+  audioSource.src = "assets/audio/original-song.mp3";
+  nodes.get("bgAudio").append(audioSource);
+  nodes.get("bgAudio").paused = true;
   const carousel = new Element();
   carousel.append(...["galleryGrid", "galleryControls"].map(id => nodes.get(id)));
   nodes.get("galleryControls").append(...["galleryPrev", "galleryNext", "galleryToggle"].map(id => nodes.get(id)));
@@ -123,14 +158,14 @@ function createPage({ reducedMotion = false, hover = false, fetch: fetchMock, da
   nodes.get("guestName").value = "Tetamu Ujian";
   nodes.get("rsvpSuccess").hidden = true;
 
-  const config = {
+  const config = customConfig === undefined ? {
     audio: { enabled: false },
     metadata: { url: "https://kad-jemputan.vercel.app/" },
     couple: { displayNames: ["Nabil", "Hani"] },
     event: { dateTime: dateTime === undefined ? "2026-10-03T11:00:00+08:00" : dateTime, timeText: "11.00 pagi - 4.00 petang", address: "Alamat dikemas kini" },
     rsvp: { enabled: true, endpoint: "/api/rsvp" },
     gallery: Array.from({ length: 4 }, (_, index) => ({ src: `photo-${index}.webp`, alt: `Photo ${index}` })),
-  };
+  } : customConfig;
   class FakeDate extends Date {
     constructor(...args) { super(...(args.length ? args : [epoch + elapsed])); }
     static now() { return epoch + elapsed; }
@@ -209,6 +244,20 @@ test("Malaysia date boundaries replace the countdown on the whole wedding day an
   page.run("updateCountdown(); updateCountdown()");
   assert.equal(get("countdownStatus").textWrites, writes, "unchanged phases do not re-announce");
   assert.equal(createPage({ dateTime: "" }).nodes.get("countdownSection").hidden, true);
+});
+
+test("the calendar uses Malaysia's year, month and day when UTC is still in the previous year", () => {
+  const page = createPage({ dateTime: "2027-01-01T00:30:00+08:00" });
+  const grid = page.nodes.get("calendarGrid");
+  assert.match(page.nodes.get("calendarHeader").textContent, /2027/);
+  assert.match(grid.getAttribute("aria-label"), /2027/);
+  const dates = grid.children.filter(child => child.className === "date");
+  assert.equal(dates.length, 31);
+  const highlighted = dates.filter(child => child.classList.contains("event"));
+  assert.equal(highlighted.length, 1);
+  assert.equal(highlighted[0].textContent, "1", "January 1 MYT must not highlight December 31 UTC");
+  assert.match(highlighted[0].getAttribute("aria-label"), /1 Januari 2027/i);
+  assert.equal(grid.children.indexOf(dates[0]), 12, "January 2027 begins on Friday after seven weekday labels");
 });
 
 test("gallery advances every two seconds, loops, pauses, and resumes after a mobile swipe", async () => {
@@ -486,4 +535,95 @@ test("sharing uses the canonical public URL, never the preview URL or its debug 
   assert.doesNotMatch(page.window.copiedText, /debug|preview/);
   page.config.metadata.url = "";
   assert.equal(page.run("getShareUrl()"), "https://preview.example.test/");
+});
+
+test("configured names and media replace the reusable invitation surfaces without changing legacy media defaults", () => {
+  const page = createPage({ config: {
+    couple: { displayNames: ["Amir", "Aina"] },
+    event: { dateTime: "2027-02-12T11:00:00+08:00", dateText: "Jumaat, 12 Februari 2027" },
+    cover: { image: " assets/images/new-cover.webp " },
+    audio: { enabled: false, src: " assets/audio/new-song.mp3 " },
+    rsvp: { enabled: false },
+    schedule: [{ time: "11.00 pagi", title: "Majlis bermula" }],
+  } });
+  const get = id => page.nodes.get(id);
+  assert.equal(get("coverImage").src, "assets/images/new-cover.webp");
+  assert.equal(get("bgAudio").src, "assets/audio/new-song.mp3");
+  assert.equal(get("bgAudio").querySelector("source").getAttribute("src"), null, "personal fallback source is removed");
+  assert.equal(get("bgAudio").loadCount, 1);
+  assert.equal(get("heroGroom").textContent, "Amir");
+  assert.equal(get("heroBride").textContent, "Aina");
+  assert.equal(get("wishesSubtitle").textContent, "Doa dan ucapan daripada tetamu buat Amir & Aina.");
+  assert.equal(get("gallerySubtitle").textContent, "Detik istimewa Amir & Aina");
+  assert.equal(get("eventDateText").textContent, "Jumaat, 12 Februari 2027");
+  assert.equal(get("calendarSection").hidden, false);
+  assert.match(get("calendarHeader").textContent, /2027/);
+  assert.match(get("calendarGrid").getAttribute("aria-label"), /2027/);
+  assert.equal(get("scheduleSection").hidden, false);
+  assert.equal(get("scheduleList").textContent, "11.00 pagiMajlis bermula");
+
+  const legacy = createPage({ config: { audio: { enabled: true }, rsvp: { enabled: false } } });
+  assert.equal(legacy.nodes.get("coverImage").src, "assets/images/original-cover.webp");
+  assert.equal(legacy.nodes.get("bgAudio").querySelector("source").src, "assets/audio/original-song.mp3");
+  assert.equal(legacy.nodes.get("bgAudio").getAttribute("src"), null);
+  assert.equal(legacy.nodes.get("bgAudio").loadCount, undefined, "omitting audio.src preserves existing audio behavior");
+  assert.equal(legacy.nodes.get("audioToggle").hidden, false);
+});
+
+test("an empty configuration clears dated fallback content and hides unavailable sections and navigation", () => {
+  const page = createPage({ config: {} });
+  const get = id => page.nodes.get(id);
+  assert.equal(get("eventDateText").textContent, "");
+  assert.equal(get("calendarHeader").textContent, "");
+  assert.equal(get("calendarGrid").children.length, 0);
+  assert.equal(get("calendarGrid").getAttribute("aria-label"), "Kalendar majlis");
+  assert.equal(get("scheduleList").textContent, "");
+  assert.equal(get("contactList").textContent, "");
+  for (const id of ["calendarSection", "scheduleSection", "locationSection", "mapPreview", "quickLocation", "contactSection", "quickContact"]) {
+    assert.equal(get(id).hidden, true, id + " must not expose an empty section");
+  }
+  assert.equal(get("mapEmbed").getAttribute("src"), null);
+  assert.equal(get("googleMapsBtn").getAttribute("href"), null);
+  assert.equal(get("wazeBtn").getAttribute("href"), null);
+  assert.equal(get("mapAddress").textContent, "");
+  assert.equal(get("wishesSubtitle").textContent, "Doa dan ucapan daripada tetamu buat pengantin.");
+  assert.equal(get("gallerySubtitle").textContent, "Detik istimewa pengantin");
+});
+
+test("explicitly empty audio and disabled maps remove stale sources while valid contacts control quick navigation", () => {
+  const page = createPage({ config: {
+    audio: { enabled: false, src: "" },
+    rsvp: { enabled: false },
+    event: { address: "Alamat majlis" },
+    map: { enabled: false, embedUrl: "https://maps.example.test/new" },
+    contact: { people: [{ name: "Penganjur", phones: [{ number: "60123456789" }] }] },
+  } });
+  const get = id => page.nodes.get(id);
+  assert.equal(get("bgAudio").getAttribute("src"), null);
+  assert.equal(get("bgAudio").querySelector("source").getAttribute("src"), null);
+  assert.equal(get("bgAudio").currentSrc, "");
+  assert.equal(get("audioToggle").hidden, true);
+  assert.equal(get("locationSection").hidden, true);
+  assert.equal(get("quickLocation").hidden, true);
+  assert.equal(get("mapEmbed").getAttribute("src"), null);
+  assert.equal(get("contactSection").hidden, false);
+  assert.equal(get("quickContact").hidden, false);
+
+  page.config.map.enabled = true;
+  page.run("applyConfig()");
+  assert.equal(get("locationSection").hidden, false);
+  assert.equal(get("quickLocation").hidden, false);
+  assert.equal(get("mapEmbed").src, "https://maps.example.test/new");
+  assert.match(get("googleMapsBtn").href, /query=Alamat%20majlis$/);
+
+  page.config.contact.people = [{ name: "Tiada nombor", phones: [{ number: "123" }] }];
+  page.config.event = {};
+  page.config.map = { embedUrl: "javascript:alert(1)" };
+  page.run("applyConfig()");
+  assert.equal(get("contactSection").hidden, true);
+  assert.equal(get("quickContact").hidden, true);
+  assert.equal(get("contactList").textContent, "");
+  assert.equal(get("locationSection").hidden, true);
+  assert.equal(get("mapEmbed").getAttribute("src"), null);
+  assert.equal(get("googleMapsBtn").getAttribute("href"), null);
 });

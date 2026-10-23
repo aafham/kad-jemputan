@@ -1,4 +1,4 @@
--- RSVP persistence for the Hani & Nabil invitation on Neon PostgreSQL.
+-- RSVP persistence for a single wedding invitation on Neon PostgreSQL.
 -- New RSVP submissions intentionally do not collect or retain phone numbers.
 --
 -- Run this once in the Neon SQL Editor before deploying the RSVP API.
