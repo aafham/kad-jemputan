@@ -4,7 +4,17 @@ Template kad jemputan perkahwinan satu halaman dalam Bahasa Melayu. Kad Nabil da
 
 **Laman produksi:** [kad-jemputan.vercel.app](https://kad-jemputan.vercel.app)
 
-Frontend dibina dengan HTML, CSS dan JavaScript biasa tanpa framework atau proses binaan. Satu Vercel Function digunakan hanya untuk RSVP dan ucapan tetamu yang disimpan dalam Neon PostgreSQL.
+Frontend dibina dengan HTML, CSS dan JavaScript biasa tanpa framework. Projek kad baharu menggunakan langkah build ringan untuk menyelaraskan kandungan dan kalendar. Satu Vercel Function digunakan untuk RSVP dan ucapan tetamu yang disimpan dalam Neon PostgreSQL.
+
+## Borang tempahan
+
+**[Isi Borang Tempahan Kad Jemputan](https://docs.google.com/forms/d/e/1FAIpQLSehYhblgWlcPq4z7vWxWSCTB2BbSQ6R9JjJHFC9YEPGOE1y1g/viewform)**
+
+Kongsi pautan ini dengan pelanggan yang mahu menempah kad baharu. Borang merangkumi 14 kumpulan maklumat serta pengesahan persetujuan: pelanggan, pengantin, keluarga, tarikh/masa, lokasi, aturcara, penganjur, teks jemputan, design/gambar, muzik, RSVP/ucapan, pautan kad dan permintaan tambahan.
+
+Selepas pelanggan menghantar jawapan, buka tab **Responses / Jawapan** dalam Google Forms. Berikan jawapan pelanggan itu (salinan teks atau CSV) dan pautan media kepada pembuat kad melalui saluran peribadi. Maklumat tersebut digunakan untuk menyediakan kad baharu daripada template, kemudian draf disemak sebelum diterbitkan.
+
+Lihat [kandungan borang](docs/order-form.md) dan [panduan serahan tempahan](docs/intake-handoff.md). Repository ini menyimpan pautan responden sahaja; jawapan pelanggan dan pautan editor tidak diterbitkan.
 
 ## Guna semula sebagai template
 
@@ -89,7 +99,7 @@ Pakej Node hanya diperlukan oleh Vercel Function RSVP:
 npm install
 ```
 
-## Kemaskini kandungan majlis
+## Kemaskini kad contoh dalam root
 
 Gunakan `config.js` sebagai sumber utama untuk kandungan yang dipaparkan:
 
@@ -100,7 +110,7 @@ Gunakan `config.js` sebagai sumber utama untuk kandungan yang dipaparkan:
 5. `schedule`, `map`, `contact` dan `gallery` — atur cara, pautan navigasi, hubungan serta foto.
 6. `metadata` — tajuk, penerangan, canonical URL dan imej perkongsian.
 
-Perkara yang perlu dikemas kini secara berasingan:
+Untuk kad contoh lama dalam root, perkara berikut masih dikemas kini secara berasingan. Untuk **projek baharu yang dijana daripada template**, cukup edit `config.js` dan jalankan `npm run build`; HTML dan kalendar dikemas kini secara automatik.
 
 - `<head>` statik dalam `index.html` untuk `title`, description, canonical dan Open Graph/Twitter. Crawler WhatsApp/Facebook tidak menjalankan `config.js`.
 - `assets/calendar/walimatul-urus.ics` apabila nama, masa atau alamat berubah.
