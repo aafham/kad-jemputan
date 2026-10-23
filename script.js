@@ -1458,7 +1458,7 @@ const applyConfig = () => {
   }
   setText("eventDateText", event.dateText || "");
   setText("hijriDateText", event.hijriDate || "");
-  setText("heroTime", event.timeText ? "Masa: " + event.timeText : "");
+  setText("heroTime", config.isTemplate ? "Masa Majlis" : event.timeText ? "Masa: " + event.timeText : "");
   setText("quoteHeading", invitation.heading || "Jemputan");
   setText("bismillahText", invitation.bismillah || "");
   setText("pantunText", invitation.pantun || config.quote || "");
@@ -1505,7 +1505,8 @@ const applyConfig = () => {
     || (locationText ? "https://www.google.com/maps/search/?api=1&query=" + mapQuery : "");
   const wazeUrl = getExternalUrl(map.wazeUrl)
     || (locationText ? "https://waze.com/ul?q=" + mapQuery + "&navigate=yes" : "");
-  const hasLocation = map.enabled !== false && Boolean(locationText || googleMapsUrl || wazeUrl || embedUrl);
+  const hasLocation = config.isTemplate !== true && map.enabled !== false
+    && Boolean(locationText || googleMapsUrl || wazeUrl || embedUrl);
   const mapLabel = event.address || event.venue || map.query || "lokasi majlis";
 
   const googleMapsBtn = document.getElementById("googleMapsBtn");
@@ -1573,6 +1574,67 @@ const applyConfig = () => {
   setHidden(document.getElementById("quickRsvp"), !hasRsvp);
   setHidden(document.getElementById("rsvpSection"), !hasRsvp);
   setHidden(document.getElementById("wishesSection"), !hasRsvp);
+
+  setHidden(document.getElementById("templateBadge"), config.isTemplate !== true);
+  if (config.isTemplate === true) {
+    document.body.classList.add("is-template");
+    // Keep the card's sections visible without treating placeholders as a real event.
+    config.rsvp = { ...rsvp, enabled: false };
+    setHidden(document.getElementById("calendarSection"), true);
+    setHidden(document.getElementById("countdownSection"), true);
+    for (const link of document.querySelectorAll('a[download]')) {
+      link.removeAttribute("href");
+      setHidden(link, true);
+    }
+
+    if (mapPreview) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "template-map-placeholder";
+      const marker = document.createElement("span");
+      marker.className = "template-map-marker";
+      marker.setAttribute("aria-hidden", "true");
+      marker.textContent = "\u2316";
+      const label = document.createElement("p");
+      label.textContent = "Peta lokasi akan dipaparkan di sini.";
+      placeholder.append(marker, label);
+      mapPreview.replaceChildren(placeholder);
+      setHidden(mapPreview, false);
+    }
+    setHidden(document.getElementById("locationSection"), false);
+    setHidden(document.getElementById("quickLocation"), false);
+    setHidden(googleMapsBtn?.parentElement, true);
+    setText("mapAddress", event.address || event.venue || "Alamat Lokasi Majlis");
+    setHidden(mapAddress, false);
+
+    const contactRoot = document.getElementById("contactList");
+    if (contactRoot) {
+      const card = document.createElement("div");
+      card.className = "contact-card template-contact-placeholder";
+      const name = document.createElement("p");
+      name.className = "contact-name";
+      name.textContent = "Nama Penganjur";
+      const number = document.createElement("p");
+      number.className = "contact-number";
+      number.textContent = "Nombor telefon / WhatsApp";
+      card.append(name, number);
+      contactRoot.replaceChildren(card);
+    }
+    setHidden(document.getElementById("contactSection"), false);
+    setHidden(document.getElementById("quickContact"), false);
+
+    setHidden(document.getElementById("rsvpSection"), false);
+    setHidden(document.getElementById("wishesSection"), false);
+    setHidden(document.getElementById("quickRsvp"), false);
+    for (const id of ["attendingCount", "notAttendingCount", "guestTotalCount"]) setText(id, "0");
+    setRsvpDataBusy(false);
+    setRsvpDataStatus("Ruang RSVP — isi maklumat majlis untuk mengaktifkan.");
+    setHidden(reloadRsvpData, true);
+    if (openRsvpDialog) {
+      openRsvpDialog.disabled = true;
+      openRsvpDialog.textContent = "Borang RSVP";
+    }
+    renderWishes([{ name: "Tetamu", wish: "Ucapan tetamu akan dipaparkan di sini." }]);
+  }
 };
 
 const initFlowerRain = () => {

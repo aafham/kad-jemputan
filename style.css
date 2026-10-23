@@ -3321,3 +3321,59 @@ button:disabled {
     scroll-behavior: auto;
   }
 }
+
+/* Neutral content spaces retain the invitation layout while the template is unfilled. */
+.template-badge {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 7px 13px;
+  border: 1px solid #d9c4a0;
+  border-radius: 999px;
+  color: #8a704d;
+  background: #fcf8f0;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.template-badge[hidden],
+.is-template .map-actions,
+.is-template a[download],
+.is-template #calendarSection,
+.is-template #countdownSection,
+.is-template #eventStatus {
+  display: none !important;
+}
+
+.template-map-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  color: #8a704d;
+  background: #f6efdf;
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.template-map-marker {
+  color: #ad8950;
+  font-size: 48px;
+  line-height: 1;
+}
+
+.template-contact-placeholder {
+  justify-items: center;
+  text-align: center;
+}
+
+.is-template #openRsvpDialog:disabled {
+  cursor: default;
+  opacity: 0.65;
+  box-shadow: none;
+}

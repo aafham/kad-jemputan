@@ -21,15 +21,24 @@ test("HTML hooks are unique and local assets resolve", () => {
   }
 });
 
-test("all twelve existing gallery photos have files and descriptions", () => {
-  assert.equal(config.gallery.length, 12);
+test("neutral gallery placeholders have files and descriptions", () => {
+  assert.equal(config.gallery.length, 3);
   for (const photo of config.gallery) {
     assert.ok(fs.existsSync(path.join(root, photo.src)), photo.src);
     assert.ok(photo.alt.trim());
   }
 });
 
-test("calendar has correct couple names, UTC times and complete address", () => {
+test("blank template has no invented calendar event or personal content", () => {
+  assert.equal(config.isTemplate, true);
+  assert.equal(config.event.dateTime, "");
+  assert.doesNotMatch(calendar, /BEGIN:VEVENT|DTSTART|DTEND/);
+  const publicContent = html + fs.readFileSync(path.join(root, "config.js"), "utf8") + calendar;
+  assert.doesNotMatch(publicContent, /Nabil|Hanis?|Sarimah|Eirwan|Keliwon|Kembara|Kandis|60193103047|101\.4074413/i);
+});
+
+test("calendar names and times stay synchronized for configured events", () => {
+  if (!config.event.dateTime) return;
   const unfolded = calendar.replace(/\r?\n[ \t]/g, "");
   const utc = value => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   assert.ok(unfolded.includes(`SUMMARY:Majlis Perkahwinan ${config.couple.displayNames.join(" & ")}`));
@@ -40,9 +49,9 @@ test("calendar has correct couple names, UTC times and complete address", () => 
   for (const line of calendar.split(/\r?\n/)) assert.ok(Buffer.byteLength(line) <= 75, line);
 });
 
-test("social metadata agrees with canonical config and has a local cover", () => {
+test("social metadata agrees with canonical config and does not reference a prior couple", () => {
   assert.ok(html.includes(`rel="canonical" href="${config.metadata.url}"`));
-  assert.ok(html.includes(`property="og:image" content="${config.metadata.image}"`));
+  if (!config.metadata.image) return;
   const image = new URL(config.metadata.image);
   assert.equal(image.origin, new URL(config.metadata.url).origin);
   assert.ok(fs.existsSync(path.join(root, image.pathname)));

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+<rect width="800" height="800" fill="#fcf8f0"/><rect x="45" y="45" width="710" height="710" rx="330" fill="none" stroke="#ad8950" stroke-width="2"/><rect x="62" y="62" width="676" height="676" rx="320" fill="none" stroke="#d9c4a0"/>
+<g fill="none" stroke="#ad8950" stroke-width="2"><path d="M135 560Q65 345 205 175M665 240Q735 455 595 625"/>
+<path d="M135 430Q65 395 110 355Q160 365 135 430M145 335Q105 265 155 245Q195 290 145 335M180 225Q155 160 210 145Q235 190 180 225M665 370Q735 405 690 445Q640 435 665 370M655 465Q695 535 645 555Q605 510 655 465M620 575Q645 640 590 655Q565 610 620 575" fill="#eee2ca"/></g>
+<g fill="#bf9291"><circle cx="152" cy="194" r="13"/><circle cx="124" cy="223" r="7"/><circle cx="648" cy="606" r="13"/><circle cx="676" cy="577" r="7"/></g>
+<text x="400" y="290" text-anchor="middle" font-family="Georgia,serif" font-size="16" letter-spacing="7" fill="#8a704d">WALIMATUL URUS</text>
+<text x="400" y="448" text-anchor="middle" font-family="Georgia,serif" font-size="136" fill="#ad8950">L<tspan font-size="68" font-style="italic"> &amp; </tspan>P</text>
+<path d="M290 520H375M425 520H510" stroke="#c9ac78"/><path d="m400 511 6 9-6 9-6-9Z" fill="#ad8950"/></svg>

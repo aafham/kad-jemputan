@@ -1,12 +1,13 @@
 {
-  "name": "kad-jemputan-nabil-hanis",
+  "name": "kad-jemputan-template",
   "version": "1.0.0",
   "private": true,
-  "description": "Kad jemputan perkahwinan Nabil dan Hani",
+  "description": "Template kad jemputan perkahwinan",
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
+    "build": "node scripts/build-invitation.cjs",
     "create:invite": "node scripts/create-invitation.cjs",
     "test": "node --test tests/*.test.cjs",
     "check": "node --check config.js && node --check script.js && node --check api/rsvp.js && node --check api/_lib/rsvp.cjs"

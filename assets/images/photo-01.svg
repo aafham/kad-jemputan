@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Gambar Anda 01</title>
+  <desc id="desc">Placeholder galeri warna krim dengan bingkai gerbang emas.</desc>
+  <rect width="800" height="1000" fill="#faf5eb"/>
+  <rect x="30" y="30" width="740" height="940" rx="20" fill="none" stroke="#d6bc8c" stroke-width="2"/>
+  <path d="M125 815V380a275 275 0 0 1 550 0v435Z" fill="#f1e5d2" stroke="#b69a64" stroke-width="2"/>
+  <path d="M150 790V380a250 250 0 0 1 500 0v410Z" fill="none" stroke="#c8af7b"/>
+  <g fill="none" stroke="#b69a64" stroke-width="2">
+    <path d="M300 255q100-90 200 0M340 278q60-45 120 0"/>
+    <path d="M320 718h160M365 743h70"/>
+    <path d="m400 692 7 7-7 7-7-7Z"/>
+  </g>
+  <text x="400" y="460" text-anchor="middle" font-family="Georgia,serif" font-size="38" fill="#74674e">Gambar Anda</text>
+  <text x="400" y="548" text-anchor="middle" font-family="Georgia,serif" font-size="78" fill="#9b8050">01</text>
+  <text x="400" y="620" text-anchor="middle" font-family="Arial,sans-serif" font-size="17" letter-spacing="3" fill="#786e5d">MOMEN ISTIMEWA</text>
+</svg>

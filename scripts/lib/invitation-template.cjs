@@ -89,13 +89,15 @@ function resolveConfig(config, root) {
   if (names.length !== 2 || names.some(name => typeof name !== "string" || !name.trim())) {
     throw new Error("Isi kedua-dua nama ringkas pengantin dalam couple.groom dan couple.bride.");
   }
-  const start = eventDate(config.event?.dateTime);
-  const end = eventDate(config.event?.endDateTime);
-  if (end <= start) throw new Error("Masa tamat mesti selepas masa mula.");
-  config.event.dateText ||= new Intl.DateTimeFormat("ms-MY", {
-    timeZone: "Asia/Kuala_Lumpur", weekday: "long", day: "numeric", month: "long", year: "numeric"
-  }).format(start);
-  config.event.timeText ||= `${timeText(start)} - ${timeText(end)}`;
+  if (!config.isTemplate || config.event?.dateTime) {
+    const start = eventDate(config.event?.dateTime);
+    const end = eventDate(config.event?.endDateTime);
+    if (end <= start) throw new Error("Masa tamat mesti selepas masa mula.");
+    config.event.dateText ||= new Intl.DateTimeFormat("ms-MY", {
+      timeZone: "Asia/Kuala_Lumpur", weekday: "long", day: "numeric", month: "long", year: "numeric"
+    }).format(start);
+    config.event.timeText ||= `${timeText(start)} - ${timeText(end)}`;
+  }
   config.metadata ||= {};
   config.metadata.title ||= `Jemputan Majlis Perkahwinan ${names.join(" & ")}`;
   config.metadata.description ||= `Undangan majlis perkahwinan ${names.join(" dan ")} pada ${config.event.dateText}${config.event.venue ? ` di ${config.event.venue}` : ""}.`;
@@ -143,14 +145,15 @@ function monogramSvg(names, favicon = false) {
 function renderHtml(html, config) {
   const names = namesOf(config);
   const texts = {
+    coverEyebrow: config.isTemplate ? "Template Kad Jemputan" : "Walimatul Urus",
     pageTitle: config.metadata.title, heroGroom: names[0], heroBride: names[1],
     eventTitle: (config.event.title || "Undangan Majlis Perkahwinan").toUpperCase(),
     eventDateText: config.event.dateText, hijriDateText: config.event.hijriDate || "",
-    heroTime: `Masa: ${config.event.timeText}`, quoteHeading: config.invitation?.heading || "Jemputan",
+    heroTime: config.isTemplate ? "Masa Majlis" : `Masa: ${config.event.timeText}`, quoteHeading: config.invitation?.heading || "Jemputan",
     bismillahText: config.invitation?.bismillah || "", closingText: config.invitation?.closing || "",
     wishesSubtitle: `Doa dan ucapan daripada tetamu buat ${names.join(" & ")}.`,
     gallerySubtitle: `Detik istimewa ${names.join(" & ")}`, calendarTitle: config.calendar?.title || "Tarikh Majlis",
-    calendarHeader: new Intl.DateTimeFormat("ms-MY", { timeZone: "Asia/Kuala_Lumpur", month: "long", year: "numeric" }).format(new Date(config.event.dateTime)),
+    calendarHeader: config.event.dateTime ? new Intl.DateTimeFormat("ms-MY", { timeZone: "Asia/Kuala_Lumpur", month: "long", year: "numeric" }).format(new Date(config.event.dateTime)) : "Tarikh Majlis",
     mapAddress: config.event.address || config.event.venue || ""
   };
   for (const [id, value] of Object.entries(texts)) html = setContent(html, id, escapeHtml(value));
@@ -180,6 +183,9 @@ function renderHtml(html, config) {
   html = setAttribute(html, "wazeBtn", "href", config.map?.wazeUrl || `https://waze.com/ul?q=${query}&navigate=yes`);
   for (const [id, label] of [["googleMapsBtn", "Google Maps"], ["wazeBtn", "Waze"]]) html = setAttribute(html, id, "aria-label", `Buka lokasi majlis di ${label} (tab baharu)`);
   html = setAttribute(html, "calendarGrid", "aria-label", "Kalendar majlis");
+  html = setAttribute(html, "templateBadge", "hidden", config.isTemplate ? null : true);
+  html = setAttribute(html, "calendarSection", "hidden", !config.event.dateTime ? true : null);
+  html = html.replace(/<a\b([^>]*\bhref="\.\/assets\/calendar\/walimatul-urus\.ics"[^>]*)>/g, (_, attrs) => `<a${attrs.replace(/\s+hidden(?:="[^"]*")?/g, "")}${config.isTemplate ? " hidden" : ""}>`);
   html = setAttribute(html, "locationSection", "hidden", config.map?.enabled === false ? true : null);
   html = setAttribute(html, "quickLocation", "hidden", config.map?.enabled === false ? true : null);
   html = setAttribute(html, "contactSection", "hidden", config.contact?.people?.length ? null : true);
@@ -190,6 +196,7 @@ function renderHtml(html, config) {
 }
 
 function calendarText(config) {
+  if (config.isTemplate && !config.event.dateTime) return "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Kad Jemputan Template//MS\r\nEND:VCALENDAR\r\n";
   const escapeIcs = value => String(value || "").replace(/\\/g, "\\\\").replace(/\r?\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
   const utc = value => new Date(value).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const names = namesOf(config);
@@ -222,8 +229,9 @@ function buildProject(root) {
   const calendars = path.join(root, "assets/calendar");
   fs.mkdirSync(images, { recursive: true });
   fs.mkdirSync(calendars, { recursive: true });
-  fs.writeFileSync(htmlPath, html.replace(/src="config\.js"/, 'src="invitation.generated.js"'));
+  fs.writeFileSync(htmlPath, html.replace(/src="config\.js"/, 'src="invitation.generated.js"').replace(/[\t ]+$/gm, ""));
   fs.writeFileSync(path.join(root, "invitation.generated.js"), runtimeConfig);
+  fs.writeFileSync(path.join(root, "site-settings.json"), JSON.stringify({ template: config.isTemplate === true }, null, 2) + "\n");
   fs.writeFileSync(path.join(calendars, "walimatul-urus.ics"), calendarText(config));
   fs.writeFileSync(path.join(images, "cover.svg"), monogramSvg(namesOf(config)));
   fs.writeFileSync(path.join(images, "favicon.svg"), monogramSvg(namesOf(config), true));

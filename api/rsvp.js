@@ -1,5 +1,6 @@
 "use strict";
 
+const siteSettings = require("../site-settings.json");
 const {
   getPublicRsvp,
   getServerConfig,
@@ -33,6 +34,24 @@ function isRsvpWriteEnabled(env = process.env) {
 }
 
 async function handler(req, res) {
+  // Template previews must not expose or change any existing customer's data.
+  // Keep this ahead of all environment, request-body and database operations.
+  if (siteSettings.template === true) {
+    if (req.method === "GET") {
+      sendJson(res, 200, {
+        ok: true,
+        template: true,
+        summary: { hadir: 0, tidakHadir: 0, tetamuHadir: 0 },
+        wishes: []
+      });
+      return;
+    }
+    if (req.method === "POST") {
+      sendJson(res, 403, { ok: false, error: "RSVP tidak diaktifkan untuk template." });
+      return;
+    }
+  }
+
   if (req.method === "GET") {
     try {
       const serverConfig = getServerConfig();

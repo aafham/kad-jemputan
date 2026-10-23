@@ -1,161 +1,52 @@
+// Template kosong. Isi butiran majlis, kemudian set isTemplate kepada false.
 window.invitationConfig = {
+  isTemplate: true,
   metadata: {
-    title: "Jemputan Majlis Perkahwinan Nabil & Hani",
-    description:
-      "Jemputan majlis perkahwinan Nabil dan Hani pada Sabtu, 3 Oktober 2026 di Rantau Panjang, Klang, Selangor.",
+    title: "Template Kad Jemputan Perkahwinan",
+    description: "Template kad jemputan perkahwinan. Gantikan nama, tarikh, lokasi dan gambar dengan butiran majlis anda.",
     robots: "noindex,nofollow",
     url: "https://kad-jemputan.vercel.app/",
-    image: "https://kad-jemputan.vercel.app/assets/images/nabil-hanis-floral-cover.webp",
-    imageAlt: "Monogram N dan H dengan hiasan bunga merah jambu dan bingkai emas"
+    image: "",
+    imageAlt: "Template kad jemputan"
   },
   couple: {
-    bride: "Hani",
-    groom: "Nabil",
-    displayNames: ["Nabil", "Hani"],
-    fullNames: [
-      "Mohammad Nabil bin Mohd Eirwan",
-      "Nurul Haniszan binti Mohd Sham"
-    ],
-    monogram: "N&H"
+    groom: "Lelaki",
+    bride: "Perempuan",
+    fullNames: ["Nama Penuh Pengantin Lelaki", "Nama Penuh Pengantin Perempuan"]
   },
   event: {
     title: "Undangan Majlis Perkahwinan",
-    dateText: "Sabtu, 3 Oktober 2026",
-    hijriDate: "21 Rabiulakhir 1448H",
-    dateTime: "2026-10-03T11:00:00+08:00",
-    endDateTime: "2026-10-03T16:00:00+08:00",
-    timeText: "11.00 pagi - 4.00 petang",
-    venue: "No. 24, Taman Kembara 3",
-    address:
-      "No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Batu 4, 42100 Klang, Selangor"
+    dateText: "Tarikh Majlis",
+    hijriDate: "",
+    dateTime: "",
+    endDateTime: "",
+    timeText: "Masa Majlis",
+    venue: "Nama Tempat Majlis",
+    address: "Alamat Lokasi Majlis"
   },
-  family: {
-    hosts: [
-      {
-        label: "",
-        people: ["En. Mohd Eirwan @ Keliwon", "Puan Sarimah binti Said"]
-      }
-    ]
-  },
+  family: { hosts: [{ label: "", people: ["Nama Bapa", "Nama Ibu"] }] },
   invitation: {
     heading: "Undangan Majlis Perkahwinan",
-    bismillah: "بِسۡـــــــــمِ ٱللهِ ٱلرَّحۡـمَـٰنِ ٱلرَّحِـــــــيمِ",
-    pantun:
-      "Bunga melur di atas para,\nHarum mewangi sepanjang laman,\nDengan penuh takzim kami bicara,\nSudilah hadir ke majlis perkahwinan.",
-    intro:
-      "Dengan penuh kesyukuran, kami menjemput Dato' | Datin | Tuan | Puan | Encik | Cik ke majlis perkahwinan anakanda kami.",
+    bismillah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+    pantun: "Bunga melur di atas para,\nHarum mewangi sepanjang laman,\nDengan penuh takzim kami bicara,\nSudilah hadir ke majlis perkahwinan.",
+    intro: "Dengan penuh kesyukuran, kami menjemput Dato' | Datin | Tuan | Puan | Encik | Cik ke majlis perkahwinan anakanda kami.",
     closing: "Kehadiran anda amat kami alu-alukan, terima kasih."
   },
-  map: {
-    query:
-      "No. 24, Taman Kembara 3, 11D/KU4, Jalan Haji Othman, Batu 4, 42100 Klang, Selangor",
-    googleMapsUrl: "https://maps.app.goo.gl/N7knrqnGxRjdZbNn9",
-    wazeUrl: "https://waze.com/ul/hw2817w493",
-    embedUrl: "https://www.google.com/maps?q=3.0653862,101.4074413&z=17&output=embed"
-  },
-  contact: {
-    whatsapp: "60193103047",
-    rsvpName: "En. Haziq",
-    people: [
-      {
-        name: "En. Haziq",
-        phones: [{ display: "019-310 3047", number: "60193103047" }]
-      },
-      {
-        name: "Pn. Sarimah",
-        phones: [{ display: "017-390 1538", number: "60173901538" }]
-      },
-      {
-        name: "En. Eirwan (Keliwon)",
-        phones: [{ display: "012-362 8981", number: "60123628981" }]
-      },
-      {
-        name: "En. Nabil",
-        phones: [
-          { display: "013-985 7271", number: "60139857271" },
-          { display: "019-978 8416", number: "60199788416" }
-        ]
-      }
-    ]
-  },
-  calendar: {
-    title: "Tarikh Majlis",
-    locale: "ms-MY",
-    weekStartsOn: 0
-  },
+  cover: { image: "" },
+  map: { enabled: false, query: "", googleMapsUrl: "", wazeUrl: "", embedUrl: "" },
+  contact: { people: [] },
+  calendar: { title: "Tarikh Majlis", locale: "ms-MY", weekStartsOn: 0 },
   schedule: [
-    { time: "11.00 pagi", title: "Majlis Bermula" },
-    { time: "12.00 tgh.", title: "Ketibaan Pengantin" },
-    { time: "4.00 petang", title: "Majlis tamat" }
+    { time: "Masa", title: "Majlis Bermula" },
+    { time: "Masa", title: "Ketibaan Pengantin" },
+    { time: "Masa", title: "Majlis Tamat" }
   ],
-  rsvp: {
-    enabled: true,
-    endpoint: "/api/rsvp"
-  },
+  rsvp: { enabled: false, endpoint: "/api/rsvp" },
   dressCode: {},
   gallery: [
-    {
-      src: "assets/images/gallery-01.webp",
-      alt: "Nabil dan Hani di taman",
-      layout: "portrait"
-    },
-    {
-      src: "assets/images/gallery-02.webp",
-      alt: "Nabil dan Hani bersama bunga lili",
-      layout: "portrait"
-    },
-    {
-      src: "assets/images/gallery-03.webp",
-      alt: "Potret Nabil dan Hani",
-      layout: "portrait-center"
-    },
-    {
-      src: "assets/images/gallery-04.webp",
-      alt: "Nabil dan Hani berpegangan tangan di taman",
-      layout: "hero"
-    },
-    {
-      src: "assets/images/gallery-05.webp",
-      alt: "Nabil dan Hani saling berpandangan di taman",
-      layout: "landscape"
-    },
-    {
-      src: "assets/images/gallery-06.webp",
-      alt: "Nabil dan Hani berpegangan tangan",
-      layout: "landscape"
-    },
-    {
-      src: "assets/images/gallery-07.webp",
-      alt: "Nabil dan Hani bersama bunga lili",
-      layout: "landscape"
-    },
-    {
-      src: "assets/images/gallery-08.webp",
-      alt: "Potret Nabil dan Hani saling berpandangan",
-      layout: "landscape"
-    },
-    {
-      src: "assets/images/gallery-09.webp",
-      alt: "Potret Nabil dan Hani",
-      layout: "landscape"
-    },
-    {
-      src: "assets/images/gallery-10.webp",
-      alt: "Hani bersalaman dengan Nabil",
-      layout: "landscape"
-    },
-    {
-      src: "assets/images/gallery-11.webp",
-      alt: "Hani bersalaman dengan Nabil",
-      layout: "landscape"
-    },
-    {
-      src: "assets/images/gallery-12.webp",
-      alt: "Nabil dan Hani dalam suasana majlis",
-      layout: "landscape"
-    }
+    { src: "assets/images/photo-01.svg", alt: "Ruang Gambar 1", layout: "portrait" },
+    { src: "assets/images/photo-02.svg", alt: "Ruang Gambar 2", layout: "portrait" },
+    { src: "assets/images/photo-03.svg", alt: "Ruang Gambar 3", layout: "portrait" }
   ],
-  audio: {
-    enabled: true
-  }
+  audio: { enabled: false, src: "" }
 };
